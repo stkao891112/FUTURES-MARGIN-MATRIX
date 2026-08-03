@@ -2,11 +2,13 @@
   "name": "永續合約清算計算機",
   "short_name": "清算計算機",
   "description": "多交易所永續合約槓桿與強平價精密計算工具",
+  "id": "./",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#07090E",
   "theme_color": "#07090E",
-  "orientation": "any",
   "icons": [
     {
       "src": "icon-192.png",
