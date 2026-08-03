@@ -176,6 +176,63 @@
       color: #00F5A0;
     }
 
+    /* Header Action Row & Refresh Button Styles */
+    .header-action-row {
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(0, 192, 135, 0.25) 0%, rgba(99, 102, 241, 0.25) 100%);
+      border: 1px solid rgba(0, 245, 160, 0.6);
+      color: #FFFFFF;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(0, 245, 160, 0.2);
+    }
+    .refresh-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(0, 245, 160, 0.4);
+      background: linear-gradient(135deg, rgba(0, 192, 135, 0.4) 0%, rgba(99, 102, 241, 0.4) 100%);
+    }
+    .refresh-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .refresh-btn i {
+      color: #00F5A0;
+      transition: transform 0.3s ease;
+    }
+
+    .last-updated-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .last-updated-badge strong {
+      color: #00F5A0;
+      font-weight: 700;
+    }
+
     .pwa-modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
@@ -933,7 +990,15 @@
           <span id="dataSourceBadge">6 EXCHANGES CONNECTED</span>
         </div>
       </div>
-      <div class="pwa-install-container">
+      <div class="header-action-row">
+        <button id="btnRefreshData" class="refresh-btn" onclick="refreshDataSource()">
+          <i class="fa-solid fa-arrows-rotate" id="refreshIcon"></i>
+          <span id="refreshBtnText">更新資料來源</span>
+        </button>
+        <div class="last-updated-badge">
+          <i class="fa-regular fa-clock"></i>
+          <span>上次更新：<strong id="lastUpdatedText">載入中...</strong></span>
+        </div>
         <button id="pwaInstallBtn" class="pwa-install-btn">
           <i class="fa-solid fa-mobile-screen-button"></i>
           <span>安裝至手機桌面 (APP 模式)</span>
@@ -1540,6 +1605,7 @@
 
     // 預設備援檔位數據
     let EXCHANGE_TIERS = {
+  "_last_updated": "2026-08-03 20:18:57",
   "BTCUSDT": {
     "Binance": [
       {
@@ -3040,13 +3106,84 @@
   }
 };
 
+    let LAST_UPDATED = "2026-08-03 20:18:57";
+
+    async function loadLastUpdatedTime() {
+      try {
+        const res = await fetch('/api/last_updated?t=' + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          if (data.last_updated) {
+            LAST_UPDATED = data.last_updated;
+          }
+        }
+      } catch (e) {
+        try {
+          const res2 = await fetch('data/last_updated.json?t=' + Date.now());
+          if (res2.ok) {
+            const data2 = await res2.json();
+            if (data2.last_updated) LAST_UPDATED = data2.last_updated;
+          }
+        } catch (err) {}
+      }
+      const el = document.getElementById('lastUpdatedText');
+      if (el) el.innerText = LAST_UPDATED || "尚未更新";
+    }
+
+    async function refreshDataSource() {
+      const btn = document.getElementById('btnRefreshData');
+      const icon = document.getElementById('refreshIcon');
+      const text = document.getElementById('refreshBtnText');
+      
+      if (btn) btn.disabled = true;
+      if (icon) icon.className = 'fa-solid fa-arrows-rotate fa-spin';
+      if (text) text.innerText = '正在重跑爬蟲... (約30-40秒)';
+
+      try {
+        const res = await fetch('/api/refresh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            alert('✅ 五大交易所合約保證金數據更新成功！');
+            if (data.last_updated) {
+              LAST_UPDATED = data.last_updated;
+              const el = document.getElementById('lastUpdatedText');
+              if (el) el.innerText = LAST_UPDATED;
+            }
+            await loadScrapedTiersJSON();
+          } else {
+            alert('❌ 更新失敗: ' + (data.error || '未知錯誤'));
+          }
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          alert('❌ 伺服器回應錯誤: ' + (errData.error || '請確認已啟動 py server.py 伺服器'));
+        }
+      } catch (err) {
+        alert('⚠️ 無法連線至本地 API 伺服器！\n請先在命令列執行 `py server.py` 啟動本地服務。');
+      } finally {
+        if (btn) btn.disabled = false;
+        if (icon) icon.className = 'fa-solid fa-arrows-rotate';
+        if (text) text.innerText = '更新資料來源';
+      }
+    }
+
     // 嘗試同步匯總總表的最新 JSON 數據
     async function loadScrapedTiersJSON() {
       try {
         const response = await fetch('data/tiers.json?t=' + Date.now());
         if (response.ok) {
           const jsonData = await response.json();
+          if (jsonData._last_updated) {
+            LAST_UPDATED = jsonData._last_updated;
+            const el = document.getElementById('lastUpdatedText');
+            if (el) el.innerText = LAST_UPDATED;
+          }
           for (let coin in jsonData) {
+            if (coin === '_last_updated') continue;
             if (!EXCHANGE_TIERS[coin]) EXCHANGE_TIERS[coin] = {};
             for (let ex in jsonData[coin]) {
               if (jsonData[coin][ex] && jsonData[coin][ex].length > 0) {
@@ -3407,6 +3544,10 @@
         if (e.target === pwaModal) pwaModal.classList.remove('active');
       });
     }
+
+    // 初始化載入上次更新時間與最新 JSON 檔位數據
+    loadLastUpdatedTime();
+    loadScrapedTiersJSON();
   </script>
 </body>
 </html>

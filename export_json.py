@@ -2,6 +2,7 @@ import os
 import re
 import json
 import sys
+from datetime import datetime
 import pandas as pd
 
 if sys.platform == 'win32':
@@ -43,7 +44,7 @@ def export_tiers_to_json():
     excel_path = os.path.join("data", "all_exchanges_futures_margin.xlsx")
     if not os.path.exists(excel_path):
         print("⚠️ 未檢測到 [data/all_exchanges_futures_margin.xlsx] 匯總總表！")
-        print("🚀 正在自動執行 main.py 爬取 4 大交易所最新合約檔位數據...")
+        print("🚀 正在自動執行 main.py 爬取 5 大交易所最新合約檔位數據...")
         try:
             from main import main as run_main
             run_main()
@@ -57,6 +58,8 @@ def export_tiers_to_json():
     try:
         excel_file = pd.ExcelFile(excel_path)
         all_data = {}
+        timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        all_data["_last_updated"] = timestamp_str
 
         for sheet in excel_file.sheet_names:
             df = pd.read_excel(excel_file, sheet_name=sheet)
@@ -115,9 +118,14 @@ def export_tiers_to_json():
         json_path = os.path.join("data", "tiers.json")
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(all_data, f, ensure_ascii=False, indent=2)
-        print(f"✅ 已成功將匯總總表檔位數據轉出至 JSON: {os.path.abspath(json_path)}")
+        
+        last_updated_path = os.path.join("data", "last_updated.json")
+        with open(last_updated_path, "w", encoding="utf-8") as f:
+            json.dump({"last_updated": timestamp_str}, f, ensure_ascii=False, indent=2)
 
-        # 同步嵌入更新 index.html 中的 let EXCHANGE_TIERS
+        print(f"✅ 已成功將匯總總表檔位數據轉出至 JSON (包含時間戳 {timestamp_str})")
+
+        # 同步嵌入更新 index.html 中的 let EXCHANGE_TIERS 與 let LAST_UPDATED
         html_path = "index.html"
         if os.path.exists(html_path):
             with open(html_path, "r", encoding="utf-8") as f:
@@ -125,6 +133,7 @@ def export_tiers_to_json():
             
             tiers_json_str = json.dumps(all_data, ensure_ascii=False, indent=2)
             new_tiers_block = f"let EXCHANGE_TIERS = {tiers_json_str};"
+            new_updated_block = f'let LAST_UPDATED = "{timestamp_str}";'
             
             updated_html = re.sub(
                 r'let EXCHANGE_TIERS = \{.*?\};',
@@ -132,10 +141,16 @@ def export_tiers_to_json():
                 html_content,
                 flags=re.DOTALL
             )
+            if 'let LAST_UPDATED =' in updated_html:
+                updated_html = re.sub(
+                    r'let LAST_UPDATED = ".*?";',
+                    new_updated_block,
+                    updated_html
+                )
 
             with open(html_path, "w", encoding="utf-8") as f:
                 f.write(updated_html)
-            print(f"✅ 已成功將 6 大交易所完整的全檔位數據直嵌同步至 index.html！")
+            print(f"✅ 已成功將 6 大交易所全檔位數據與時間戳直嵌同步至 index.html！")
 
     except Exception as e:
         print(f"⚠️ 導出過程提示: {e}")
