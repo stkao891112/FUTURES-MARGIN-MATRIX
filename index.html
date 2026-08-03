@@ -2,8 +2,19 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>永續合約清算計算機</title>
+  
+  <!-- PWA & Mobile Native APP Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07090E">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="清算計算機">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
   <!-- Google Fonts & Font Awesome Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -129,6 +140,100 @@
       border-radius: 50%;
       box-shadow: 0 0 10px #00F5A0;
       animation: pulse 2s infinite;
+    }
+
+    /* PWA Install Button & Modal Styles */
+    .pwa-install-container {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .pwa-install-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(0, 245, 160, 0.25) 100%);
+      border: 1px solid rgba(0, 245, 160, 0.5);
+      color: #FFFFFF;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(0, 245, 160, 0.2);
+    }
+    .pwa-install-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(0, 245, 160, 0.4);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.4) 0%, rgba(0, 245, 160, 0.4) 100%);
+    }
+    .pwa-install-btn i {
+      color: #00F5A0;
+    }
+
+    .pwa-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(7, 9, 14, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .pwa-modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .pwa-modal-card {
+      background: #121826;
+      border: 1px solid rgba(0, 245, 160, 0.3);
+      border-radius: 24px;
+      padding: 28px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .pwa-modal-overlay.active .pwa-modal-card {
+      transform: translateY(0);
+    }
+    .pwa-modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .pwa-guide-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 12px 16px;
+      border-radius: 14px;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pwa-guide-step i {
+      font-size: 1.3rem;
+      color: #00F5A0;
+      width: 24px;
+      text-align: center;
     }
 
     @keyframes pulse {
@@ -821,7 +926,44 @@
           <span id="dataSourceBadge">5 EXCHANGES CONNECTED</span>
         </div>
       </div>
+      <div class="pwa-install-container">
+        <button id="pwaInstallBtn" class="pwa-install-btn">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <span>安裝至手機桌面 (APP 模式)</span>
+        </button>
+      </div>
     </header>
+
+    <!-- iOS / PWA Guide Modal -->
+    <div id="pwaModal" class="pwa-modal-overlay">
+      <div class="pwa-modal-card">
+        <button id="pwaModalClose" class="pwa-modal-close"><i class="fa-solid fa-xmark"></i></button>
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">📱</div>
+        <h3 style="font-family:'Orbitron', sans-serif; font-size:1.3rem; color:#00F5A0; margin-bottom:8px;">安裝原生 APP 體驗</h3>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">全螢幕獨立運行，離線亦可使用！</p>
+        
+        <div id="pwaIosGuide" style="display:none;">
+          <div class="pwa-guide-step">
+            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+            <span>1. 點擊瀏覽器底部的 <strong>「分享」</strong> 按鈕</span>
+          </div>
+          <div class="pwa-guide-step">
+            <i class="fa-solid fa-square-plus"></i>
+            <span>2. 向下滑動並選擇 <strong>「加入主畫面」</strong></span>
+          </div>
+          <div class="pwa-guide-step">
+            <i class="fa-solid fa-check-double"></i>
+            <span>3. 點擊右上角「新增」，完成 APP 安裝！</span>
+          </div>
+        </div>
+
+        <div id="pwaGeneralGuide">
+          <p style="color:var(--text-main); font-size:0.92rem; line-height:1.6;">
+            請點擊瀏覽器選單中的 <br><strong style="color:#00F5A0;">「新增至主畫面」</strong> 或 <strong style="color:#00F5A0;">「安裝應用程式」</strong>。
+          </p>
+        </div>
+      </div>
+    </div>
 
     <div class="calc-layout">
       <!-- Left Panel: Controls -->
@@ -3014,6 +3156,78 @@
 
     // 初始化載入
     loadScrapedTiersJSON();
+
+    // ==========================================
+    // PWA & Service Worker 註冊與安裝事件處理
+    // ==========================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[PWA] Service Worker 註冊成功:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker 註冊失敗:', err));
+      });
+    }
+
+    let deferredPrompt = null;
+    const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+    const pwaModal = document.getElementById('pwaModal');
+    const pwaModalClose = document.getElementById('pwaModalClose');
+    const pwaIosGuide = document.getElementById('pwaIosGuide');
+    const pwaGeneralGuide = document.getElementById('pwaGeneralGuide');
+
+    // 判斷是否為 iOS Safari
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+    // 如果已經在 PWA 模式中開啟，隱藏安裝按鈕
+    if (isStandalone) {
+      if (pwaInstallBtn) pwaInstallBtn.style.display = 'none';
+    }
+
+    // 捕捉 Android / Chrome 的原生物件
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (pwaInstallBtn) pwaInstallBtn.style.display = 'inline-flex';
+    });
+
+    if (pwaInstallBtn) {
+      pwaInstallBtn.addEventListener('click', () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('[PWA] 使用者同意安裝');
+              pwaInstallBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+          });
+        } else {
+          // 開啟通用或 iOS 指引 Modal
+          if (pwaModal) {
+            if (isIos) {
+              pwaIosGuide.style.display = 'block';
+              pwaGeneralGuide.style.display = 'none';
+            } else {
+              pwaIosGuide.style.display = 'none';
+              pwaGeneralGuide.style.display = 'block';
+            }
+            pwaModal.classList.add('active');
+          }
+        }
+      });
+    }
+
+    if (pwaModalClose) {
+      pwaModalClose.addEventListener('click', () => {
+        if (pwaModal) pwaModal.classList.remove('active');
+      });
+    }
+    if (pwaModal) {
+      pwaModal.addEventListener('click', (e) => {
+        if (e.target === pwaModal) pwaModal.classList.remove('active');
+      });
+    }
   </script>
 </body>
 </html>
