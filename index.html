@@ -1,0 +1,3412 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>永續合約清算計算機</title>
+  
+  <!-- PWA & Mobile Native APP Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07090E">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="清算計算機">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-dark: #07090E;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-border: rgba(255, 255, 255, 0.1);
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      
+      --binance-color: #F0B90B;
+      --binance-glow: rgba(240, 185, 11, 0.3);
+      
+      --bitget-color: #00F2FE;
+      --bitget-glow: rgba(0, 242, 254, 0.3);
+      
+      --bybit-color: #FF9900;
+      --bybit-glow: rgba(255, 153, 0, 0.3);
+      
+      --okx-color: #A855F7;
+      --okx-glow: rgba(168, 85, 247, 0.3);
+
+      --mexc-color: #FFFFFF;
+      --mexc-glow: rgba(255, 255, 255, 0.35);
+
+      --hyperliquid-color: #00F5A0;
+      --hyperliquid-glow: rgba(0, 245, 160, 0.35);
+
+      --long-color: #10B981;
+      --short-color: #EF4444;
+      --accent-neon: #6366F1;
+      --gold-rank: #F59E0B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 酷炫粒子背景 Canvas */
+    #particleCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 85% 85%, rgba(0, 245, 160, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(240, 185, 11, 0.08) 0%, transparent 60%);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1440px;
+      width: 100%;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+      position: relative;
+    }
+
+    .brand-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, #FFFFFF 0%, #94A3B8 30%, #00F5A0 70%, #A855F7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      filter: drop-shadow(0 0 20px rgba(0, 245, 160, 0.4));
+    }
+
+    .brand-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 245, 160, 0.15);
+      border: 1px solid rgba(0, 245, 160, 0.4);
+      color: #00F5A0;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      box-shadow: 0 0 15px rgba(0, 245, 160, 0.25);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #00F5A0;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #00F5A0;
+      animation: pulse 2s infinite;
+    }
+
+    /* PWA Install Button & Modal Styles */
+    .pwa-install-container {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .pwa-install-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(0, 245, 160, 0.25) 100%);
+      border: 1px solid rgba(0, 245, 160, 0.5);
+      color: #FFFFFF;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(0, 245, 160, 0.2);
+    }
+    .pwa-install-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(0, 245, 160, 0.4);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.4) 0%, rgba(0, 245, 160, 0.4) 100%);
+    }
+    .pwa-install-btn i {
+      color: #00F5A0;
+    }
+
+    .pwa-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(7, 9, 14, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .pwa-modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .pwa-modal-card {
+      background: #121826;
+      border: 1px solid rgba(0, 245, 160, 0.3);
+      border-radius: 24px;
+      padding: 28px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .pwa-modal-overlay.active .pwa-modal-card {
+      transform: translateY(0);
+    }
+    .pwa-modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .pwa-guide-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 12px 16px;
+      border-radius: 14px;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pwa-guide-step i {
+      font-size: 1.3rem;
+      color: #00F5A0;
+      width: 24px;
+      text-align: center;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    /* Calculator Main Grid */
+    .calc-layout {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 25px;
+    }
+
+    @media (max-width: 1024px) {
+      .calc-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Control Panel Card */
+    .panel-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #FFFFFF;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper select,
+    .input-wrapper input {
+      width: 100%;
+      background: rgba(10, 15, 26, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #FFFFFF;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .input-wrapper select:focus,
+    .input-wrapper input:focus {
+      border-color: var(--accent-neon);
+      box-shadow: 0 0 18px rgba(99, 102, 241, 0.4);
+    }
+
+    .input-suffix {
+      position: absolute;
+      right: 16px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* Direction Toggle */
+    .direction-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: rgba(10, 15, 26, 0.85);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dir-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 12px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .dir-btn.active.long {
+      background: rgba(16, 185, 129, 0.25);
+      color: var(--long-color);
+      border: 1px solid rgba(16, 185, 129, 0.6);
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.4);
+    }
+
+    .dir-btn.active.short {
+      background: rgba(239, 68, 68, 0.25);
+      color: var(--short-color);
+      border: 1px solid rgba(239, 68, 68, 0.6);
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Quick Leverage Chips */
+    .lev-chips {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .chip:hover {
+      background: rgba(99, 102, 241, 0.25);
+      color: #FFFFFF;
+      border-color: var(--accent-neon);
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Effective Leverage Display */
+    .eff-lev-box {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px dashed rgba(99, 102, 241, 0.4);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 24px;
+      box-shadow: inset 0 0 15px rgba(99, 102, 241, 0.1);
+    }
+
+    .eff-lev-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #818CF8;
+      text-shadow: 0 0 10px rgba(129, 140, 248, 0.5);
+    }
+
+    /* Leaderboard Card (防爆倉安全排名榜) */
+    .leaderboard-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 22px;
+      padding: 22px 28px;
+      margin-bottom: 25px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+
+    .lb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+
+    .lb-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--gold-rank);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+    }
+
+    .lb-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .lb-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 700px) {
+      .lb-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .lb-item {
+      background: rgba(10, 15, 26, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+
+    .lb-item.rank-1 {
+      border-color: rgba(245, 158, 11, 0.6);
+      background: rgba(245, 158, 11, 0.1);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+    }
+
+    .lb-rank-badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 900;
+      margin-right: 6px;
+    }
+
+    .rank-1 .lb-rank-badge { color: #F59E0B; }
+    .rank-2 .lb-rank-badge { color: #CBD5E1; }
+    .rank-3 .lb-rank-badge { color: #B45309; }
+    .rank-4 .lb-rank-badge { color: #64748B; }
+    .rank-5 .lb-rank-badge { color: #475569; }
+
+    .lb-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lb-ex-name {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .lb-dist {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--long-color);
+    }
+
+    /* Matrix Display Cards */
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1200px) {
+      .matrix-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .matrix-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .ex-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 22px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      cursor: pointer;
+    }
+
+    .ex-card:hover {
+      transform: translateY(-6px) scale(1.015);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .click-hint-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 14px;
+      padding: 6px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      transition: all 0.3s;
+    }
+
+    .ex-card:hover .click-hint-badge {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--accent-neon);
+      color: #FFFFFF;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Rank Badge on Exchange Card */
+    .card-rank-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .card-rank-badge.rank-1 {
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      color: #000000;
+    }
+    .card-rank-badge.rank-2 {
+      background: linear-gradient(135deg, #94A3B8, #64748B);
+      color: #FFFFFF;
+    }
+    .card-rank-badge.rank-3 {
+      background: linear-gradient(135deg, #B45309, #78350F);
+      color: #FFFFFF;
+    }
+    .card-rank-badge.rank-4, .card-rank-badge.rank-5 {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Individual Exchange Card Branding */
+    .ex-card.binance { border-top: 4px solid var(--binance-color); }
+    .ex-card.binance:hover { box-shadow: 0 15px 35px var(--binance-glow); }
+
+    .ex-card.bitget { border-top: 4px solid var(--bitget-color); }
+    .ex-card.bitget:hover { box-shadow: 0 15px 35px var(--bitget-glow); }
+
+    .ex-card.bybit { border-top: 4px solid var(--bybit-color); }
+    .ex-card.bybit:hover { box-shadow: 0 15px 35px var(--bybit-glow); }
+
+    .ex-card.okx { border-top: 4px solid var(--okx-color); }
+    .ex-card.okx:hover { box-shadow: 0 15px 35px var(--okx-glow); }
+
+    .ex-card.mexc { border-top: 4px solid var(--mexc-color); }
+    .ex-card.mexc:hover { box-shadow: 0 15px 35px var(--mexc-glow); }
+
+    .ex-card.hyperliquid { border-top: 4px solid var(--hyperliquid-color); }
+    .ex-card.hyperliquid:hover { box-shadow: 0 15px 35px var(--hyperliquid-glow); }
+
+    .ex-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding-right: 85px;
+    }
+
+    .ex-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .binance .ex-name { color: var(--binance-color); text-shadow: 0 0 12px var(--binance-glow); }
+    .bitget .ex-name { color: var(--bitget-color); text-shadow: 0 0 12px var(--bitget-glow); }
+    .bybit .ex-name { color: var(--bybit-color); text-shadow: 0 0 12px var(--bybit-glow); }
+    .okx .ex-name { color: var(--okx-color); text-shadow: 0 0 12px var(--okx-glow); }
+    .mexc .ex-name { color: #FFFFFF; text-shadow: 0 0 12px var(--mexc-glow); }
+    .hyperliquid .ex-name { color: var(--hyperliquid-color); text-shadow: 0 0 12px var(--hyperliquid-glow); }
+
+    .unit-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: var(--text-muted);
+    }
+
+    /* Main Liq Price */
+    .liq-price-box {
+      background: rgba(10, 15, 26, 0.75);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .liq-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .liq-price-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      text-shadow: 0 0 15px rgba(255,255,255,0.3);
+    }
+
+    /* Distance Meter */
+    .distance-wrapper {
+      margin-bottom: 18px;
+    }
+
+    .distance-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .dist-val {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--long-color);
+      font-weight: 800;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 50%;
+      background: linear-gradient(90deg, #10B981 0%, #00F2FE 100%);
+      border-radius: 4px;
+      transition: width 0.4s ease, background 0.4s ease;
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+    }
+
+    /* Details Grid */
+    .detail-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.82rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 14px;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+
+    .detail-item span:last-child {
+      color: #FFFFFF;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    .detail-item.highlight span:last-child {
+      color: #00F5A0;
+      font-weight: 800;
+      text-shadow: 0 0 8px rgba(0, 245, 160, 0.4);
+    }
+
+    /* Cyberpunk Glassmorphism Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(4, 6, 12, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      padding: 20px;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: rgba(15, 22, 35, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(99, 102, 241, 0.25);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+      overflow: hidden;
+    }
+
+    .modal-backdrop.active .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 22px 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(10, 15, 26, 0.8);
+    }
+
+    .modal-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .modal-close-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFFFFF;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(239, 68, 68, 0.3);
+      border-color: #EF4444;
+      color: #EF4444;
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .modal-hint {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    .modal-table th {
+      background: rgba(10, 15, 26, 0.9);
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 12px 14px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .modal-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: 'JetBrains Mono', monospace;
+      color: #E2E8F0;
+    }
+
+    .modal-table tr.active-tier-row {
+      background: rgba(16, 185, 129, 0.18) !important;
+      border-left: 4px solid #10B981;
+    }
+
+    .modal-table tr.active-tier-row td {
+      color: #00F5A0;
+      font-weight: 800;
+      text-shadow: 0 0 10px rgba(0, 245, 160, 0.4);
+    }
+
+    .active-match-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(16, 185, 129, 0.3);
+      border: 1px solid #10B981;
+      color: #00F5A0;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-left: 8px;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 酷炫粒子背景 Canvas -->
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="container">
+    <header>
+      <div class="brand-title">FUTURES MARGIN MATRIX</div>
+      <div class="brand-subtitle">
+        <span>跨交易所合約保證金與爆倉清算計算機</span>
+        <div class="status-badge">
+          <div class="status-dot"></div>
+          <span id="dataSourceBadge">6 EXCHANGES CONNECTED</span>
+        </div>
+      </div>
+      <div class="pwa-install-container">
+        <button id="pwaInstallBtn" class="pwa-install-btn">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <span>安裝至手機桌面 (APP 模式)</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- iOS / PWA Guide Modal -->
+    <div id="pwaModal" class="pwa-modal-overlay">
+      <div class="pwa-modal-card">
+        <button id="pwaModalClose" class="pwa-modal-close"><i class="fa-solid fa-xmark"></i></button>
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">📱</div>
+        <h3 style="font-family:'Orbitron', sans-serif; font-size:1.3rem; color:#00F5A0; margin-bottom:8px;">安裝原生 APP 體驗</h3>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">全螢幕獨立運行，離線亦可使用！</p>
+        
+        <div id="pwaIosGuide" style="display:none;">
+          <div class="pwa-guide-step">
+            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+            <span>1. 點擊瀏覽器底部的 <strong>「分享」</strong> 按鈕</span>
+          </div>
+          <div class="pwa-guide-step">
+            <i class="fa-solid fa-square-plus"></i>
+            <span>2. 向下滑動並選擇 <strong>「加入主畫面」</strong></span>
+          </div>
+          <div class="pwa-guide-step">
+            <i class="fa-solid fa-check-double"></i>
+            <span>3. 點擊右上角「新增」，完成 APP 安裝！</span>
+          </div>
+        </div>
+
+        <div id="pwaGeneralGuide">
+          <p style="color:var(--text-main); font-size:0.92rem; line-height:1.6;">
+            請點擊瀏覽器選單中的 <br><strong style="color:#00F5A0;">「新增至主畫面」</strong> 或 <strong style="color:#00F5A0;">「安裝應用程式」</strong>。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-layout">
+      <!-- Left Panel: Controls -->
+      <div class="panel-card">
+        <div class="panel-title">
+          <i class="fa-solid fa-sliders"></i>
+          <span>計算機參數設定</span>
+        </div>
+
+        <!-- Coin Select -->
+        <div class="form-group">
+          <label>選擇目標幣種</label>
+          <div class="input-wrapper">
+            <select id="coinSelect" onchange="onCoinChange()">
+              <option value="BTCUSDT">BTC/USDT (比特幣)</option>
+              <option value="ETHUSDT">ETH/USDT (乙太幣)</option>
+              <option value="SOLUSDT">SOL/USDT (索拉納)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Direction Toggle -->
+        <div class="form-group">
+          <label>交易方向</label>
+          <div class="direction-toggle">
+            <button id="btnLong" class="dir-btn active long" onclick="setDirection('LONG')">
+              <i class="fa-solid fa-trend-up"></i> 做多 (Long)
+            </button>
+            <button id="btnShort" class="dir-btn short" onclick="setDirection('SHORT')">
+              <i class="fa-solid fa-trend-down"></i> 做空 (Short)
+            </button>
+          </div>
+        </div>
+
+        <!-- Entry Price -->
+        <div class="form-group">
+          <label>開倉價格 / 當前價位</label>
+          <div class="input-wrapper">
+            <input type="number" id="entryPrice" value="65000" step="any" oninput="calculate()">
+            <span class="input-suffix">USDT</span>
+          </div>
+        </div>
+
+        <!-- Position Value -->
+        <div class="form-group">
+          <label>倉位總價值 (Notional Value)</label>
+          <div class="input-wrapper">
+            <input type="number" id="positionValue" value="50000" step="any" oninput="calculate()">
+            <span class="input-suffix">USDT</span>
+          </div>
+        </div>
+
+        <!-- Margin Input -->
+        <div class="form-group">
+          <label>投入保證金 (Margin)</label>
+          <div class="input-wrapper">
+            <input type="number" id="marginInput" value="2500" step="any" oninput="calculate()">
+            <span class="input-suffix">USDT</span>
+          </div>
+          <!-- Quick Leverage Chips -->
+          <div class="lev-chips">
+            <div class="chip" onclick="setQuickLeverage(5)">5x</div>
+            <div class="chip" onclick="setQuickLeverage(10)">10x</div>
+            <div class="chip" onclick="setQuickLeverage(20)">20x</div>
+            <div class="chip" onclick="setQuickLeverage(50)">50x</div>
+            <div class="chip" onclick="setQuickLeverage(100)">100x</div>
+          </div>
+        </div>
+
+        <!-- Effective Leverage Display -->
+        <div class="eff-lev-box">
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px;">實際生效槓桿 (Effective Leverage)</div>
+          <div class="eff-lev-val" id="effLeverageDisplay">20.00x</div>
+        </div>
+      </div>
+
+      <!-- Right Column: Leaderboard + 6 Exchange Matrix -->
+      <div>
+        
+        <!-- Leaderboard Card (防爆倉安全係數與排名榜) -->
+        <div class="leaderboard-card">
+          <div class="lb-header">
+            <div class="lb-title">
+              <i class="fa-solid fa-trophy"></i>
+              <span>6 大交易所防爆倉安全度排名 (依匯總總表檔位即時連動)</span>
+            </div>
+          </div>
+          <div class="lb-grid" id="leaderboardGrid">
+            <!-- Dynamic elements loaded via JS -->
+          </div>
+        </div>
+
+        <!-- Right Panel: 5 Exchange Matrix Cards -->
+        <div class="matrix-grid">
+          
+          <!-- Binance Card -->
+          <div class="ex-card binance" id="cardBinance" onclick="showTierModal('Binance')">
+            <div class="card-rank-badge rank-1" id="binanceRankBadge">🥇 #1</div>
+            <div class="ex-header">
+              <div class="ex-name">
+                <i class="fa-solid fa-bolt"></i> Binance (幣安)
+              </div>
+              <div class="unit-badge">單位: USDT</div>
+            </div>
+            <div class="liq-price-box">
+              <div class="liq-label">預估爆倉清算價格</div>
+              <div class="liq-price-val" id="binanceLiqPrice">$61,990.00</div>
+            </div>
+            <div class="distance-wrapper">
+              <div class="distance-header">
+                <span>距離爆倉安全幅度</span>
+                <span class="dist-val" id="binanceDistVal">4.63%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="binanceBar" style="width: 85%;"></div>
+              </div>
+            </div>
+            <div class="detail-rows">
+              <div class="detail-item">
+                <span>當前倉位檔位</span>
+                <span id="binanceTier">檔位 1</span>
+              </div>
+              <div class="detail-item">
+                <span>基準維持保證金率 (MMR)</span>
+                <span id="binanceMMR">0.40%</span>
+              </div>
+              <div class="detail-item">
+                <span>維持保證金扣減額</span>
+                <span id="binanceDeduction">0 USDT</span>
+              </div>
+              <div class="detail-item highlight">
+                <span>扣減額後有效保證金率</span>
+                <span id="binanceEffMMR">0.40%</span>
+              </div>
+              <div class="detail-item">
+                <span>該檔位最高槓桿</span>
+                <span id="binanceMaxLev">150x</span>
+              </div>
+            </div>
+            <div class="click-hint-badge">
+              <i class="fa-solid fa-table-list"></i> 點擊查看完整檔位表
+            </div>
+          </div>
+
+          <!-- Bitget Card -->
+          <div class="ex-card bitget" id="cardBitget" onclick="showTierModal('Bitget')">
+            <div class="card-rank-badge rank-2" id="bitgetRankBadge">🥈 #2</div>
+            <div class="ex-header">
+              <div class="ex-name">
+                <i class="fa-solid fa-cube"></i> Bitget
+              </div>
+              <div class="unit-badge">單位: USDT</div>
+            </div>
+            <div class="liq-price-box">
+              <div class="liq-label">預估爆倉清算價格</div>
+              <div class="liq-price-val" id="bitgetLiqPrice">$62,010.00</div>
+            </div>
+            <div class="distance-wrapper">
+              <div class="distance-header">
+                <span>距離爆倉安全幅度</span>
+                <span class="dist-val" id="bitgetDistVal">4.60%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="bitgetBar" style="width: 84%;"></div>
+              </div>
+            </div>
+            <div class="detail-rows">
+              <div class="detail-item">
+                <span>當前倉位檔位</span>
+                <span id="bitgetTier">檔位 1</span>
+              </div>
+              <div class="detail-item">
+                <span>基準維持保證金率 (MMR)</span>
+                <span id="bitgetMMR">0.40%</span>
+              </div>
+              <div class="detail-item">
+                <span>維持金額</span>
+                <span id="bitgetDeduction">-</span>
+              </div>
+              <div class="detail-item highlight">
+                <span>扣減額後有效保證金率</span>
+                <span id="bitgetEffMMR">0.40%</span>
+              </div>
+              <div class="detail-item">
+                <span>該檔位最高槓桿</span>
+                <span id="bitgetMaxLev">150x</span>
+              </div>
+            </div>
+            <div class="click-hint-badge">
+              <i class="fa-solid fa-table-list"></i> 點擊查看完整檔位表
+            </div>
+          </div>
+
+          <!-- Bybit Card -->
+          <div class="ex-card bybit" id="cardBybit" onclick="showTierModal('Bybit')">
+            <div class="card-rank-badge rank-3" id="bybitRankBadge">🥉 #3</div>
+            <div class="ex-header">
+              <div class="ex-name">
+                <i class="fa-solid fa-fire"></i> Bybit
+              </div>
+              <div class="unit-badge">單位: USDT</div>
+            </div>
+            <div class="liq-price-box">
+              <div class="liq-label">預估爆倉清算價格</div>
+              <div class="liq-price-val" id="bybitLiqPrice">$61,925.00</div>
+            </div>
+            <div class="distance-wrapper">
+              <div class="distance-header">
+                <span>距離爆倉安全幅度</span>
+                <span class="dist-val" id="bybitDistVal">4.73%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="bybitBar" style="width: 86%;"></div>
+              </div>
+            </div>
+            <div class="detail-rows">
+              <div class="detail-item">
+                <span>當前倉位檔位</span>
+                <span id="bybitTier">檔位 1</span>
+              </div>
+              <div class="detail-item">
+                <span>基準維持保證金率 (MMR)</span>
+                <span id="bybitMMR">0.50%</span>
+              </div>
+              <div class="detail-item">
+                <span>維持保證金扣減額</span>
+                <span id="bybitDeduction">0 USDT</span>
+              </div>
+              <div class="detail-item highlight">
+                <span>扣減額後有效保證金率</span>
+                <span id="bybitEffMMR">0.50%</span>
+              </div>
+              <div class="detail-item">
+                <span>該檔位最高槓桿</span>
+                <span id="bybitMaxLev">100x</span>
+              </div>
+            </div>
+            <div class="click-hint-badge">
+              <i class="fa-solid fa-table-list"></i> 點擊查看完整檔位表
+            </div>
+          </div>
+
+          <!-- OKX Card -->
+          <div class="ex-card okx" id="cardOKX" onclick="showTierModal('OKX')">
+            <div class="card-rank-badge rank-4" id="okxRankBadge">🎖️ #4</div>
+            <div class="ex-header">
+              <div class="ex-name">
+                <i class="fa-solid fa-layer-group"></i> OKX
+              </div>
+              <div class="unit-badge" id="okxUnitBadge">單位: BTC</div>
+            </div>
+            <div class="liq-price-box">
+              <div class="liq-label">預估爆倉清算價格</div>
+              <div class="liq-price-val" id="okxLiqPrice">$61,990.00</div>
+            </div>
+            <div class="distance-wrapper">
+              <div class="distance-header">
+                <span>距離爆倉安全幅度</span>
+                <span class="dist-val" id="okxDistVal">4.63%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="okxBar" style="width: 85%;"></div>
+              </div>
+            </div>
+            <div class="detail-rows">
+              <div class="detail-item">
+                <span>換算數量 / 檔位</span>
+                <span id="okxTier">0.7692 BTC (檔位 1)</span>
+              </div>
+              <div class="detail-item">
+                <span>基準維持保證金率 (MMR)</span>
+                <span id="okxMMR">0.40%</span>
+              </div>
+              <div class="detail-item">
+                <span>維持金額</span>
+                <span id="okxDeduction">-</span>
+              </div>
+              <div class="detail-item highlight">
+                <span>扣減額後有效保證金率</span>
+                <span id="okxEffMMR">0.40%</span>
+              </div>
+              <div class="detail-item">
+                <span>該檔位最高槓桿</span>
+                <span id="okxMaxLev">100x</span>
+              </div>
+            </div>
+            <div class="click-hint-badge">
+              <i class="fa-solid fa-table-list"></i> 點擊查看完整檔位表
+            </div>
+          </div>
+
+          <!-- MEXC Card -->
+          <div class="ex-card mexc" id="cardMEXC" onclick="showTierModal('MEXC')">
+            <div class="card-rank-badge rank-5" id="mexcRankBadge">🎖️ #5</div>
+            <div class="ex-header">
+              <div class="ex-name">
+                <i class="fa-solid fa-chart-line"></i> MEXC (抹茶)
+              </div>
+              <div class="unit-badge" id="mexcUnitBadge">單位: BTC</div>
+            </div>
+            <div class="liq-price-box">
+              <div class="liq-label">預估爆倉清算價格</div>
+              <div class="liq-price-val" id="mexcLiqPrice">$61,990.00</div>
+            </div>
+            <div class="distance-wrapper">
+              <div class="distance-header">
+                <span>距離爆倉安全幅度</span>
+                <span class="dist-val" id="mexcDistVal">4.63%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="mexcBar" style="width: 85%;"></div>
+              </div>
+            </div>
+            <div class="detail-rows">
+              <div class="detail-item">
+                <span>換算數量 / 檔位</span>
+                <span id="mexcTier">0.7692 BTC (檔位 1)</span>
+              </div>
+              <div class="detail-item">
+                <span>基準維持保證金率 (MMR)</span>
+                <span id="mexcMMR">0.10%</span>
+              </div>
+              <div class="detail-item">
+                <span>維持金額</span>
+                <span id="mexcDeduction">-</span>
+              </div>
+              <div class="detail-item highlight">
+                <span>扣減額後有效保證金率</span>
+                <span id="mexcEffMMR">0.10%</span>
+              </div>
+              <div class="detail-item">
+                <span>該檔位最高槓桿</span>
+                <span id="mexcMaxLev">500x</span>
+              </div>
+            </div>
+            <div class="click-hint-badge">
+              <i class="fa-solid fa-table-list"></i> 點擊查看完整檔位表
+            </div>
+          </div>
+
+          <!-- Hyperliquid Card -->
+          <div class="ex-card hyperliquid" id="cardHyperliquid" onclick="showTierModal('Hyperliquid')">
+            <div class="card-rank-badge rank-5" id="hyperliquidRankBadge">🎖️ #5</div>
+            <div class="ex-header">
+              <div class="ex-name">
+                <i class="fa-solid fa-water"></i> Hyperliquid
+              </div>
+              <div class="unit-badge">單位: USDC</div>
+            </div>
+            <div class="liq-price-box">
+              <div class="liq-label">預估爆倉清算價格</div>
+              <div class="liq-price-val" id="hyperliquidLiqPrice">$62,543.75</div>
+            </div>
+            <div class="distance-wrapper">
+              <div class="distance-header">
+                <span>距離爆倉安全幅度</span>
+                <span class="dist-val" id="hyperliquidDistVal">3.78%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="hyperliquidBar" style="width: 75%;"></div>
+              </div>
+            </div>
+            <div class="detail-rows">
+              <div class="detail-item">
+                <span>模式機制</span>
+                <span id="hyperliquidTier">固定維持率模式</span>
+              </div>
+              <div class="detail-item">
+                <span>固定維持保證金率 (MMR)</span>
+                <span id="hyperliquidMMR">1.25%</span>
+              </div>
+              <div class="detail-item">
+                <span>維持金額扣減額</span>
+                <span id="hyperliquidDeduction">-</span>
+              </div>
+              <div class="detail-item highlight">
+                <span>扣減額後有效保證金率</span>
+                <span id="hyperliquidEffMMR">1.25%</span>
+              </div>
+              <div class="detail-item">
+                <span>幣種最高槓桿</span>
+                <span id="hyperliquidMaxLev">50x</span>
+              </div>
+            </div>
+            <div class="click-hint-badge">
+              <i class="fa-solid fa-table-list"></i> 點擊查看完整檔位表
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <footer>
+      <p>© 2026 Crypto Futures Margin & Liquidation Calculator | Binance • Bitget • Bybit • OKX • Hyperliquid Matrix</p>
+    </footer>
+  </div>
+
+  <!-- 交易所檔位數據彈窗 Modal -->
+  <div class="modal-backdrop" id="tierModal" onclick="if(event.target===this) closeTierModal()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-table-cells" style="color: var(--accent-neon); font-size: 1.3rem;"></i>
+          <div class="modal-title" id="modalTitle">Binance • BTCUSDT 完整合約檔位表</div>
+        </div>
+        <button class="modal-close-btn" onclick="closeTierModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-hint">
+          <i class="fa-solid fa-lightbulb" style="color: var(--gold-rank);"></i>
+          <span>高亮標記列為您當前輸入倉位價值在該交易所匹配的生效檔位</span>
+        </div>
+        <table class="modal-table">
+          <thead>
+            <tr>
+              <th>檔位</th>
+              <th>倉位分級 / 價值上限</th>
+              <th>單位</th>
+              <th>最高槓桿</th>
+              <th>基準維持率 (MMR)</th>
+              <th>維持金額扣減額</th>
+            </tr>
+          </thead>
+          <tbody id="modalTableBody">
+            <!-- Dynamic elements loaded via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 酷炫粒子背景動畫引擎
+    (function initParticleSystem() {
+      const canvas = document.getElementById('particleCanvas');
+      const ctx = canvas.getContext('2d');
+
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      const particles = [];
+      const particleCount = Math.min(Math.floor((width * height) / 9000), 130);
+      const colors = ['#6366F1', '#00F2FE', '#F0B90B', '#A855F7', '#00F5A0'];
+
+      let mouse = { x: null, y: null, radius: 160 };
+
+      window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+
+      window.addEventListener('mouseleave', () => {
+        mouse.x = null;
+        mouse.y = null;
+      });
+
+      class Particle {
+        constructor() {
+          this.x = Math.random() * width;
+          this.y = Math.random() * height;
+          this.vx = (Math.random() - 0.5) * 1.2;
+          this.vy = (Math.random() - 0.5) * 1.2;
+          this.radius = Math.random() * 2.2 + 1;
+          this.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        update() {
+          this.x += this.vx;
+          this.y += this.vy;
+
+          if (this.x < 0 || this.x > width) this.vx *= -1;
+          if (this.y < 0 || this.y > height) this.vy *= -1;
+
+          if (mouse.x !== null && mouse.y !== null) {
+            let dx = mouse.x - this.x;
+            let dy = mouse.y - this.y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < mouse.radius) {
+              let force = (mouse.radius - dist) / mouse.radius;
+              this.x -= (dx / dist) * force * 2.5;
+              this.y -= (dy / dist) * force * 2.5;
+            }
+          }
+        }
+
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = this.color;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (let a = 0; a < particles.length; a++) {
+          for (let b = a + 1; b < particles.length; b++) {
+            let dx = particles[a].x - particles[b].x;
+            let dy = particles[a].y - particles[b].y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 130) {
+              let alpha = (1 - dist / 130) * 0.28;
+              ctx.beginPath();
+              ctx.moveTo(particles[a].x, particles[a].y);
+              ctx.lineTo(particles[b].x, particles[b].y);
+              ctx.strokeStyle = `rgba(99, 102, 241, ${alpha})`;
+              ctx.lineWidth = 0.8;
+              ctx.stroke();
+            }
+          }
+        }
+
+        if (mouse.x !== null && mouse.y !== null) {
+          for (let i = 0; i < particles.length; i++) {
+            let dx = mouse.x - particles[i].x;
+            let dy = mouse.y - particles[i].y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < mouse.radius) {
+              let alpha = (1 - dist / mouse.radius) * 0.45;
+              ctx.beginPath();
+              ctx.moveTo(mouse.x, mouse.y);
+              ctx.lineTo(particles[i].x, particles[i].y);
+              ctx.strokeStyle = `rgba(0, 245, 160, ${alpha})`;
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+        }
+
+        particles.forEach(p => {
+          p.update();
+          p.draw();
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+    })();
+
+    // 預設參考市價
+    const DEFAULT_PRICES = {
+      BTCUSDT: 65000,
+      ETHUSDT: 3500,
+      SOLUSDT: 140
+    };
+
+    // 預設備援檔位數據
+    let EXCHANGE_TIERS = {
+  "BTCUSDT": {
+    "Binance": [
+      {
+        "tier": 1,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 150.0,
+        "limit": 300000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005,
+        "deduction": 300.0,
+        "maxLev": 100.0,
+        "limit": 800000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.006500000000000001,
+        "deduction": 1500.0,
+        "maxLev": 75.0,
+        "limit": 3000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.01,
+        "deduction": 12000.0,
+        "maxLev": 50.0,
+        "limit": 12000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.02,
+        "deduction": 132000.0,
+        "maxLev": 25.0,
+        "limit": 70000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.025,
+        "deduction": 482000.0,
+        "maxLev": 20.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.05,
+        "deduction": 2982000.0,
+        "maxLev": 10.0,
+        "limit": 230000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.1,
+        "deduction": 14482000.0,
+        "maxLev": 5.0,
+        "limit": 480000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.125,
+        "deduction": 26482000.0,
+        "maxLev": 4.0,
+        "limit": 600000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.15,
+        "deduction": 41482000.0,
+        "maxLev": 3.0,
+        "limit": 800000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.25,
+        "deduction": 121482000.0,
+        "maxLev": 2.0,
+        "limit": 1200000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.5,
+        "deduction": 421482000.0,
+        "maxLev": 1.0,
+        "limit": 1800000000.0
+      }
+    ],
+    "Bitget": [
+      {
+        "tier": 1,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 150.0,
+        "limit": 200000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.006999999999999999,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limit": 15000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.02,
+        "deduction": 0.0,
+        "maxLev": 25.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.03,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.06,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limit": 150000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.12,
+        "deduction": 0.0,
+        "maxLev": 5.0,
+        "limit": 300000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.15,
+        "deduction": 0.0,
+        "maxLev": 4.0,
+        "limit": 500000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.2,
+        "deduction": 0.0,
+        "maxLev": 3.0,
+        "limit": 700000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.3,
+        "deduction": 0.0,
+        "maxLev": 2.0,
+        "limit": 900000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.6,
+        "deduction": 0.0,
+        "maxLev": 1.0,
+        "limit": 1200000000.0
+      }
+    ],
+    "Bybit": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005600000000000001,
+        "deduction": 1200.0,
+        "maxLev": 90.0,
+        "limit": 2600000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0063,
+        "deduction": 3020.0,
+        "maxLev": 80.0,
+        "limit": 3200000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.0067,
+        "deduction": 4300.0,
+        "maxLev": 75.0,
+        "limit": 3800000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.0070999999999999995,
+        "deduction": 5820.0,
+        "maxLev": 70.0,
+        "limit": 4400000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.0077,
+        "deduction": 8460.0,
+        "maxLev": 65.0,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.0091,
+        "deduction": 15460.0,
+        "maxLev": 55.0,
+        "limit": 5600000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.01,
+        "deduction": 20500.0,
+        "maxLev": 50.0,
+        "limit": 8500000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.013000000000000001,
+        "deduction": 46000.0,
+        "maxLev": 45.0,
+        "limit": 10000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.015,
+        "deduction": 66000.0,
+        "maxLev": 40.0,
+        "limit": 14000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.016,
+        "deduction": 80000.0,
+        "maxLev": 35.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.02,
+        "deduction": 160000.0,
+        "maxLev": 30.0,
+        "limit": 28000000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.025,
+        "deduction": 300000.0,
+        "maxLev": 25.0,
+        "limit": 38000000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.028999999999999998,
+        "deduction": 452000.0,
+        "maxLev": 20.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.03,
+        "deduction": 502000.0,
+        "maxLev": 19.0,
+        "limit": 55000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.035,
+        "deduction": 777000.0,
+        "maxLev": 18.0,
+        "limit": 60000000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.036000000000000004,
+        "deduction": 837000.0,
+        "maxLev": 17.0,
+        "limit": 65000000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.038,
+        "deduction": 967000.0,
+        "maxLev": 16.0,
+        "limit": 70000000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.04,
+        "deduction": 1107000.0,
+        "maxLev": 15.0,
+        "limit": 75000000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.045,
+        "deduction": 1482000.0,
+        "maxLev": 14.0,
+        "limit": 80000000.0
+      }
+    ],
+    "OKX": [
+      {
+        "tier": 1,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limitQty": 10.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 66.66,
+        "limitQty": 50.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0075,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limitQty": 200.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.0125,
+        "deduction": 0.0,
+        "maxLev": 40.0,
+        "limitQty": 400.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.0175,
+        "deduction": 0.0,
+        "maxLev": 33.33,
+        "limitQty": 600.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.0225,
+        "deduction": 0.0,
+        "maxLev": 28.57,
+        "limitQty": 800.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.0275,
+        "deduction": 0.0,
+        "maxLev": 25.0,
+        "limitQty": 1000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.0325,
+        "deduction": 0.0,
+        "maxLev": 22.22,
+        "limitQty": 1200.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.0375,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limitQty": 1400.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.0425,
+        "deduction": 0.0,
+        "maxLev": 18.18,
+        "limitQty": 1600.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.0475,
+        "deduction": 0.0,
+        "maxLev": 16.66,
+        "limitQty": 1800.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.0525,
+        "deduction": 0.0,
+        "maxLev": 15.38,
+        "limitQty": 2000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.0575,
+        "deduction": 0.0,
+        "maxLev": 14.28,
+        "limitQty": 2200.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.0625,
+        "deduction": 0.0,
+        "maxLev": 13.33,
+        "limitQty": 2400.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.0675,
+        "deduction": 0.0,
+        "maxLev": 12.5,
+        "limitQty": 2600.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.0725,
+        "deduction": 0.0,
+        "maxLev": 11.76,
+        "limitQty": 2800.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.0775,
+        "deduction": 0.0,
+        "maxLev": 11.11,
+        "limitQty": 3000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.0825,
+        "deduction": 0.0,
+        "maxLev": 10.52,
+        "limitQty": 3200.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.0875,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limitQty": 3400.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.0925,
+        "deduction": 0.0,
+        "maxLev": 9.52,
+        "limitQty": 3600.0
+      }
+    ],
+    "MEXC": [
+      {
+        "tier": 1,
+        "mmr": 0.001,
+        "deduction": 0.0,
+        "maxLev": 500.0,
+        "limitQty": 5.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 200.0,
+        "limitQty": 31.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limitQty": 48.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limitQty": 280.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.02,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limitQty": 1750.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.05,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limitQty": 1900.0
+      }
+    ],
+    "Hyperliquid": [
+      {
+        "tier": "固定",
+        "limit": 999999999,
+        "mmr": 0.0125,
+        "deduction": 0,
+        "maxLev": 50
+      }
+    ]
+  },
+  "ETHUSDT": {
+    "Binance": [
+      {
+        "tier": 1,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 150.0,
+        "limit": 300000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005,
+        "deduction": 300.0,
+        "maxLev": 100.0,
+        "limit": 800000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.006500000000000001,
+        "deduction": 1500.0,
+        "maxLev": 75.0,
+        "limit": 3000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.01,
+        "deduction": 12000.0,
+        "maxLev": 50.0,
+        "limit": 12000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.02,
+        "deduction": 132000.0,
+        "maxLev": 25.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.025,
+        "deduction": 382000.0,
+        "maxLev": 20.0,
+        "limit": 65000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.05,
+        "deduction": 2007000.0,
+        "maxLev": 10.0,
+        "limit": 150000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.1,
+        "deduction": 9507000.0,
+        "maxLev": 5.0,
+        "limit": 320000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.125,
+        "deduction": 17507000.0,
+        "maxLev": 4.0,
+        "limit": 400000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.15,
+        "deduction": 27507000.0,
+        "maxLev": 3.0,
+        "limit": 530000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.25,
+        "deduction": 80507000.0,
+        "maxLev": 2.0,
+        "limit": 800000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.5,
+        "deduction": 280507000.0,
+        "maxLev": 1.0,
+        "limit": 1200000000.0
+      }
+    ],
+    "Bitget": [
+      {
+        "tier": 1,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 150.0,
+        "limit": 200000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 3000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.015,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limit": 12000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.02,
+        "deduction": 0.0,
+        "maxLev": 25.0,
+        "limit": 40000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.03,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limit": 70000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.05,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.07,
+        "deduction": 0.0,
+        "maxLev": 8.0,
+        "limit": 150000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.08,
+        "deduction": 0.0,
+        "maxLev": 7.0,
+        "limit": 200000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.09,
+        "deduction": 0.0,
+        "maxLev": 6.0,
+        "limit": 250000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.12,
+        "deduction": 0.0,
+        "maxLev": 5.0,
+        "limit": 300000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.15,
+        "deduction": 0.0,
+        "maxLev": 4.0,
+        "limit": 400000000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.2,
+        "deduction": 0.0,
+        "maxLev": 3.0,
+        "limit": 500000000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.3,
+        "deduction": 0.0,
+        "maxLev": 2.0,
+        "limit": 800000000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.6,
+        "deduction": 0.0,
+        "maxLev": 1.0,
+        "limit": 1200000000.0
+      }
+    ],
+    "Bybit": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 900000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005600000000000001,
+        "deduction": 540.0,
+        "maxLev": 90.0,
+        "limit": 1200000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0063,
+        "deduction": 1380.0,
+        "maxLev": 80.0,
+        "limit": 1500000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.0067,
+        "deduction": 1980.0,
+        "maxLev": 75.0,
+        "limit": 1800000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.0070999999999999995,
+        "deduction": 2700.0,
+        "maxLev": 70.0,
+        "limit": 2400000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.0077,
+        "deduction": 4140.0,
+        "maxLev": 65.0,
+        "limit": 3200000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.0091,
+        "deduction": 8620.0,
+        "maxLev": 55.0,
+        "limit": 4000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.01,
+        "deduction": 12220.0,
+        "maxLev": 50.0,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.012,
+        "deduction": 22220.0,
+        "maxLev": 45.0,
+        "limit": 8000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.013000000000000001,
+        "deduction": 30220.0,
+        "maxLev": 40.0,
+        "limit": 12000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.013999999999999999,
+        "deduction": 42220.0,
+        "maxLev": 35.0,
+        "limit": 16000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.015,
+        "deduction": 58220.0,
+        "maxLev": 30.0,
+        "limit": 22000000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.02,
+        "deduction": 168220.0,
+        "maxLev": 25.0,
+        "limit": 28000000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.025,
+        "deduction": 308220.0,
+        "maxLev": 20.0,
+        "limit": 32000000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.03,
+        "deduction": 468220.0,
+        "maxLev": 19.0,
+        "limit": 34000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.033,
+        "deduction": 570220.0,
+        "maxLev": 18.0,
+        "limit": 36000000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.035,
+        "deduction": 642220.0,
+        "maxLev": 17.0,
+        "limit": 38000000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.038,
+        "deduction": 756220.0,
+        "maxLev": 16.0,
+        "limit": 40000000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.039,
+        "deduction": 796220.0,
+        "maxLev": 15.0,
+        "limit": 42000000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.042,
+        "deduction": 922220.0,
+        "maxLev": 14.0,
+        "limit": 44000000.0
+      }
+    ],
+    "OKX": [
+      {
+        "tier": 1,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limitQty": 500.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 66.66,
+        "limitQty": 1000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0075,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limitQty": 2500.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.0125,
+        "deduction": 0.0,
+        "maxLev": 40.0,
+        "limitQty": 5000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.0175,
+        "deduction": 0.0,
+        "maxLev": 33.33,
+        "limitQty": 7500.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.0225,
+        "deduction": 0.0,
+        "maxLev": 28.57,
+        "limitQty": 10000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.0275,
+        "deduction": 0.0,
+        "maxLev": 25.0,
+        "limitQty": 12500.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.0325,
+        "deduction": 0.0,
+        "maxLev": 22.22,
+        "limitQty": 15000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.0375,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limitQty": 17500.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.0425,
+        "deduction": 0.0,
+        "maxLev": 18.18,
+        "limitQty": 20000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.0475,
+        "deduction": 0.0,
+        "maxLev": 16.66,
+        "limitQty": 22500.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.0525,
+        "deduction": 0.0,
+        "maxLev": 15.38,
+        "limitQty": 25000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.0575,
+        "deduction": 0.0,
+        "maxLev": 14.28,
+        "limitQty": 27500.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.0625,
+        "deduction": 0.0,
+        "maxLev": 13.33,
+        "limitQty": 30000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.0675,
+        "deduction": 0.0,
+        "maxLev": 12.5,
+        "limitQty": 32500.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.0725,
+        "deduction": 0.0,
+        "maxLev": 11.76,
+        "limitQty": 35000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.0775,
+        "deduction": 0.0,
+        "maxLev": 11.11,
+        "limitQty": 37500.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.0825,
+        "deduction": 0.0,
+        "maxLev": 10.52,
+        "limitQty": 40000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.0875,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limitQty": 42500.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.0925,
+        "deduction": 0.0,
+        "maxLev": 9.52,
+        "limitQty": 45000.0
+      }
+    ],
+    "MEXC": [
+      {
+        "tier": 1,
+        "mmr": 0.001,
+        "deduction": 0.0,
+        "maxLev": 500.0,
+        "limitQty": 190.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 200.0,
+        "limitQty": 1070.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limitQty": 1500.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limitQty": 8600.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.02,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limitQty": 45000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.05,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limitQty": 48000.0
+      }
+    ],
+    "Hyperliquid": [
+      {
+        "tier": "固定",
+        "limit": 999999999,
+        "mmr": 0.02,
+        "deduction": 0,
+        "maxLev": 50
+      }
+    ]
+  },
+  "SOLUSDT": {
+    "Binance": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 50000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.006500000000000001,
+        "deduction": 75.0,
+        "maxLev": 75.0,
+        "limit": 400000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.01,
+        "deduction": 1475.0,
+        "maxLev": 50.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.02,
+        "deduction": 11475.0,
+        "maxLev": 25.0,
+        "limit": 4000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.025,
+        "deduction": 31475.0,
+        "maxLev": 20.0,
+        "limit": 8000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.05,
+        "deduction": 231475.0,
+        "maxLev": 10.0,
+        "limit": 40000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.1,
+        "deduction": 2231475.0,
+        "maxLev": 5.0,
+        "limit": 80000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.125,
+        "deduction": 4231475.0,
+        "maxLev": 4.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.25,
+        "deduction": 16731475.0,
+        "maxLev": 2.0,
+        "limit": 200000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.5,
+        "deduction": 66731475.0,
+        "maxLev": 1.0,
+        "limit": 400000000.0
+      }
+    ],
+    "Bitget": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 50000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.008,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 100000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.02,
+        "deduction": 0.0,
+        "maxLev": 25.0,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.03,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limit": 10000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.05,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limit": 30000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.12,
+        "deduction": 0.0,
+        "maxLev": 5.0,
+        "limit": 60000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.15,
+        "deduction": 0.0,
+        "maxLev": 4.0,
+        "limit": 80000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.3,
+        "deduction": 0.0,
+        "maxLev": 2.0,
+        "limit": 150000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.6,
+        "deduction": 0.0,
+        "maxLev": 1.0,
+        "limit": 300000000.0
+      }
+    ],
+    "Bybit": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 50000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005600000000000001,
+        "deduction": 30.0,
+        "maxLev": 90.0,
+        "limit": 100000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0063,
+        "deduction": 100.0,
+        "maxLev": 80.0,
+        "limit": 250000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.0067,
+        "deduction": 200.0,
+        "maxLev": 75.0,
+        "limit": 400000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.0070999999999999995,
+        "deduction": 360.0,
+        "maxLev": 70.0,
+        "limit": 550000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.0077,
+        "deduction": 690.0,
+        "maxLev": 65.0,
+        "limit": 700000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.0091,
+        "deduction": 1670.0,
+        "maxLev": 55.0,
+        "limit": 850000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.01,
+        "deduction": 2435.0,
+        "maxLev": 50.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.0111,
+        "deduction": 3535.0,
+        "maxLev": 45.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.0125,
+        "deduction": 6335.0,
+        "maxLev": 40.0,
+        "limit": 3000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.0143,
+        "deduction": 11735.0,
+        "maxLev": 35.0,
+        "limit": 4000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.0167,
+        "deduction": 21335.0,
+        "maxLev": 30.0,
+        "limit": 6000000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.02,
+        "deduction": 41135.0,
+        "maxLev": 25.0,
+        "limit": 8000000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.025,
+        "deduction": 81135.0,
+        "maxLev": 20.0,
+        "limit": 10000000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.0263,
+        "deduction": 94135.0,
+        "maxLev": 19.0,
+        "limit": 12000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.0278,
+        "deduction": 112135.0,
+        "maxLev": 18.0,
+        "limit": 14000000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.0294,
+        "deduction": 134535.0,
+        "maxLev": 17.0,
+        "limit": 16000000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.0313,
+        "deduction": 164935.0,
+        "maxLev": 16.0,
+        "limit": 18000000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.0333,
+        "deduction": 200935.0,
+        "maxLev": 15.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.035699999999999996,
+        "deduction": 248935.0,
+        "maxLev": 14.0,
+        "limit": 22000000.0
+      }
+    ],
+    "OKX": [
+      {
+        "tier": 1,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limitQty": 5000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 66.66,
+        "limitQty": 10000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0075,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limitQty": 20000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.0125,
+        "deduction": 0.0,
+        "maxLev": 40.0,
+        "limitQty": 40000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.0175,
+        "deduction": 0.0,
+        "maxLev": 33.33,
+        "limitQty": 60000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.0225,
+        "deduction": 0.0,
+        "maxLev": 28.57,
+        "limitQty": 80000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.0275,
+        "deduction": 0.0,
+        "maxLev": 25.0,
+        "limitQty": 100000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.0325,
+        "deduction": 0.0,
+        "maxLev": 22.22,
+        "limitQty": 120000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.0375,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limitQty": 140000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.0425,
+        "deduction": 0.0,
+        "maxLev": 18.18,
+        "limitQty": 160000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.0475,
+        "deduction": 0.0,
+        "maxLev": 16.66,
+        "limitQty": 180000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.0525,
+        "deduction": 0.0,
+        "maxLev": 15.38,
+        "limitQty": 200000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.0575,
+        "deduction": 0.0,
+        "maxLev": 14.28,
+        "limitQty": 220000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.0625,
+        "deduction": 0.0,
+        "maxLev": 13.33,
+        "limitQty": 240000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.0675,
+        "deduction": 0.0,
+        "maxLev": 12.5,
+        "limitQty": 260000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.0725,
+        "deduction": 0.0,
+        "maxLev": 11.76,
+        "limitQty": 280000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.0775,
+        "deduction": 0.0,
+        "maxLev": 11.11,
+        "limitQty": 300000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.0825,
+        "deduction": 0.0,
+        "maxLev": 10.52,
+        "limitQty": 320000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.0875,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limitQty": 340000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.0925,
+        "deduction": 0.0,
+        "maxLev": 9.52,
+        "limitQty": 360000.0
+      }
+    ],
+    "MEXC": [
+      {
+        "tier": 1,
+        "mmr": 0.0023,
+        "deduction": 0.0,
+        "maxLev": 300.0,
+        "limitQty": 3100.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 200.0,
+        "limitQty": 160000.0
+      }
+    ],
+    "Hyperliquid": [
+      {
+        "tier": "固定",
+        "limit": 999999999,
+        "mmr": 0.025,
+        "deduction": 0,
+        "maxLev": 25
+      }
+    ]
+  }
+};
+
+    // 嘗試同步匯總總表的最新 JSON 數據
+    async function loadScrapedTiersJSON() {
+      try {
+        const response = await fetch('data/tiers.json?t=' + Date.now());
+        if (response.ok) {
+          const jsonData = await response.json();
+          for (let coin in jsonData) {
+            if (!EXCHANGE_TIERS[coin]) EXCHANGE_TIERS[coin] = {};
+            for (let ex in jsonData[coin]) {
+              if (jsonData[coin][ex] && jsonData[coin][ex].length > 0) {
+                EXCHANGE_TIERS[coin][ex] = jsonData[coin][ex];
+              }
+            }
+          }
+          console.log("✅ 成功從 data/tiers.json 實時載入最新匯總總表檔位數據！");
+          document.getElementById('dataSourceBadge').innerText = '6 EXCHANGES SYNCED (EXCEL)';
+          calculate();
+        }
+      } catch (err) {
+        console.log("ℹ️ 使用內建檔位數據。");
+      }
+    }
+
+    let currentDirection = 'LONG';
+
+    function setDirection(dir) {
+      currentDirection = dir;
+      document.getElementById('btnLong').classList.toggle('active', dir === 'LONG');
+      document.getElementById('btnShort').classList.toggle('active', dir === 'SHORT');
+      calculate();
+    }
+
+    function onCoinChange() {
+      const coin = document.getElementById('coinSelect').value;
+      const baseCoin = coin.replace('USDT', '');
+      document.getElementById('okxUnitBadge').innerText = `單位: ${baseCoin}`;
+      if (document.getElementById('mexcUnitBadge')) {
+        document.getElementById('mexcUnitBadge').innerText = `單位: ${baseCoin}`;
+      }
+      
+      if (DEFAULT_PRICES[coin]) {
+        document.getElementById('entryPrice').value = DEFAULT_PRICES[coin];
+        if (coin === 'BTCUSDT') {
+          document.getElementById('positionValue').value = 50000;
+          document.getElementById('marginInput').value = 2500;
+        } else if (coin === 'ETHUSDT') {
+          document.getElementById('positionValue').value = 20000;
+          document.getElementById('marginInput').value = 1000;
+        } else if (coin === 'SOLUSDT') {
+          document.getElementById('positionValue').value = 5000;
+          document.getElementById('marginInput').value = 250;
+        }
+      }
+      calculate();
+    }
+
+    function setQuickLeverage(lev) {
+      const posVal = parseFloat(document.getElementById('positionValue').value) || 0;
+      if (posVal > 0) {
+        document.getElementById('marginInput').value = (posVal / lev).toFixed(2);
+        calculate();
+      }
+    }
+
+    // 依據檔位上限門檻嚴格比對 (0 ~ 上限)
+    function getTierInfo(exchange, coin, posValue, entryPrice) {
+      const tiers = (EXCHANGE_TIERS[coin] && EXCHANGE_TIERS[coin][exchange]) || [];
+      if (!tiers || tiers.length === 0) {
+        return { tier: 1, limit: 99999999, mmr: 0.005, deduction: 0, maxLev: 100 };
+      }
+
+      if (exchange === 'OKX' || exchange === 'MEXC') {
+        const qty = entryPrice > 0 ? (posValue / entryPrice) : 0;
+        const sortedTiers = [...tiers].sort((a, b) => (a.limitQty || 0) - (b.limitQty || 0));
+        for (let t of sortedTiers) {
+          if (t.limitQty > 0 && qty <= t.limitQty) return { ...t, qty };
+        }
+        return { ...sortedTiers[sortedTiers.length - 1], qty };
+      } else if (exchange === 'Hyperliquid') {
+        return tiers[0] || { tier: '固定', limit: 99999999, mmr: 0.0125, deduction: 0, maxLev: 50 };
+      } else {
+        const sortedTiers = [...tiers].sort((a, b) => (a.limit || 0) - (b.limit || 0));
+        for (let t of sortedTiers) {
+          if (t.limit > 0 && posValue <= t.limit) return t;
+        }
+        return sortedTiers[sortedTiers.length - 1];
+      }
+    }
+
+    // 顯示交易所完整檔位數據 Modal
+    function showTierModal(exchange) {
+      const coin = document.getElementById('coinSelect').value;
+      const baseCoin = coin.replace('USDT', '');
+      const P = parseFloat(document.getElementById('entryPrice').value) || 0;
+      const V = parseFloat(document.getElementById('positionValue').value) || 0;
+      
+      const currentInfo = getTierInfo(exchange, coin, V, P);
+      const tiers = (EXCHANGE_TIERS[coin] && EXCHANGE_TIERS[coin][exchange]) || [];
+
+      const modalTitle = document.getElementById('modalTitle');
+      modalTitle.innerText = `${exchange} • ${coin} 完整合約檔位表`;
+
+      const tbody = document.getElementById('modalTableBody');
+      tbody.innerHTML = '';
+
+      const sortedTiers = [...tiers].sort((a, b) => {
+        if (exchange === 'OKX' || exchange === 'MEXC') return (a.limitQty || 0) - (b.limitQty || 0);
+        return (a.limit || 0) - (b.limit || 0);
+      });
+
+      sortedTiers.forEach(t => {
+        const tr = document.createElement('tr');
+        const isCurrent = (t.tier === currentInfo.tier);
+        if (isCurrent) tr.className = 'active-tier-row';
+
+        let limitStr = '-';
+        if (exchange === 'OKX' || exchange === 'MEXC') {
+          limitStr = t.limitQty > 0 ? `${t.limitQty.toLocaleString()} ${baseCoin}` : '無上限';
+        } else if (exchange === 'Hyperliquid') {
+          limitStr = '無上限 (固定維持率)';
+        } else {
+          limitStr = t.limit > 0 ? `${t.limit.toLocaleString()} USDT` : '無上限';
+        }
+
+        const unitStr = (exchange === 'OKX' || exchange === 'MEXC') ? baseCoin : (exchange === 'Hyperliquid' ? 'USDC' : 'USDT');
+        const mmrStr = ((t.mmr || 0) * 100).toFixed(2) + '%';
+        const dedStr = t.deduction > 0 ? `${t.deduction.toLocaleString()} USDT` : (exchange === 'Bitget' || exchange === 'OKX' || exchange === 'MEXC' || exchange === 'Hyperliquid' ? '-' : '0 USDT');
+        const maxLevStr = (t.maxLev || 100) + 'x';
+
+        tr.innerHTML = `
+          <td>
+            檔位 ${t.tier}
+            ${isCurrent ? '<span class="active-match-badge"><i class="fa-solid fa-check"></i> 當前匹配</span>' : ''}
+          </td>
+          <td>${limitStr}</td>
+          <td>${unitStr}</td>
+          <td>${maxLevStr}</td>
+          <td>${mmrStr}</td>
+          <td>${dedStr}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('tierModal').classList.add('active');
+    }
+
+    function closeTierModal() {
+      document.getElementById('tierModal').classList.remove('active');
+    }
+
+    function calculate() {
+      const coin = document.getElementById('coinSelect').value;
+      const baseCoin = coin.replace('USDT', '');
+      const P = parseFloat(document.getElementById('entryPrice').value) || 0;
+      const V = parseFloat(document.getElementById('positionValue').value) || 0;
+      const M = parseFloat(document.getElementById('marginInput').value) || 0;
+
+      const effLev = M > 0 ? (V / M) : 0;
+      document.getElementById('effLeverageDisplay').innerText = effLev.toFixed(2) + 'x';
+
+      if (P <= 0 || V <= 0 || M <= 0) return;
+
+      const exchanges = ['Binance', 'Bitget', 'Bybit', 'OKX', 'MEXC', 'Hyperliquid'];
+      const calcResults = [];
+
+      exchanges.forEach(ex => {
+        const info = getTierInfo(ex, coin, V, P);
+        const mmr = info.mmr || 0.005;
+        const ded = info.deduction || 0;
+
+        const maintMargin = (V * mmr) - ded;
+        const effMMRRate = (maintMargin / V) * 100;
+
+        let liqPrice = 0;
+        if (currentDirection === 'LONG') {
+          liqPrice = P * (1 - (M - maintMargin) / V);
+        } else {
+          liqPrice = P * (1 + (M - maintMargin) / V);
+        }
+
+        if (liqPrice < 0) liqPrice = 0;
+
+        let distPct = 0;
+        if (currentDirection === 'LONG') {
+          distPct = ((P - liqPrice) / P) * 100;
+        } else {
+          distPct = ((liqPrice - P) / P) * 100;
+        }
+
+        calcResults.push({
+          exchange: ex,
+          liqPrice,
+          distPct,
+          mmr,
+          ded,
+          effMMRRate,
+          info
+        });
+
+        const exLower = ex.toLowerCase();
+        const liqElem = document.getElementById(`${exLower}LiqPrice`);
+        if (liqElem) {
+          liqElem.innerText = `$${liqPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        }
+        
+        const distElem = document.getElementById(`${exLower}DistVal`);
+        if (distElem) {
+          distElem.innerText = `${distPct.toFixed(2)}%`;
+        }
+
+        const barElem = document.getElementById(`${exLower}Bar`);
+        if (barElem) {
+          const safeWidth = Math.min(Math.max(distPct * 5, 5), 100);
+          barElem.style.width = `${safeWidth}%`;
+
+          if (distPct < 2) {
+            distElem.style.color = '#EF4444';
+            barElem.style.background = '#EF4444';
+          } else if (distPct < 5) {
+            distElem.style.color = '#F59E0B';
+            barElem.style.background = '#F59E0B';
+          } else {
+            distElem.style.color = '#10B981';
+            barElem.style.background = 'linear-gradient(90deg, #10B981 0%, #00F5A0 100%)';
+          }
+        }
+
+        const effMMRElem = document.getElementById(`${exLower}EffMMR`);
+        if (effMMRElem) {
+          effMMRElem.innerText = Math.max(effMMRRate, 0).toFixed(4) + '%';
+        }
+
+        if (ex === 'OKX' || ex === 'MEXC') {
+          const tierElem = document.getElementById(`${exLower}Tier`);
+          if (tierElem) {
+            const qtyVal = info.qty !== undefined ? info.qty : (P > 0 ? V / P : 0);
+            tierElem.innerText = `${qtyVal.toFixed(4)} ${baseCoin} (檔位 ${info.tier})`;
+          }
+          const mmrElem = document.getElementById(`${exLower}MMR`);
+          if (mmrElem) mmrElem.innerText = (mmr * 100).toFixed(2) + '%';
+          const maxLevElem = document.getElementById(`${exLower}MaxLev`);
+          if (maxLevElem) maxLevElem.innerText = (info.maxLev || 100) + 'x';
+        } else if (ex === 'Hyperliquid') {
+          document.getElementById('hyperliquidTier').innerText = `固定維持率模式`;
+          document.getElementById('hyperliquidMMR').innerText = (mmr * 100).toFixed(2) + '%';
+          document.getElementById('hyperliquidMaxLev').innerText = (info.maxLev || 50) + 'x';
+        } else {
+          const tierElem = document.getElementById(`${exLower}Tier`);
+          if (tierElem) tierElem.innerText = `檔位 ${info.tier}`;
+          const mmrElem = document.getElementById(`${exLower}MMR`);
+          if (mmrElem) mmrElem.innerText = (mmr * 100).toFixed(2) + '%';
+          const maxLevElem = document.getElementById(`${exLower}MaxLev`);
+          if (maxLevElem) maxLevElem.innerText = (info.maxLev || 100) + 'x';
+          if (document.getElementById(`${exLower}Deduction`)) {
+            document.getElementById(`${exLower}Deduction`).innerText = ded > 0 ? `${ded.toLocaleString()} USDT` : (ex === 'Bitget' ? '-' : '0 USDT');
+          }
+        }
+      });
+
+      calcResults.sort((a, b) => b.distPct - a.distPct);
+
+      const rankBadges = ['🥇 #1 安全', '🥈 #2 優秀', '🥉 #3 良好', '🎖️ #4 尚可', '🎖️ #5 備選', '🎖️ #6 備選'];
+      const rankClasses = ['rank-1', 'rank-2', 'rank-3', 'rank-4', 'rank-5', 'rank-5'];
+
+      const lbGrid = document.getElementById('leaderboardGrid');
+      lbGrid.innerHTML = '';
+
+      calcResults.forEach((res, index) => {
+        const rankNum = index + 1;
+        const rankClass = rankClasses[index];
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = `lb-item ${rankClass}`;
+        itemDiv.innerHTML = `
+          <div style="display:flex; align-items:center;">
+            <span class="lb-rank-badge">${rankNum === 1 ? '🥇' : (rankNum === 2 ? '🥈' : (rankNum === 3 ? '🥉' : '🎖️'))}</span>
+            <div class="lb-info">
+              <span class="lb-ex-name">${res.exchange}</span>
+              <span style="font-size:0.7rem; color:var(--text-muted);">$${res.liqPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+            </div>
+          </div>
+          <span class="lb-dist">${res.distPct.toFixed(2)}%</span>
+        `;
+        lbGrid.appendChild(itemDiv);
+
+        const cardBadge = document.getElementById(`${res.exchange.toLowerCase()}RankBadge`);
+        if (cardBadge) {
+          cardBadge.className = `card-rank-badge ${rankClass}`;
+          cardBadge.innerText = rankBadges[index];
+        }
+      });
+    }
+
+    // 初始化載入
+    loadScrapedTiersJSON();
+
+    // ==========================================
+    // PWA & Service Worker 註冊與安裝事件處理
+    // ==========================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[PWA] Service Worker 註冊成功:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker 註冊失敗:', err));
+      });
+    }
+
+    let deferredPrompt = null;
+    const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+    const pwaModal = document.getElementById('pwaModal');
+    const pwaModalClose = document.getElementById('pwaModalClose');
+    const pwaIosGuide = document.getElementById('pwaIosGuide');
+    const pwaGeneralGuide = document.getElementById('pwaGeneralGuide');
+
+    // 判斷是否為 iOS Safari
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+    // 如果已經在 PWA 模式中開啟，隱藏安裝按鈕
+    if (isStandalone) {
+      if (pwaInstallBtn) pwaInstallBtn.style.display = 'none';
+    }
+
+    // 捕捉 Android / Chrome 的原生物件
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (pwaInstallBtn) pwaInstallBtn.style.display = 'inline-flex';
+    });
+
+    if (pwaInstallBtn) {
+      pwaInstallBtn.addEventListener('click', () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('[PWA] 使用者同意安裝');
+              pwaInstallBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+          });
+        } else {
+          // 開啟通用或 iOS 指引 Modal
+          if (pwaModal) {
+            if (isIos) {
+              pwaIosGuide.style.display = 'block';
+              pwaGeneralGuide.style.display = 'none';
+            } else {
+              pwaIosGuide.style.display = 'none';
+              pwaGeneralGuide.style.display = 'block';
+            }
+            pwaModal.classList.add('active');
+          }
+        }
+      });
+    }
+
+    if (pwaModalClose) {
+      pwaModalClose.addEventListener('click', () => {
+        if (pwaModal) pwaModal.classList.remove('active');
+      });
+    }
+    if (pwaModal) {
+      pwaModal.addEventListener('click', (e) => {
+        if (e.target === pwaModal) pwaModal.classList.remove('active');
+      });
+    }
+  </script>
+</body>
+</html>
