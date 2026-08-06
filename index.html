@@ -1183,9 +1183,23 @@
           </div>
         </div>
 
-        <!-- Entry Price -->
+        <!-- Entry Price & Decimal Precision -->
         <div class="form-group">
-          <label>開倉價格 / 當前價位</label>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <label style="margin:0;">開倉價格 / 當前價位</label>
+            <div style="display:flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--text-muted);">
+              <span>爆倉價小數:</span>
+              <select id="decimalSelect" onchange="onDecimalChange()" style="background:rgba(15,23,42,0.8); border:1px solid rgba(0,245,160,0.4); color:#00F5A0; border-radius:6px; padding:2px 6px; font-weight:bold; font-size:0.8rem; cursor:pointer;">
+                <option value="0">0 位 ($123)</option>
+                <option value="1">1 位 ($123.4)</option>
+                <option value="2" selected>2 位 ($123.45)</option>
+                <option value="3">3 位 ($123.456)</option>
+                <option value="4">4 位 ($123.4567)</option>
+                <option value="6">6 位 ($0.123456)</option>
+                <option value="8">8 位 (微幣種)</option>
+              </select>
+            </div>
+          </div>
           <div class="input-wrapper">
             <input type="number" id="entryPrice" value="65000" step="any" oninput="onEntryPriceChange()">
             <span class="input-suffix">USDT</span>
@@ -1757,7 +1771,7 @@
 
     // 預設備援檔位數據
     let EXCHANGE_TIERS = {
-  "_last_updated": "2026-08-06 16:21:14",
+  "_last_updated": "2026-08-06 16:30:57",
   "BTCUSDT": {
     "Binance": [
       {
@@ -3704,454 +3718,6 @@
       }
     ]
   },
-  "PEPEUSDT": {
-    "Binance": [
-      {
-        "tier": 1,
-        "mmr": 0.006500000000000001,
-        "deduction": 0.0,
-        "maxLev": 75.0,
-        "limit": 80000.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.01,
-        "deduction": 280.0,
-        "maxLev": 50.0,
-        "limit": 150000.0
-      },
-      {
-        "tier": 3,
-        "mmr": 0.0125,
-        "deduction": 655.0,
-        "maxLev": 40.0,
-        "limit": 750000.0
-      },
-      {
-        "tier": 4,
-        "mmr": 0.02,
-        "deduction": 6280.0,
-        "maxLev": 25.0,
-        "limit": 2000000.0
-      },
-      {
-        "tier": 5,
-        "mmr": 0.025,
-        "deduction": 16280.0,
-        "maxLev": 20.0,
-        "limit": 4000000.0
-      },
-      {
-        "tier": 6,
-        "mmr": 0.05,
-        "deduction": 116280.0,
-        "maxLev": 10.0,
-        "limit": 20000000.0
-      },
-      {
-        "tier": 7,
-        "mmr": 0.1,
-        "deduction": 1116280.0,
-        "maxLev": 5.0,
-        "limit": 40000000.0
-      },
-      {
-        "tier": 8,
-        "mmr": 0.125,
-        "deduction": 2116280.0,
-        "maxLev": 4.0,
-        "limit": 50000000.0
-      },
-      {
-        "tier": 9,
-        "mmr": 0.25,
-        "deduction": 8366280.0,
-        "maxLev": 2.0,
-        "limit": 100000000.0
-      },
-      {
-        "tier": 10,
-        "mmr": 0.5,
-        "deduction": 33366280.0,
-        "maxLev": 1.0,
-        "limit": 200000000.0
-      }
-    ],
-    "Bitget": [
-      {
-        "tier": 1,
-        "mmr": 0.0066,
-        "deduction": 0.0,
-        "maxLev": 75.0,
-        "limit": 20000.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.01,
-        "deduction": 0.0,
-        "maxLev": 50.0,
-        "limit": 200000.0
-      },
-      {
-        "tier": 3,
-        "mmr": 0.02,
-        "deduction": 0.0,
-        "maxLev": 25.0,
-        "limit": 1500000.0
-      },
-      {
-        "tier": 4,
-        "mmr": 0.025,
-        "deduction": 0.0,
-        "maxLev": 20.0,
-        "limit": 3000000.0
-      },
-      {
-        "tier": 5,
-        "mmr": 0.05,
-        "deduction": 0.0,
-        "maxLev": 10.0,
-        "limit": 15000000.0
-      },
-      {
-        "tier": 6,
-        "mmr": 0.1,
-        "deduction": 0.0,
-        "maxLev": 5.0,
-        "limit": 30000000.0
-      },
-      {
-        "tier": 7,
-        "mmr": 0.125,
-        "deduction": 0.0,
-        "maxLev": 4.0,
-        "limit": 37500000.0
-      },
-      {
-        "tier": 8,
-        "mmr": 0.25,
-        "deduction": 0.0,
-        "maxLev": 2.0,
-        "limit": 75000000.0
-      },
-      {
-        "tier": 9,
-        "mmr": 0.5,
-        "deduction": 0.0,
-        "maxLev": 1.0,
-        "limit": 150000000.0
-      }
-    ],
-    "Bybit": [
-      {
-        "tier": 1,
-        "mmr": 0.01,
-        "deduction": 0.0,
-        "maxLev": 50.0,
-        "limit": 200000.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.015,
-        "deduction": 1000.0,
-        "maxLev": 33.33,
-        "limit": 400000.0
-      },
-      {
-        "tier": 3,
-        "mmr": 0.02,
-        "deduction": 3000.0,
-        "maxLev": 25.0,
-        "limit": 600000.0
-      },
-      {
-        "tier": 4,
-        "mmr": 0.025,
-        "deduction": 6000.0,
-        "maxLev": 20.0,
-        "limit": 800000.0
-      },
-      {
-        "tier": 5,
-        "mmr": 0.03,
-        "deduction": 10000.0,
-        "maxLev": 16.67,
-        "limit": 1000000.0
-      },
-      {
-        "tier": 6,
-        "mmr": 0.035,
-        "deduction": 15000.0,
-        "maxLev": 14.29,
-        "limit": 1200000.0
-      },
-      {
-        "tier": 7,
-        "mmr": 0.04,
-        "deduction": 21000.0,
-        "maxLev": 12.5,
-        "limit": 1400000.0
-      },
-      {
-        "tier": 8,
-        "mmr": 0.045,
-        "deduction": 28000.0,
-        "maxLev": 11.11,
-        "limit": 1600000.0
-      },
-      {
-        "tier": 9,
-        "mmr": 0.05,
-        "deduction": 36000.0,
-        "maxLev": 10.0,
-        "limit": 1800000.0
-      },
-      {
-        "tier": 10,
-        "mmr": 0.055,
-        "deduction": 45000.0,
-        "maxLev": 9.09,
-        "limit": 2000000.0
-      },
-      {
-        "tier": 11,
-        "mmr": 0.06,
-        "deduction": 55000.0,
-        "maxLev": 8.33,
-        "limit": 2200000.0
-      },
-      {
-        "tier": 12,
-        "mmr": 0.065,
-        "deduction": 66000.0,
-        "maxLev": 7.69,
-        "limit": 2400000.0
-      },
-      {
-        "tier": 13,
-        "mmr": 0.07,
-        "deduction": 78000.0,
-        "maxLev": 7.14,
-        "limit": 2600000.0
-      },
-      {
-        "tier": 14,
-        "mmr": 0.075,
-        "deduction": 91000.0,
-        "maxLev": 6.67,
-        "limit": 2800000.0
-      },
-      {
-        "tier": 15,
-        "mmr": 0.08,
-        "deduction": 105000.0,
-        "maxLev": 6.25,
-        "limit": 3000000.0
-      },
-      {
-        "tier": 16,
-        "mmr": 0.085,
-        "deduction": 120000.0,
-        "maxLev": 5.88,
-        "limit": 3200000.0
-      },
-      {
-        "tier": 17,
-        "mmr": 0.09,
-        "deduction": 136000.0,
-        "maxLev": 5.56,
-        "limit": 3400000.0
-      },
-      {
-        "tier": 18,
-        "mmr": 0.095,
-        "deduction": 153000.0,
-        "maxLev": 5.26,
-        "limit": 3900000.0
-      },
-      {
-        "tier": 19,
-        "mmr": 0.1,
-        "deduction": 172500.0,
-        "maxLev": 5.0,
-        "limit": 4400000.0
-      },
-      {
-        "tier": 20,
-        "mmr": 0.105,
-        "deduction": 194500.0,
-        "maxLev": 4.76,
-        "limit": 4900000.0
-      }
-    ],
-    "OKX": [
-      {
-        "tier": 1,
-        "mmr": 0.006500000000000001,
-        "deduction": 0.0,
-        "maxLev": 50.0,
-        "limitQty": 30000000000.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.01,
-        "deduction": 0.0,
-        "maxLev": 40.0,
-        "limitQty": 60000000000.0
-      },
-      {
-        "tier": 3,
-        "mmr": 0.015,
-        "deduction": 0.0,
-        "maxLev": 20.0,
-        "limitQty": 120000000000.0
-      },
-      {
-        "tier": 4,
-        "mmr": 0.02,
-        "deduction": 0.0,
-        "maxLev": 18.18,
-        "limitQty": 240000000000.0
-      },
-      {
-        "tier": 5,
-        "mmr": 0.025,
-        "deduction": 0.0,
-        "maxLev": 16.66,
-        "limitQty": 360000000000.0
-      },
-      {
-        "tier": 6,
-        "mmr": 0.03,
-        "deduction": 0.0,
-        "maxLev": 15.38,
-        "limitQty": 480000000000.0
-      },
-      {
-        "tier": 7,
-        "mmr": 0.035,
-        "deduction": 0.0,
-        "maxLev": 14.28,
-        "limitQty": 600000000000.0
-      },
-      {
-        "tier": 8,
-        "mmr": 0.04,
-        "deduction": 0.0,
-        "maxLev": 13.33,
-        "limitQty": 720000000000.0
-      },
-      {
-        "tier": 9,
-        "mmr": 0.045,
-        "deduction": 0.0,
-        "maxLev": 12.5,
-        "limitQty": 840000000000.0
-      },
-      {
-        "tier": 10,
-        "mmr": 0.05,
-        "deduction": 0.0,
-        "maxLev": 11.76,
-        "limitQty": 960000000000.0
-      },
-      {
-        "tier": 11,
-        "mmr": 0.055,
-        "deduction": 0.0,
-        "maxLev": 11.11,
-        "limitQty": 1080000000000.0
-      },
-      {
-        "tier": 12,
-        "mmr": 0.06,
-        "deduction": 0.0,
-        "maxLev": 10.52,
-        "limitQty": 1200000000000.0
-      },
-      {
-        "tier": 13,
-        "mmr": 0.065,
-        "deduction": 0.0,
-        "maxLev": 10.0,
-        "limitQty": 1320000000000.0
-      },
-      {
-        "tier": 14,
-        "mmr": 0.07,
-        "deduction": 0.0,
-        "maxLev": 9.52,
-        "limitQty": 1440000000000.0
-      },
-      {
-        "tier": 15,
-        "mmr": 0.075,
-        "deduction": 0.0,
-        "maxLev": 9.09,
-        "limitQty": 1560000000000.0
-      },
-      {
-        "tier": 16,
-        "mmr": 0.08,
-        "deduction": 0.0,
-        "maxLev": 8.69,
-        "limitQty": 1680000000000.0
-      },
-      {
-        "tier": 17,
-        "mmr": 0.085,
-        "deduction": 0.0,
-        "maxLev": 8.33,
-        "limitQty": 1800000000000.0
-      },
-      {
-        "tier": 18,
-        "mmr": 0.09,
-        "deduction": 0.0,
-        "maxLev": 8.0,
-        "limitQty": 1920000000000.0
-      },
-      {
-        "tier": 19,
-        "mmr": 0.095,
-        "deduction": 0.0,
-        "maxLev": 7.69,
-        "limitQty": 2040000000000.0
-      },
-      {
-        "tier": 20,
-        "mmr": 0.1,
-        "deduction": 0.0,
-        "maxLev": 7.4,
-        "limitQty": 2160000000000.0
-      }
-    ],
-    "MEXC": [
-      {
-        "tier": 1,
-        "mmr": 0.0023,
-        "deduction": 0.0,
-        "maxLev": 300.0,
-        "limitQty": 60000000000.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.004,
-        "deduction": 0.0,
-        "maxLev": 200.0,
-        "limitQty": 440000000000.0
-      }
-    ],
-    "Hyperliquid": [
-      {
-        "tier": "固定",
-        "limit": 999999999,
-        "mmr": 0.05,
-        "deduction": 0,
-        "maxLev": 20
-      }
-    ]
-  },
   "ADAUSDT": {
     "Binance": [
       {
@@ -6002,7 +5568,7 @@
   }
 };
 
-    let LAST_UPDATED = "2026-08-06 16:21:14";
+    let LAST_UPDATED = "2026-08-06 16:30:57";
 
     async function loadLastUpdatedTime() {
       try {
@@ -6287,6 +5853,39 @@
       } catch (e) {}
     }
 
+    function getDefaultDecimals(coin) {
+      if (coin === 'BTCUSDT' || coin === 'BTC') return 0;
+      return 2; // 其他幣種預設為 2 位
+    }
+
+    function getSavedDecimals(coin) {
+      try {
+        const decs = JSON.parse(localStorage.getItem('savedPriceDecimals') || '{}');
+        if (decs[coin] !== undefined && decs[coin] !== null && decs[coin] !== "") {
+          return parseInt(decs[coin]);
+        }
+      } catch (e) {}
+      return getDefaultDecimals(coin);
+    }
+
+    function saveDecimals(coin, decVal) {
+      if (!coin) return;
+      try {
+        const decs = JSON.parse(localStorage.getItem('savedPriceDecimals') || '{}');
+        decs[coin] = parseInt(decVal);
+        localStorage.setItem('savedPriceDecimals', JSON.stringify(decs));
+      } catch (e) {}
+    }
+
+    function onDecimalChange() {
+      const coin = document.getElementById('coinSelect').value;
+      const decSelect = document.getElementById('decimalSelect');
+      if (coin && decSelect) {
+        saveDecimals(coin, decSelect.value);
+      }
+      calculate();
+    }
+
     function onHlMMRChange() {
       const coin = document.getElementById('coinSelect').value;
       const hlInput = document.getElementById('hlMMRInput');
@@ -6342,6 +5941,11 @@
       const hlInput = document.getElementById('hlMMRInput');
       if (hlInput) {
         hlInput.value = getSavedHyperliquidMMR(coin);
+      }
+
+      const decSelect = document.getElementById('decimalSelect');
+      if (decSelect) {
+        decSelect.value = getSavedDecimals(coin);
       }
 
       calculate();
@@ -6713,6 +6317,17 @@
         lbTitleElem.innerText = `${visibleCount} 大交易所防爆倉安全度排名 (依匯總總表檔位即時連動)`;
       }
 
+      const decSelect = document.getElementById('decimalSelect');
+      const decimals = decSelect ? (parseInt(decSelect.value) || 0) : getSavedDecimals(coin);
+
+      function formatPriceVal(val) {
+        if (isNaN(val) || val < 0) return '$0';
+        return '$' + val.toLocaleString('en-US', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      }
+
       exchanges.forEach(ex => {
         const exLower = ex.toLowerCase();
         const cardElem = document.getElementById(`card${ex}`);
@@ -6769,7 +6384,7 @@
 
         const liqElem = document.getElementById(`${exLower}LiqPrice`);
         if (liqElem) {
-          liqElem.innerText = `$${liqPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+          liqElem.innerText = formatPriceVal(liqPrice);
         }
         
         const distElem = document.getElementById(`${exLower}DistVal`);
@@ -6848,7 +6463,7 @@
             <span class="lb-rank-badge">${rankNum === 1 ? '🥇' : (rankNum === 2 ? '🥈' : (rankNum === 3 ? '🥉' : '🎖️'))}</span>
             <div class="lb-info">
               <span class="lb-ex-name">${res.exchange}</span>
-              <span style="font-size:0.7rem; color:var(--text-muted);">$${res.liqPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+              <span style="font-size:0.7rem; color:var(--text-muted);">${formatPriceVal(res.liqPrice)}</span>
             </div>
           </div>
           <span class="lb-dist">${res.distPct.toFixed(2)}%</span>
@@ -6880,6 +6495,7 @@
     window.calculate = calculate;
     window.onEntryPriceChange = onEntryPriceChange;
     window.onHlMMRChange = onHlMMRChange;
+    window.onDecimalChange = onDecimalChange;
     window.refreshDataSource = refreshDataSource;
 
     // ==========================================
