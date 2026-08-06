@@ -188,19 +188,50 @@ def apply_excel_styles_and_colors(ws):
             max_len = max(max_len, display_len)
         ws.column_dimensions[col_letter].width = max(max_len + 4, 14)
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def write_crawl_status(ex_name, coin_list, status_type, rows_count=0):
+    status_file = os.path.join(BASE_DIR, "data", "crawl_status.json")
+    status_data = {}
+    if os.path.exists(status_file):
+        try:
+            with open(status_file, "r", encoding="utf-8") as f:
+                status_data = json.load(f)
+        except Exception:
+            pass
+
+    for coin in coin_list:
+        if coin not in status_data:
+            status_data[coin] = {}
+        status_data[coin][ex_name] = {
+            "status": status_type,
+            "count": rows_count,
+            "updated_at": time.strftime("%H:%M:%S")
+        }
+
+    try:
+        with open(status_file, "w", encoding="utf-8") as f:
+            json.dump(status_data, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
 def run_single_exchange(args):
     """
     線程池執行的單一交易所抓取封裝函式
     """
     name, crawl_func, coins = args
     print(f"\n⚡ [並行任務啟動] 開始抓取 [{name}] 數據...")
+    write_crawl_status(name, coins, "running")
     start_time = time.time()
     try:
         res = crawl_func(coins, save_excel=False)
         elapsed = time.time() - start_time
+        total_rows = sum(len(df) for df in (res or {}).values() if hasattr(df, '__len__'))
+        write_crawl_status(name, coins, "success", total_rows)
         return name, res or {}, f"✅ 成功 (耗時 {elapsed:.1f} 秒)"
     except Exception as e:
         elapsed = time.time() - start_time
+        write_crawl_status(name, coins, "failed", 0)
         return name, {}, f"❌ 失敗: {e} (耗時 {elapsed:.1f} 秒)"
 
 def main():
@@ -262,7 +293,12 @@ def main():
     print(" 🔀 正在進行同幣種跨交易所數據合併與排序...")
     print("=" * 60)
 
-    with pd.ExcelWriter(combined_excel_filename, engine='openpyxl') as writer:
+    excel_kwargs = {'engine': 'openpyxl'}
+    if os.path.exists(combined_excel_filename):
+        excel_kwargs['mode'] = 'a'
+        excel_kwargs['if_sheet_exists'] = 'replace'
+
+    with pd.ExcelWriter(combined_excel_filename, **excel_kwargs) as writer:
         for coin in coins:
             coin_dfs = []
             for ex_name, res_dict in all_results.items():
@@ -277,7 +313,7 @@ def main():
                 # 套用背景色彩與專業格式
                 ws = writer.sheets[sheet_name]
                 apply_excel_styles_and_colors(ws)
-                print(f" 💾 已成功將 [{coin}] 4家交易所數據寫入工作表: [{sheet_name}] (共 {len(merged_df)} 列)")
+                print(f" 💾 已成功將 [{coin}] 數據寫入工作表: [{sheet_name}] (共 {len(merged_df)} 列)")
             else:
                 print(f" ⚠️ [{coin}] 無有效數據可供合併。")
 

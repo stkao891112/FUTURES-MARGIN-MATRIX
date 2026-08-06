@@ -109,9 +109,9 @@ def get_coins():
 def run_background_crawler(coin):
     try:
         python_exe = sys.executable
-        print(f"🚀 [背景爬蟲啟動] 開始爬取新增幣種 [{coin}]...")
+        print(f"🚀 [背景爬蟲啟動] 開始專項爬取新增幣種 [{coin}]...")
         res1 = subprocess.run(
-            [python_exe, os.path.join(BASE_DIR, "main.py")],
+            [python_exe, os.path.join(BASE_DIR, "main.py"), coin],
             cwd=BASE_DIR,
             capture_output=True
         )
@@ -168,6 +168,21 @@ def add_coin():
         print(f"❌ 新增幣種失敗: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/coins/status/<coin>', methods=['GET'])
+def get_coin_crawl_status(coin):
+    coin = coin.strip().upper()
+    if not coin.endswith('USDT'):
+        coin += 'USDT'
+    status_file = os.path.join(BASE_DIR, "data", "crawl_status.json")
+    if os.path.exists(status_file):
+        try:
+            with open(status_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return jsonify({"coin": coin, "exchanges": data.get(coin, {})})
+        except Exception:
+            pass
+    return jsonify({"coin": coin, "exchanges": {}})
+
 @app.route('/api/coins', methods=['DELETE'])
 def delete_coin():
     try:
@@ -190,13 +205,23 @@ def delete_coin():
             with open(coins_path, "w", encoding="utf-8") as f:
                 json.dump(coins, f, ensure_ascii=False, indent=2)
 
+        # 刪除 Excel 文件中該幣種 Sheet
+        excel_path = os.path.join(BASE_DIR, "data", "all_exchanges_futures_margin.xlsx")
+        if os.path.exists(excel_path):
+            try:
+                import openpyxl
+                wb = openpyxl.load_workbook(excel_path)
+                if coin in wb.sheetnames:
+                    del wb[coin]
+                    wb.save(excel_path)
+            except Exception as e:
+                print("刪除 Excel 工作表提醒:", e)
+
         python_exe = sys.executable
         subprocess.run(
             [python_exe, os.path.join(BASE_DIR, "export_json.py")],
             cwd=BASE_DIR,
-            capture_output=True,
-            text=True,
-            encoding='utf-8'
+            capture_output=True
         )
 
         return jsonify({"success": True, "coins": coins, "deleted": coin})
