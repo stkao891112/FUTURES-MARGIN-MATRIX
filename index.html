@@ -467,6 +467,45 @@
       box-shadow: 0 0 14px rgba(99, 102, 241, 0.4);
     }
 
+    /* Exchange Filter Chips */
+    .ex-filter-chips {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .ex-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .ex-chip.active.binance { border-color: var(--binance-color); color: var(--binance-color); background: rgba(240, 185, 11, 0.15); box-shadow: 0 0 10px var(--binance-glow); }
+    .ex-chip.active.bitget { border-color: var(--bitget-color); color: var(--bitget-color); background: rgba(0, 242, 254, 0.15); box-shadow: 0 0 10px var(--bitget-glow); }
+    .ex-chip.active.bybit { border-color: var(--bybit-color); color: var(--bybit-color); background: rgba(255, 153, 0, 0.15); box-shadow: 0 0 10px var(--bybit-glow); }
+    .ex-chip.active.okx { border-color: var(--okx-color); color: var(--okx-color); background: rgba(168, 85, 247, 0.15); box-shadow: 0 0 10px var(--okx-glow); }
+    .ex-chip.active.mexc { border-color: var(--mexc-color); color: var(--mexc-color); background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 10px var(--mexc-glow); }
+    .ex-chip.active.hyperliquid { border-color: var(--hyperliquid-color); color: var(--hyperliquid-color); background: rgba(0, 245, 160, 0.15); box-shadow: 0 0 10px var(--hyperliquid-glow); }
+
+    .ex-chip.disabled {
+      opacity: 0.4;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.3);
+      text-decoration: line-through;
+    }
+
     /* Effective Leverage Display */
     .eff-lev-box {
       background: rgba(99, 102, 241, 0.1);
@@ -1128,6 +1167,34 @@
           <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px;">實際生效槓桿 (Effective Leverage)</div>
           <div class="eff-lev-val" id="effLeverageDisplay">10.00x</div>
         </div>
+
+        <!-- Exchange Filter Toggle -->
+        <div class="form-group" style="margin-top: 24px;">
+          <label style="display: flex; align-items: center; justify-content: space-between;">
+            <span>比較交易所顯示開關</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">(自訂隱藏交易所)</span>
+          </label>
+          <div class="ex-filter-chips">
+            <button id="filterBtnBinance" class="ex-chip binance active" onclick="toggleExchange('Binance')">
+              <i class="fa-solid fa-check"></i> Binance
+            </button>
+            <button id="filterBtnBitget" class="ex-chip bitget active" onclick="toggleExchange('Bitget')">
+              <i class="fa-solid fa-check"></i> Bitget
+            </button>
+            <button id="filterBtnBybit" class="ex-chip bybit active" onclick="toggleExchange('Bybit')">
+              <i class="fa-solid fa-check"></i> Bybit
+            </button>
+            <button id="filterBtnOKX" class="ex-chip okx active" onclick="toggleExchange('OKX')">
+              <i class="fa-solid fa-check"></i> OKX
+            </button>
+            <button id="filterBtnMEXC" class="ex-chip mexc active" onclick="toggleExchange('MEXC')">
+              <i class="fa-solid fa-check"></i> MEXC
+            </button>
+            <button id="filterBtnHyperliquid" class="ex-chip hyperliquid active" onclick="toggleExchange('Hyperliquid')">
+              <i class="fa-solid fa-check"></i> Hyperliquid
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Right Column: Leaderboard + 6 Exchange Matrix -->
@@ -1138,7 +1205,7 @@
           <div class="lb-header">
             <div class="lb-title">
               <i class="fa-solid fa-trophy"></i>
-              <span>6 大交易所防爆倉安全度排名 (依匯總總表檔位即時連動)</span>
+              <span id="lbTitleText">6 大交易所防爆倉安全度排名 (依匯總總表檔位即時連動)</span>
             </div>
           </div>
           <div class="lb-grid" id="leaderboardGrid">
@@ -3220,6 +3287,38 @@
 
     let currentDirection = 'LONG';
     let currentLeverage = 10;
+    let hiddenExchanges = new Set(JSON.parse(localStorage.getItem('hiddenExchanges') || '[]'));
+
+    function toggleExchange(ex) {
+      if (hiddenExchanges.has(ex)) {
+        hiddenExchanges.delete(ex);
+      } else {
+        if (hiddenExchanges.size >= 5) {
+          alert('⚠️ 請至少保留一家交易所進行比較！');
+          return;
+        }
+        hiddenExchanges.add(ex);
+      }
+      localStorage.setItem('hiddenExchanges', JSON.stringify([...hiddenExchanges]));
+      updateExchangeFilterUI();
+      calculate();
+    }
+
+    function updateExchangeFilterUI() {
+      const exchanges = ['Binance', 'Bitget', 'Bybit', 'OKX', 'MEXC', 'Hyperliquid'];
+      exchanges.forEach(ex => {
+        const isHidden = hiddenExchanges.has(ex);
+        const btn = document.getElementById(`filterBtn${ex}`);
+        if (btn) {
+          btn.classList.toggle('active', !isHidden);
+          btn.classList.toggle('disabled', isHidden);
+          const icon = btn.querySelector('i');
+          if (icon) {
+            icon.className = isHidden ? 'fa-solid fa-eye-slash' : 'fa-solid fa-check';
+          }
+        }
+      });
+    }
 
     function setDirection(dir) {
       currentDirection = dir;
@@ -3415,7 +3514,23 @@
       const exchanges = ['Binance', 'Bitget', 'Bybit', 'OKX', 'MEXC', 'Hyperliquid'];
       const calcResults = [];
 
+      const visibleCount = exchanges.length - hiddenExchanges.size;
+      const lbTitleElem = document.getElementById('lbTitleText');
+      if (lbTitleElem) {
+        lbTitleElem.innerText = `${visibleCount} 大交易所防爆倉安全度排名 (依匯總總表檔位即時連動)`;
+      }
+
       exchanges.forEach(ex => {
+        const exLower = ex.toLowerCase();
+        const cardElem = document.getElementById(`card${ex}`);
+
+        if (hiddenExchanges.has(ex)) {
+          if (cardElem) cardElem.style.display = 'none';
+          return;
+        } else {
+          if (cardElem) cardElem.style.display = 'block';
+        }
+
         const info = getTierInfo(ex, coin, V, P);
         const mmr = info.mmr || 0.005;
         const ded = info.deduction || 0;
@@ -3618,7 +3733,8 @@
       });
     }
 
-    // 初始化載入上次更新時間與最新 JSON 檔位數據
+    // 初始化載入
+    updateExchangeFilterUI();
     loadLastUpdatedTime();
     loadScrapedTiersJSON();
   </script>
