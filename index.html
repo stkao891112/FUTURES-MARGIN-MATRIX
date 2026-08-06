@@ -429,15 +429,18 @@
       box-shadow: 0 0 18px rgba(239, 68, 68, 0.4);
     }
 
-    /* Quick Leverage Chips */
+    /* Quick Value & Leverage Chips */
+    .val-chips,
     .lev-chips {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       margin-top: 10px;
+      flex-wrap: wrap;
     }
 
     .chip {
       flex: 1;
+      min-width: 55px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.12);
       color: var(--text-muted);
@@ -455,6 +458,13 @@
       color: #FFFFFF;
       border-color: var(--accent-neon);
       box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .chip.active {
+      background: rgba(99, 102, 241, 0.35);
+      color: #FFFFFF;
+      border-color: var(--accent-neon);
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.4);
     }
 
     /* Effective Leverage Display */
@@ -1083,8 +1093,16 @@
         <div class="form-group">
           <label>倉位總價值 (Notional Value)</label>
           <div class="input-wrapper">
-            <input type="number" id="positionValue" value="50000" step="any" oninput="calculate()">
+            <input type="number" id="positionValue" value="50000" step="any" oninput="onPositionValueInput()">
             <span class="input-suffix">USDT</span>
+          </div>
+          <!-- Quick Value Chips -->
+          <div class="val-chips">
+            <div class="chip val-chip" data-val="500000" onclick="setQuickValue(500000)">50萬</div>
+            <div class="chip val-chip" data-val="1000000" onclick="setQuickValue(1000000)">100萬</div>
+            <div class="chip val-chip" data-val="2000000" onclick="setQuickValue(2000000)">200萬</div>
+            <div class="chip val-chip" data-val="5000000" onclick="setQuickValue(5000000)">500萬</div>
+            <div class="chip val-chip" data-val="10000000" onclick="setQuickValue(10000000)">1000萬</div>
           </div>
         </div>
 
@@ -1092,23 +1110,23 @@
         <div class="form-group">
           <label>投入保證金 (Margin)</label>
           <div class="input-wrapper">
-            <input type="number" id="marginInput" value="2500" step="any" oninput="calculate()">
+            <input type="number" id="marginInput" value="5000" step="any" oninput="onMarginInput()">
             <span class="input-suffix">USDT</span>
           </div>
           <!-- Quick Leverage Chips -->
           <div class="lev-chips">
-            <div class="chip" onclick="setQuickLeverage(5)">5x</div>
-            <div class="chip" onclick="setQuickLeverage(10)">10x</div>
-            <div class="chip" onclick="setQuickLeverage(20)">20x</div>
-            <div class="chip" onclick="setQuickLeverage(50)">50x</div>
-            <div class="chip" onclick="setQuickLeverage(100)">100x</div>
+            <div class="chip lev-chip" data-lev="5" onclick="setQuickLeverage(5)">5x</div>
+            <div class="chip lev-chip active" data-lev="10" onclick="setQuickLeverage(10)">10x</div>
+            <div class="chip lev-chip" data-lev="20" onclick="setQuickLeverage(20)">20x</div>
+            <div class="chip lev-chip" data-lev="50" onclick="setQuickLeverage(50)">50x</div>
+            <div class="chip lev-chip" data-lev="100" onclick="setQuickLeverage(100)">100x</div>
           </div>
         </div>
 
         <!-- Effective Leverage Display -->
         <div class="eff-lev-box">
           <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px;">實際生效槓桿 (Effective Leverage)</div>
-          <div class="eff-lev-val" id="effLeverageDisplay">20.00x</div>
+          <div class="eff-lev-val" id="effLeverageDisplay">10.00x</div>
         </div>
       </div>
 
@@ -3201,11 +3219,75 @@
     }
 
     let currentDirection = 'LONG';
+    let currentLeverage = 10;
 
     function setDirection(dir) {
       currentDirection = dir;
       document.getElementById('btnLong').classList.toggle('active', dir === 'LONG');
       document.getElementById('btnShort').classList.toggle('active', dir === 'SHORT');
+      calculate();
+    }
+
+    function updateLeverageChips() {
+      const levChips = document.querySelectorAll('.lev-chip');
+      levChips.forEach(chip => {
+        const levVal = parseFloat(chip.getAttribute('data-lev'));
+        if (Math.abs(levVal - currentLeverage) < 0.01) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+    }
+
+    function updateValueChips() {
+      const valVal = parseFloat(document.getElementById('positionValue').value) || 0;
+      const valChips = document.querySelectorAll('.val-chip');
+      valChips.forEach(chip => {
+        const chipVal = parseFloat(chip.getAttribute('data-val'));
+        if (Math.abs(chipVal - valVal) < 0.01) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+    }
+
+    function updateMarginFromLeverage() {
+      const V = parseFloat(document.getElementById('positionValue').value) || 0;
+      if (currentLeverage > 0) {
+        const M = V / currentLeverage;
+        document.getElementById('marginInput').value = M % 1 === 0 ? M.toFixed(0) : M.toFixed(2);
+      }
+    }
+
+    function setQuickValue(val) {
+      document.getElementById('positionValue').value = val;
+      updateValueChips();
+      updateMarginFromLeverage();
+      calculate();
+    }
+
+    function onPositionValueInput() {
+      updateValueChips();
+      updateMarginFromLeverage();
+      calculate();
+    }
+
+    function setQuickLeverage(lev) {
+      currentLeverage = lev;
+      updateLeverageChips();
+      updateMarginFromLeverage();
+      calculate();
+    }
+
+    function onMarginInput() {
+      const V = parseFloat(document.getElementById('positionValue').value) || 0;
+      const M = parseFloat(document.getElementById('marginInput').value) || 0;
+      if (M > 0 && V > 0) {
+        currentLeverage = V / M;
+      }
+      updateLeverageChips();
       calculate();
     }
 
@@ -3221,24 +3303,15 @@
         document.getElementById('entryPrice').value = DEFAULT_PRICES[coin];
         if (coin === 'BTCUSDT') {
           document.getElementById('positionValue').value = 50000;
-          document.getElementById('marginInput').value = 2500;
         } else if (coin === 'ETHUSDT') {
           document.getElementById('positionValue').value = 20000;
-          document.getElementById('marginInput').value = 1000;
         } else if (coin === 'SOLUSDT') {
           document.getElementById('positionValue').value = 5000;
-          document.getElementById('marginInput').value = 250;
         }
+        updateValueChips();
+        updateMarginFromLeverage();
       }
       calculate();
-    }
-
-    function setQuickLeverage(lev) {
-      const posVal = parseFloat(document.getElementById('positionValue').value) || 0;
-      if (posVal > 0) {
-        document.getElementById('marginInput').value = (posVal / lev).toFixed(2);
-        calculate();
-      }
     }
 
     // 依據檔位上限門檻嚴格比對 (0 ~ 上限)
