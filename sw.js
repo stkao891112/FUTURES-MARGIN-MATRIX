@@ -1,12 +1,10 @@
-const CACHE_NAME = 'futures-margin-pwa-v1';
+const CACHE_NAME = 'futures-margin-pwa-v3';
 const ASSETS_TO_CACHE = [
   './',
-  './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './data/tiers.json',
   'https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];

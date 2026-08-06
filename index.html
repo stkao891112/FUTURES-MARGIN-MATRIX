@@ -3901,8 +3901,22 @@
       });
     }
 
-    // 初始化載入
-    loadScrapedTiersJSON();
+    // 將關鍵互動函式綁定至 window 確保全域可用
+    window.setQuickLeverage = setQuickLeverage;
+    window.setQuickValue = setQuickValue;
+    window.onPositionValueInput = onPositionValueInput;
+    window.onMarginInput = onMarginInput;
+    window.onCoinChange = onCoinChange;
+    window.setDirection = setDirection;
+    window.toggleExchange = toggleExchange;
+    window.openAddCoinModal = openAddCoinModal;
+    window.closeCoinModal = closeCoinModal;
+    window.submitAddCoin = submitAddCoin;
+    window.promptDeleteCoin = promptDeleteCoin;
+    window.showTierModal = showTierModal;
+    window.closeTierModal = closeTierModal;
+    window.calculate = calculate;
+    window.refreshDataSource = refreshDataSource;
 
     // ==========================================
     // PWA & Service Worker 註冊與安裝事件處理
@@ -3910,7 +3924,10 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('[PWA] Service Worker 註冊成功:', reg.scope))
+          .then(reg => {
+            reg.update();
+            console.log('[PWA] Service Worker 註冊與更新成功:', reg.scope);
+          })
           .catch(err => console.warn('[PWA] Service Worker 註冊失敗:', err));
       });
     }
