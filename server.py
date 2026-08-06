@@ -19,11 +19,16 @@ CORS(app)
 
 @app.route('/')
 def serve_index():
-    return send_from_directory(BASE_DIR, 'index.html')
+    res = send_from_directory(BASE_DIR, 'index.html')
+    res.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return res
 
 @app.route('/<path:filename>')
 def serve_static(filename):
-    return send_from_directory(BASE_DIR, filename)
+    res = send_from_directory(BASE_DIR, filename)
+    if filename.endswith('.html') or filename == 'sw.js' or filename.endswith('.json'):
+        res.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return res
 
 @app.route('/api/last_updated', methods=['GET'])
 def get_last_updated():

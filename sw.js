@@ -1,4 +1,4 @@
-const CACHE_NAME = 'futures-margin-pwa-v3';
+const CACHE_NAME = 'futures-margin-pwa-v5';
 const ASSETS_TO_CACHE = [
   './',
   './manifest.json',
