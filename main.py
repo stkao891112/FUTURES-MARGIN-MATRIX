@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import time
+import json
 import concurrent.futures
 import pandas as pd
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
@@ -207,14 +208,18 @@ def main():
     print(" 🚀 跨交易所合約保證金數據自動化爬蟲（Binance/Bybit/Bitget/OKX/MEXC 5家並行版） ")
     print("=" * 60)
     
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    coins_path = os.path.join(BASE_DIR, "data", "coins.json")
+
     # 支援命令列參數傳入、coins.json 設定檔讀取或互動式輸入
     if len(sys.argv) > 1:
         coins = [c.upper() for c in sys.argv[1:] if c.strip()]
-    elif os.path.exists(os.path.join("data", "coins.json")):
+    elif os.path.exists(coins_path):
         try:
-            with open(os.path.join("data", "coins.json"), "r", encoding="utf-8") as f:
+            with open(coins_path, "r", encoding="utf-8") as f:
                 coins = json.load(f)
-        except Exception:
+        except Exception as e:
+            print("❌ 載入 coins.json 失敗:", e)
             coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
     else:
         coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
@@ -248,7 +253,7 @@ def main():
     total_elapsed = time.time() - start_total_time
 
     # 進行同一幣種跨交易所數據整合
-    data_dir = "data"
+    data_dir = os.path.join(BASE_DIR, "data")
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 

@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-08-03 20:18:57",
+  "_last_updated": "2026-08-06 11:21:58",
   "BTCUSDT": {
     "Binance": [
       {
@@ -1495,6 +1495,1357 @@
         "mmr": 0.025,
         "deduction": 0,
         "maxLev": 25
+      }
+    ]
+  },
+  "DOGEUSDT": {
+    "Binance": [
+      {
+        "tier": 1,
+        "mmr": 0.006500000000000001,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 80000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 280.0,
+        "maxLev": 50.0,
+        "limit": 150000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0125,
+        "deduction": 655.0,
+        "maxLev": 40.0,
+        "limit": 750000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.02,
+        "deduction": 6280.0,
+        "maxLev": 25.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.025,
+        "deduction": 16280.0,
+        "maxLev": 20.0,
+        "limit": 4000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.05,
+        "deduction": 116280.0,
+        "maxLev": 10.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.1,
+        "deduction": 1116280.0,
+        "maxLev": 5.0,
+        "limit": 40000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.125,
+        "deduction": 2116280.0,
+        "maxLev": 4.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.25,
+        "deduction": 8366280.0,
+        "maxLev": 2.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.5,
+        "deduction": 33366280.0,
+        "maxLev": 1.0,
+        "limit": 200000000.0
+      }
+    ],
+    "Bitget": [
+      {
+        "tier": 1,
+        "mmr": 0.0066,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 10000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limit": 30000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.025,
+        "deduction": 0.0,
+        "maxLev": 25.0,
+        "limit": 75000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.03,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limit": 100000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.05,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limit": 175000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.12,
+        "deduction": 0.0,
+        "maxLev": 5.0,
+        "limit": 375000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.15,
+        "deduction": 0.0,
+        "maxLev": 4.0,
+        "limit": 850000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.3,
+        "deduction": 0.0,
+        "maxLev": 2.0,
+        "limit": 1550000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.6,
+        "deduction": 0.0,
+        "maxLev": 1.0,
+        "limit": 2500000.0
+      }
+    ],
+    "Bybit": [
+      {
+        "tier": 1,
+        "mmr": 0.02,
+        "deduction": 0.0,
+        "maxLev": 25.0,
+        "limit": 25000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.025,
+        "deduction": 125.0,
+        "maxLev": 20.0,
+        "limit": 50000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.03,
+        "deduction": 375.0,
+        "maxLev": 16.67,
+        "limit": 75000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.035,
+        "deduction": 750.0,
+        "maxLev": 14.29,
+        "limit": 100000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.04,
+        "deduction": 1250.0,
+        "maxLev": 12.5,
+        "limit": 125000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.045,
+        "deduction": 1875.0,
+        "maxLev": 11.12,
+        "limit": 150000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.05,
+        "deduction": 2625.0,
+        "maxLev": 10.0,
+        "limit": 175000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.055,
+        "deduction": 3500.0,
+        "maxLev": 9.1,
+        "limit": 200000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.06,
+        "deduction": 4500.0,
+        "maxLev": 8.34,
+        "limit": 225000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.065,
+        "deduction": 5625.0,
+        "maxLev": 7.7,
+        "limit": 250000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.07,
+        "deduction": 6875.0,
+        "maxLev": 7.15,
+        "limit": 275000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.075,
+        "deduction": 8250.0,
+        "maxLev": 6.67,
+        "limit": 300000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.08,
+        "deduction": 9750.0,
+        "maxLev": 6.25,
+        "limit": 325000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.085,
+        "deduction": 11375.0,
+        "maxLev": 5.89,
+        "limit": 350000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.09,
+        "deduction": 13125.0,
+        "maxLev": 5.56,
+        "limit": 375000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.11,
+        "deduction": 20625.0,
+        "maxLev": 4.55,
+        "limit": 850000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.13,
+        "deduction": 37625.0,
+        "maxLev": 3.85,
+        "limit": 950000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.15,
+        "deduction": 56625.0,
+        "maxLev": 3.34,
+        "limit": 1050000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.17,
+        "deduction": 77625.0,
+        "maxLev": 2.95,
+        "limit": 1150000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.19,
+        "deduction": 100625.0,
+        "maxLev": 2.64,
+        "limit": 1250000.0
+      }
+    ],
+    "OKX": [
+      {
+        "tier": 1,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limitQty": 3000000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.015,
+        "deduction": 0.0,
+        "maxLev": 40.0,
+        "limitQty": 6000000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.03,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limitQty": 12000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.035,
+        "deduction": 0.0,
+        "maxLev": 18.18,
+        "limitQty": 24000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.04,
+        "deduction": 0.0,
+        "maxLev": 16.66,
+        "limitQty": 36000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.045,
+        "deduction": 0.0,
+        "maxLev": 15.38,
+        "limitQty": 48000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.05,
+        "deduction": 0.0,
+        "maxLev": 14.28,
+        "limitQty": 60000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.055,
+        "deduction": 0.0,
+        "maxLev": 13.33,
+        "limitQty": 72000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.06,
+        "deduction": 0.0,
+        "maxLev": 12.5,
+        "limitQty": 84000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.065,
+        "deduction": 0.0,
+        "maxLev": 11.76,
+        "limitQty": 96000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.07,
+        "deduction": 0.0,
+        "maxLev": 11.11,
+        "limitQty": 108000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.075,
+        "deduction": 0.0,
+        "maxLev": 10.52,
+        "limitQty": 120000000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.08,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limitQty": 132000000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.085,
+        "deduction": 0.0,
+        "maxLev": 9.52,
+        "limitQty": 144000000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.09,
+        "deduction": 0.0,
+        "maxLev": 9.09,
+        "limitQty": 156000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.095,
+        "deduction": 0.0,
+        "maxLev": 8.69,
+        "limitQty": 168000000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.1,
+        "deduction": 0.0,
+        "maxLev": 8.33,
+        "limitQty": 180000000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.105,
+        "deduction": 0.0,
+        "maxLev": 8.0,
+        "limitQty": 192000000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.11,
+        "deduction": 0.0,
+        "maxLev": 7.69,
+        "limitQty": 204000000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.115,
+        "deduction": 0.0,
+        "maxLev": 7.4,
+        "limitQty": 216000000.0
+      }
+    ],
+    "MEXC": [
+      {
+        "tier": 1,
+        "mmr": 0.0023,
+        "deduction": 0.0,
+        "maxLev": 300.0,
+        "limitQty": 2300000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 200.0,
+        "limitQty": 44000000.0
+      }
+    ],
+    "Hyperliquid": [
+      {
+        "tier": "固定",
+        "limit": 999999999,
+        "mmr": 0.03,
+        "deduction": 0,
+        "maxLev": 20
+      }
+    ]
+  },
+  "PEPEUSDT": {
+    "Binance": [
+      {
+        "tier": 1,
+        "mmr": 0.006500000000000001,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 80000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 280.0,
+        "maxLev": 50.0,
+        "limit": 150000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0125,
+        "deduction": 655.0,
+        "maxLev": 40.0,
+        "limit": 750000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.02,
+        "deduction": 6280.0,
+        "maxLev": 25.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.025,
+        "deduction": 16280.0,
+        "maxLev": 20.0,
+        "limit": 4000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.05,
+        "deduction": 116280.0,
+        "maxLev": 10.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.1,
+        "deduction": 1116280.0,
+        "maxLev": 5.0,
+        "limit": 40000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.125,
+        "deduction": 2116280.0,
+        "maxLev": 4.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.25,
+        "deduction": 8366280.0,
+        "maxLev": 2.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.5,
+        "deduction": 33366280.0,
+        "maxLev": 1.0,
+        "limit": 200000000.0
+      }
+    ],
+    "Bitget": [
+      {
+        "tier": 1,
+        "mmr": 0.0066,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 20000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limit": 200000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.02,
+        "deduction": 0.0,
+        "maxLev": 25.0,
+        "limit": 1500000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.025,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limit": 3000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.05,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limit": 15000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.1,
+        "deduction": 0.0,
+        "maxLev": 5.0,
+        "limit": 30000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.125,
+        "deduction": 0.0,
+        "maxLev": 4.0,
+        "limit": 37500000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.25,
+        "deduction": 0.0,
+        "maxLev": 2.0,
+        "limit": 75000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.5,
+        "deduction": 0.0,
+        "maxLev": 1.0,
+        "limit": 150000000.0
+      }
+    ],
+    "Bybit": [
+      {
+        "tier": 1,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limit": 200000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.015,
+        "deduction": 1000.0,
+        "maxLev": 33.33,
+        "limit": 400000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.02,
+        "deduction": 3000.0,
+        "maxLev": 25.0,
+        "limit": 600000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.025,
+        "deduction": 6000.0,
+        "maxLev": 20.0,
+        "limit": 800000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.03,
+        "deduction": 10000.0,
+        "maxLev": 16.67,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.035,
+        "deduction": 15000.0,
+        "maxLev": 14.29,
+        "limit": 1200000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.04,
+        "deduction": 21000.0,
+        "maxLev": 12.5,
+        "limit": 1400000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.045,
+        "deduction": 28000.0,
+        "maxLev": 11.11,
+        "limit": 1600000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.05,
+        "deduction": 36000.0,
+        "maxLev": 10.0,
+        "limit": 1800000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.055,
+        "deduction": 45000.0,
+        "maxLev": 9.09,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.06,
+        "deduction": 55000.0,
+        "maxLev": 8.33,
+        "limit": 2200000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.065,
+        "deduction": 66000.0,
+        "maxLev": 7.69,
+        "limit": 2400000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.07,
+        "deduction": 78000.0,
+        "maxLev": 7.14,
+        "limit": 2600000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.075,
+        "deduction": 91000.0,
+        "maxLev": 6.67,
+        "limit": 2800000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.08,
+        "deduction": 105000.0,
+        "maxLev": 6.25,
+        "limit": 3000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.085,
+        "deduction": 120000.0,
+        "maxLev": 5.88,
+        "limit": 3200000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.09,
+        "deduction": 136000.0,
+        "maxLev": 5.56,
+        "limit": 3400000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.095,
+        "deduction": 153000.0,
+        "maxLev": 5.26,
+        "limit": 3900000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.1,
+        "deduction": 172500.0,
+        "maxLev": 5.0,
+        "limit": 4400000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.105,
+        "deduction": 194500.0,
+        "maxLev": 4.76,
+        "limit": 4900000.0
+      }
+    ],
+    "OKX": [
+      {
+        "tier": 1,
+        "mmr": 0.006500000000000001,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limitQty": 30000000000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 40.0,
+        "limitQty": 60000000000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.015,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limitQty": 120000000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.02,
+        "deduction": 0.0,
+        "maxLev": 18.18,
+        "limitQty": 240000000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.025,
+        "deduction": 0.0,
+        "maxLev": 16.66,
+        "limitQty": 360000000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.03,
+        "deduction": 0.0,
+        "maxLev": 15.38,
+        "limitQty": 480000000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.035,
+        "deduction": 0.0,
+        "maxLev": 14.28,
+        "limitQty": 600000000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.04,
+        "deduction": 0.0,
+        "maxLev": 13.33,
+        "limitQty": 720000000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.045,
+        "deduction": 0.0,
+        "maxLev": 12.5,
+        "limitQty": 840000000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.05,
+        "deduction": 0.0,
+        "maxLev": 11.76,
+        "limitQty": 960000000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.055,
+        "deduction": 0.0,
+        "maxLev": 11.11,
+        "limitQty": 1080000000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.06,
+        "deduction": 0.0,
+        "maxLev": 10.52,
+        "limitQty": 1200000000000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.065,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limitQty": 1320000000000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.07,
+        "deduction": 0.0,
+        "maxLev": 9.52,
+        "limitQty": 1440000000000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.075,
+        "deduction": 0.0,
+        "maxLev": 9.09,
+        "limitQty": 1560000000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.08,
+        "deduction": 0.0,
+        "maxLev": 8.69,
+        "limitQty": 1680000000000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.085,
+        "deduction": 0.0,
+        "maxLev": 8.33,
+        "limitQty": 1800000000000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.09,
+        "deduction": 0.0,
+        "maxLev": 8.0,
+        "limitQty": 1920000000000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.095,
+        "deduction": 0.0,
+        "maxLev": 7.69,
+        "limitQty": 2040000000000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.1,
+        "deduction": 0.0,
+        "maxLev": 7.4,
+        "limitQty": 2160000000000.0
+      }
+    ],
+    "MEXC": [
+      {
+        "tier": 1,
+        "mmr": 0.0023,
+        "deduction": 0.0,
+        "maxLev": 300.0,
+        "limitQty": 60000000000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 200.0,
+        "limitQty": 440000000000.0
+      }
+    ],
+    "Hyperliquid": [
+      {
+        "tier": "固定",
+        "limit": 999999999,
+        "mmr": 0.03,
+        "deduction": 0,
+        "maxLev": 20
+      }
+    ]
+  },
+  "ADAUSDT": {
+    "Binance": [
+      {
+        "tier": 1,
+        "mmr": 0.006500000000000001,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 80000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 280.0,
+        "maxLev": 50.0,
+        "limit": 150000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0125,
+        "deduction": 655.0,
+        "maxLev": 40.0,
+        "limit": 750000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.02,
+        "deduction": 6280.0,
+        "maxLev": 25.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.025,
+        "deduction": 16280.0,
+        "maxLev": 20.0,
+        "limit": 4000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.05,
+        "deduction": 116280.0,
+        "maxLev": 10.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.1,
+        "deduction": 1116280.0,
+        "maxLev": 5.0,
+        "limit": 40000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.125,
+        "deduction": 2116280.0,
+        "maxLev": 4.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.25,
+        "deduction": 8366280.0,
+        "maxLev": 2.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.5,
+        "deduction": 33366280.0,
+        "maxLev": 1.0,
+        "limit": 200000000.0
+      }
+    ],
+    "Bitget": [
+      {
+        "tier": 1,
+        "mmr": 0.0066,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 100000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limit": 200000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0125,
+        "deduction": 0.0,
+        "maxLev": 40.0,
+        "limit": 250000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.02,
+        "deduction": 0.0,
+        "maxLev": 25.0,
+        "limit": 900000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.03,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limit": 1300000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.05,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limit": 3300000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.12,
+        "deduction": 0.0,
+        "maxLev": 5.0,
+        "limit": 15000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.15,
+        "deduction": 0.0,
+        "maxLev": 4.0,
+        "limit": 25000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.3,
+        "deduction": 0.0,
+        "maxLev": 2.0,
+        "limit": 31000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.6,
+        "deduction": 0.0,
+        "maxLev": 1.0,
+        "limit": 35000000.0
+      }
+    ],
+    "Bybit": [
+      {
+        "tier": 1,
+        "mmr": 0.0075,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 200000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 500.0,
+        "maxLev": 50.0,
+        "limit": 300000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.015,
+        "deduction": 2000.0,
+        "maxLev": 33.33,
+        "limit": 500000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.02,
+        "deduction": 4500.0,
+        "maxLev": 25.0,
+        "limit": 900000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.025,
+        "deduction": 9000.0,
+        "maxLev": 20.0,
+        "limit": 1300000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.03,
+        "deduction": 15500.0,
+        "maxLev": 16.67,
+        "limit": 1700000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.035,
+        "deduction": 24000.0,
+        "maxLev": 14.29,
+        "limit": 2100000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.04,
+        "deduction": 34500.0,
+        "maxLev": 12.5,
+        "limit": 2500000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.045,
+        "deduction": 47000.0,
+        "maxLev": 11.11,
+        "limit": 2900000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.05,
+        "deduction": 61500.0,
+        "maxLev": 10.0,
+        "limit": 3300000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.055,
+        "deduction": 78000.0,
+        "maxLev": 9.09,
+        "limit": 3700000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.06,
+        "deduction": 96500.0,
+        "maxLev": 8.33,
+        "limit": 4100000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.065,
+        "deduction": 117000.0,
+        "maxLev": 7.69,
+        "limit": 4500000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.07,
+        "deduction": 139500.0,
+        "maxLev": 7.14,
+        "limit": 4900000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.075,
+        "deduction": 164000.0,
+        "maxLev": 6.67,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.08,
+        "deduction": 189000.0,
+        "maxLev": 6.25,
+        "limit": 7000000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.085,
+        "deduction": 224000.0,
+        "maxLev": 5.88,
+        "limit": 9000000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.09,
+        "deduction": 269000.0,
+        "maxLev": 5.56,
+        "limit": 11000000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.095,
+        "deduction": 324000.0,
+        "maxLev": 5.26,
+        "limit": 13000000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.1,
+        "deduction": 389000.0,
+        "maxLev": 5.0,
+        "limit": 15000000.0
+      }
+    ],
+    "OKX": [
+      {
+        "tier": 1,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limitQty": 220000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.015,
+        "deduction": 0.0,
+        "maxLev": 40.0,
+        "limitQty": 450000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.03,
+        "deduction": 0.0,
+        "maxLev": 20.0,
+        "limitQty": 1000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.035,
+        "deduction": 0.0,
+        "maxLev": 18.18,
+        "limitQty": 2000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.04,
+        "deduction": 0.0,
+        "maxLev": 16.66,
+        "limitQty": 3000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.045,
+        "deduction": 0.0,
+        "maxLev": 15.38,
+        "limitQty": 4000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.05,
+        "deduction": 0.0,
+        "maxLev": 14.28,
+        "limitQty": 5000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.055,
+        "deduction": 0.0,
+        "maxLev": 13.33,
+        "limitQty": 6000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.06,
+        "deduction": 0.0,
+        "maxLev": 12.5,
+        "limitQty": 7000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.065,
+        "deduction": 0.0,
+        "maxLev": 11.76,
+        "limitQty": 8000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.07,
+        "deduction": 0.0,
+        "maxLev": 11.11,
+        "limitQty": 9000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.075,
+        "deduction": 0.0,
+        "maxLev": 10.52,
+        "limitQty": 10000000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.08,
+        "deduction": 0.0,
+        "maxLev": 10.0,
+        "limitQty": 11000000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.085,
+        "deduction": 0.0,
+        "maxLev": 9.52,
+        "limitQty": 12000000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.09,
+        "deduction": 0.0,
+        "maxLev": 9.09,
+        "limitQty": 13000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.095,
+        "deduction": 0.0,
+        "maxLev": 8.69,
+        "limitQty": 14000000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.1,
+        "deduction": 0.0,
+        "maxLev": 8.33,
+        "limitQty": 15000000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.105,
+        "deduction": 0.0,
+        "maxLev": 8.0,
+        "limitQty": 16000000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.11,
+        "deduction": 0.0,
+        "maxLev": 7.69,
+        "limitQty": 17000000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.115,
+        "deduction": 0.0,
+        "maxLev": 7.4,
+        "limitQty": 18000000.0
+      }
+    ],
+    "MEXC": [
+      {
+        "tier": 1,
+        "mmr": 0.0023,
+        "deduction": 0.0,
+        "maxLev": 300.0,
+        "limitQty": 550000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 200.0,
+        "limitQty": 13500000.0
+      }
+    ],
+    "Hyperliquid": [
+      {
+        "tier": "固定",
+        "limit": 999999999,
+        "mmr": 0.03,
+        "deduction": 0,
+        "maxLev": 20
       }
     ]
   }

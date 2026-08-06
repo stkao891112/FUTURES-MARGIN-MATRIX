@@ -41,9 +41,10 @@ def parse_mmr(val):
         return 0.0
 
 def export_tiers_to_json():
-    excel_path = os.path.join("data", "all_exchanges_futures_margin.xlsx")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    excel_path = os.path.join(BASE_DIR, "data", "all_exchanges_futures_margin.xlsx")
     if not os.path.exists(excel_path):
-        print("⚠️ 未檢測到 [data/all_exchanges_futures_margin.xlsx] 匯總總表！")
+        print(f"⚠️ 未檢測到 [{excel_path}] 匯總總表！")
         print("🚀 正在自動執行 main.py 爬取 5 大交易所最新合約檔位數據...")
         try:
             from main import main as run_main
@@ -56,7 +57,7 @@ def export_tiers_to_json():
         return
 
     try:
-        coins_path = os.path.join("data", "coins.json")
+        coins_path = os.path.join(BASE_DIR, "data", "coins.json")
         allowed_coins = None
         if os.path.exists(coins_path):
             try:

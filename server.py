@@ -110,21 +110,25 @@ def run_background_crawler(coin):
     try:
         python_exe = sys.executable
         print(f"🚀 [背景爬蟲啟動] 開始爬取新增幣種 [{coin}]...")
-        subprocess.run(
+        res1 = subprocess.run(
             [python_exe, os.path.join(BASE_DIR, "main.py")],
             cwd=BASE_DIR,
-            capture_output=True,
-            text=True,
-            encoding='utf-8'
+            capture_output=True
         )
-        subprocess.run(
+        if res1.stdout:
+            print("main.py output:\n", res1.stdout.decode('utf-8', errors='ignore')[-500:])
+        if res1.stderr:
+            print("main.py error:\n", res1.stderr.decode('utf-8', errors='ignore')[-500:])
+
+        res2 = subprocess.run(
             [python_exe, os.path.join(BASE_DIR, "export_json.py")],
             cwd=BASE_DIR,
-            capture_output=True,
-            text=True,
-            encoding='utf-8'
+            capture_output=True
         )
-        print(f"✅ [背景爬蟲完成] 新增幣種 [{coin}] 數據已寫入！")
+        if res2.stdout:
+            print("export_json.py output:\n", res2.stdout.decode('utf-8', errors='ignore')[-500:])
+
+        print(f"✅ [背景爬蟲完成] 新增幣種 [{coin}] 數據已成功導出寫入 JSON！")
     except Exception as e:
         print(f"❌ [背景爬蟲失敗] {e}")
 
