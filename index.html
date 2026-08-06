@@ -1187,7 +1187,7 @@
         <div class="form-group">
           <label>開倉價格 / 當前價位</label>
           <div class="input-wrapper">
-            <input type="number" id="entryPrice" value="65000" step="any" oninput="calculate()">
+            <input type="number" id="entryPrice" value="65000" step="any" oninput="onEntryPriceChange()">
             <span class="input-suffix">USDT</span>
           </div>
         </div>
@@ -1555,7 +1555,7 @@
               <div class="detail-item" onclick="event.stopPropagation()">
                 <span>固定維持保證金率 (MMR)</span>
                 <div style="display:flex; align-items:center; gap:3px;">
-                  <input type="number" id="hlMMRInput" value="1.25" step="0.05" min="0.1" max="50" style="width:65px; background:rgba(0,0,0,0.4); border:1px solid rgba(0,245,160,0.5); color:#00F5A0; border-radius:6px; padding:2px 6px; font-weight:bold; font-size:0.85rem; text-align:right;" oninput="calculate()" onclick="event.stopPropagation()">
+                  <input type="number" id="hlMMRInput" value="1.25" step="0.05" min="0.1" max="50" style="width:65px; background:rgba(0,0,0,0.4); border:1px solid rgba(0,245,160,0.5); color:#00F5A0; border-radius:6px; padding:2px 6px; font-weight:bold; font-size:0.85rem; text-align:right;" oninput="onHlMMRChange()" onclick="event.stopPropagation()">
                   <span style="color:#00F5A0; font-weight:bold; font-size:0.85rem;">%</span>
                 </div>
               </div>
@@ -1757,7 +1757,7 @@
 
     // 預設備援檔位數據
     let EXCHANGE_TIERS = {
-  "_last_updated": "2026-08-06 16:06:47",
+  "_last_updated": "2026-08-06 16:21:14",
   "BTCUSDT": {
     "Binance": [
       {
@@ -3698,7 +3698,7 @@
       {
         "tier": "固定",
         "limit": 999999999,
-        "mmr": 0.03,
+        "mmr": 0.05,
         "deduction": 0,
         "maxLev": 20
       }
@@ -4146,7 +4146,7 @@
       {
         "tier": "固定",
         "limit": 999999999,
-        "mmr": 0.03,
+        "mmr": 0.05,
         "deduction": 0,
         "maxLev": 20
       }
@@ -4601,7 +4601,7 @@
       {
         "tier": "固定",
         "limit": 999999999,
-        "mmr": 0.03,
+        "mmr": 0.05,
         "deduction": 0,
         "maxLev": 20
       }
@@ -5042,7 +5042,7 @@
       {
         "tier": "固定",
         "limit": 999999999,
-        "mmr": 0.03,
+        "mmr": 0.05,
         "deduction": 0,
         "maxLev": 20
       }
@@ -5525,7 +5525,7 @@
       {
         "tier": "固定",
         "limit": 999999999,
-        "mmr": 0.03,
+        "mmr": 0.05,
         "deduction": 0,
         "maxLev": 20
       }
@@ -5807,143 +5807,143 @@
     "OKX": [
       {
         "tier": 1,
-        "mmr": 0.05,
+        "mmr": 0.02,
         "deduction": 0.0,
-        "maxLev": 10.0,
-        "limitQty": 55000000.0
+        "maxLev": 20.0,
+        "limitQty": 600.0
       },
       {
         "tier": 2,
-        "mmr": 0.055,
+        "mmr": 0.03,
         "deduction": 0.0,
-        "maxLev": 9.52,
-        "limitQty": 82000000.0
+        "maxLev": 15.0,
+        "limitQty": 1200.0
       },
       {
         "tier": 3,
-        "mmr": 0.06,
+        "mmr": 0.04,
         "deduction": 0.0,
-        "maxLev": 9.09,
-        "limitQty": 100000000.0
+        "maxLev": 12.5,
+        "limitQty": 1800.0
       },
       {
         "tier": 4,
-        "mmr": 0.065,
+        "mmr": 0.045,
         "deduction": 0.0,
-        "maxLev": 8.69,
-        "limitQty": 128000000.0
+        "maxLev": 11.76,
+        "limitQty": 2400.0
       },
       {
         "tier": 5,
-        "mmr": 0.07,
+        "mmr": 0.05,
         "deduction": 0.0,
-        "maxLev": 8.33,
-        "limitQty": 156000000.0
+        "maxLev": 11.11,
+        "limitQty": 3000.0
       },
       {
         "tier": 6,
-        "mmr": 0.075,
+        "mmr": 0.055,
         "deduction": 0.0,
-        "maxLev": 8.0,
-        "limitQty": 184000000.0
+        "maxLev": 10.52,
+        "limitQty": 3600.0
       },
       {
         "tier": 7,
-        "mmr": 0.08,
+        "mmr": 0.06,
         "deduction": 0.0,
-        "maxLev": 7.69,
-        "limitQty": 212000000.0
+        "maxLev": 10.0,
+        "limitQty": 4200.0
       },
       {
         "tier": 8,
-        "mmr": 0.085,
+        "mmr": 0.065,
         "deduction": 0.0,
-        "maxLev": 7.4,
-        "limitQty": 240000000.0
+        "maxLev": 9.52,
+        "limitQty": 4800.0
       },
       {
         "tier": 9,
-        "mmr": 0.09,
+        "mmr": 0.07,
         "deduction": 0.0,
-        "maxLev": 7.14,
-        "limitQty": 268000000.0
+        "maxLev": 9.09,
+        "limitQty": 5400.0
       },
       {
         "tier": 10,
-        "mmr": 0.095,
+        "mmr": 0.075,
         "deduction": 0.0,
-        "maxLev": 6.89,
-        "limitQty": 296000000.0
+        "maxLev": 8.69,
+        "limitQty": 6000.0
       },
       {
         "tier": 11,
-        "mmr": 0.1,
+        "mmr": 0.08,
         "deduction": 0.0,
-        "maxLev": 6.66,
-        "limitQty": 324000000.0
+        "maxLev": 8.33,
+        "limitQty": 6600.0
       },
       {
         "tier": 12,
-        "mmr": 0.105,
+        "mmr": 0.085,
         "deduction": 0.0,
-        "maxLev": 6.45,
-        "limitQty": 352000000.0
+        "maxLev": 8.0,
+        "limitQty": 7200.0
       },
       {
         "tier": 13,
-        "mmr": 0.11,
+        "mmr": 0.09,
         "deduction": 0.0,
-        "maxLev": 6.25,
-        "limitQty": 380000000.0
+        "maxLev": 7.69,
+        "limitQty": 7800.0
       },
       {
         "tier": 14,
-        "mmr": 0.115,
+        "mmr": 0.095,
         "deduction": 0.0,
-        "maxLev": 6.06,
-        "limitQty": 408000000.0
+        "maxLev": 7.4,
+        "limitQty": 8400.0
       },
       {
         "tier": 15,
-        "mmr": 0.12,
+        "mmr": 0.1,
         "deduction": 0.0,
-        "maxLev": 5.88,
-        "limitQty": 436000000.0
+        "maxLev": 7.14,
+        "limitQty": 9000.0
       },
       {
         "tier": 16,
-        "mmr": 0.125,
+        "mmr": 0.105,
         "deduction": 0.0,
-        "maxLev": 5.71,
-        "limitQty": 464000000.0
+        "maxLev": 6.89,
+        "limitQty": 9600.0
       },
       {
         "tier": 17,
-        "mmr": 0.13,
+        "mmr": 0.11,
         "deduction": 0.0,
-        "maxLev": 5.55,
-        "limitQty": 492000000.0
+        "maxLev": 6.66,
+        "limitQty": 10200.0
       },
       {
         "tier": 18,
-        "mmr": 0.135,
+        "mmr": 0.115,
         "deduction": 0.0,
-        "maxLev": 5.4,
-        "limitQty": 520000000.0
+        "maxLev": 6.45,
+        "limitQty": 10800.0
       },
       {
         "tier": 19,
-        "mmr": 0.14,
+        "mmr": 0.12,
         "deduction": 0.0,
-        "maxLev": 5.26,
-        "limitQty": 548000000.0
+        "maxLev": 6.25,
+        "limitQty": 11400.0
       },
       {
         "tier": 20,
-        "mmr": 0.145,
+        "mmr": 0.125,
         "deduction": 0.0,
-        "maxLev": 5.12,
-        "limitQty": 576000000.0
+        "maxLev": 6.06,
+        "limitQty": 12000.0
       }
     ],
     "MEXC": [
@@ -5994,462 +5994,7 @@
       {
         "tier": "固定",
         "limit": 999999999,
-        "mmr": 0.03,
-        "deduction": 0,
-        "maxLev": 20
-      }
-    ]
-  },
-  "LINKUSDT": {
-    "Binance": [
-      {
-        "tier": 1,
-        "mmr": 0.005,
-        "deduction": 0.0,
-        "maxLev": 75.0,
-        "limit": 10000.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.01,
-        "deduction": 50.0,
-        "maxLev": 50.0,
-        "limit": 200000.0
-      },
-      {
-        "tier": 3,
-        "mmr": 0.015,
-        "deduction": 1050.0,
-        "maxLev": 40.0,
-        "limit": 400000.0
-      },
-      {
-        "tier": 4,
-        "mmr": 0.02,
-        "deduction": 3050.0,
-        "maxLev": 25.0,
-        "limit": 800000.0
-      },
-      {
-        "tier": 5,
-        "mmr": 0.025,
-        "deduction": 7050.0,
-        "maxLev": 20.0,
-        "limit": 1600000.0
-      },
-      {
-        "tier": 6,
         "mmr": 0.05,
-        "deduction": 47050.0,
-        "maxLev": 10.0,
-        "limit": 8000000.0
-      },
-      {
-        "tier": 7,
-        "mmr": 0.1,
-        "deduction": 447050.0,
-        "maxLev": 5.0,
-        "limit": 16000000.0
-      },
-      {
-        "tier": 8,
-        "mmr": 0.125,
-        "deduction": 847050.0,
-        "maxLev": 4.0,
-        "limit": 20000000.0
-      },
-      {
-        "tier": 9,
-        "mmr": 0.25,
-        "deduction": 3347050.0,
-        "maxLev": 2.0,
-        "limit": 40000000.0
-      },
-      {
-        "tier": 10,
-        "mmr": 0.5,
-        "deduction": 13347050.0,
-        "maxLev": 1.0,
-        "limit": 80000000.0
-      }
-    ],
-    "Bitget": [
-      {
-        "tier": 1,
-        "mmr": 0.0067,
-        "deduction": 0.0,
-        "maxLev": 75.0,
-        "limit": 10000.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.01,
-        "deduction": 0.0,
-        "maxLev": 50.0,
-        "limit": 100000.0
-      },
-      {
-        "tier": 3,
-        "mmr": 0.0125,
-        "deduction": 0.0,
-        "maxLev": 40.0,
-        "limit": 400000.0
-      },
-      {
-        "tier": 4,
-        "mmr": 0.025,
-        "deduction": 0.0,
-        "maxLev": 25.0,
-        "limit": 800000.0
-      },
-      {
-        "tier": 5,
-        "mmr": 0.03,
-        "deduction": 0.0,
-        "maxLev": 20.0,
-        "limit": 1000000.0
-      },
-      {
-        "tier": 6,
-        "mmr": 0.05,
-        "deduction": 0.0,
-        "maxLev": 10.0,
-        "limit": 1800000.0
-      },
-      {
-        "tier": 7,
-        "mmr": 0.12,
-        "deduction": 0.0,
-        "maxLev": 5.0,
-        "limit": 4400000.0
-      },
-      {
-        "tier": 8,
-        "mmr": 0.15,
-        "deduction": 0.0,
-        "maxLev": 4.0,
-        "limit": 6900000.0
-      },
-      {
-        "tier": 9,
-        "mmr": 0.3,
-        "deduction": 0.0,
-        "maxLev": 2.0,
-        "limit": 9400000.0
-      },
-      {
-        "tier": 10,
-        "mmr": 0.6,
-        "deduction": 0.0,
-        "maxLev": 1.0,
-        "limit": 15000000.0
-      }
-    ],
-    "Bybit": [
-      {
-        "tier": 1,
-        "mmr": 0.01,
-        "deduction": 0.0,
-        "maxLev": 50.0,
-        "limit": 200000.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.015,
-        "deduction": 1000.0,
-        "maxLev": 33.33,
-        "limit": 400000.0
-      },
-      {
-        "tier": 3,
-        "mmr": 0.02,
-        "deduction": 3000.0,
-        "maxLev": 25.0,
-        "limit": 600000.0
-      },
-      {
-        "tier": 4,
-        "mmr": 0.025,
-        "deduction": 6000.0,
-        "maxLev": 20.0,
-        "limit": 800000.0
-      },
-      {
-        "tier": 5,
-        "mmr": 0.03,
-        "deduction": 10000.0,
-        "maxLev": 16.67,
-        "limit": 1000000.0
-      },
-      {
-        "tier": 6,
-        "mmr": 0.035,
-        "deduction": 15000.0,
-        "maxLev": 14.29,
-        "limit": 1200000.0
-      },
-      {
-        "tier": 7,
-        "mmr": 0.04,
-        "deduction": 21000.0,
-        "maxLev": 12.5,
-        "limit": 1400000.0
-      },
-      {
-        "tier": 8,
-        "mmr": 0.045,
-        "deduction": 28000.0,
-        "maxLev": 11.11,
-        "limit": 1600000.0
-      },
-      {
-        "tier": 9,
-        "mmr": 0.05,
-        "deduction": 36000.0,
-        "maxLev": 10.0,
-        "limit": 1800000.0
-      },
-      {
-        "tier": 10,
-        "mmr": 0.055,
-        "deduction": 45000.0,
-        "maxLev": 9.09,
-        "limit": 2000000.0
-      },
-      {
-        "tier": 11,
-        "mmr": 0.06,
-        "deduction": 55000.0,
-        "maxLev": 8.33,
-        "limit": 2200000.0
-      },
-      {
-        "tier": 12,
-        "mmr": 0.065,
-        "deduction": 66000.0,
-        "maxLev": 7.69,
-        "limit": 2400000.0
-      },
-      {
-        "tier": 13,
-        "mmr": 0.07,
-        "deduction": 78000.0,
-        "maxLev": 7.14,
-        "limit": 2600000.0
-      },
-      {
-        "tier": 14,
-        "mmr": 0.075,
-        "deduction": 91000.0,
-        "maxLev": 6.67,
-        "limit": 2800000.0
-      },
-      {
-        "tier": 15,
-        "mmr": 0.08,
-        "deduction": 105000.0,
-        "maxLev": 6.25,
-        "limit": 3000000.0
-      },
-      {
-        "tier": 16,
-        "mmr": 0.085,
-        "deduction": 120000.0,
-        "maxLev": 5.88,
-        "limit": 3200000.0
-      },
-      {
-        "tier": 17,
-        "mmr": 0.09,
-        "deduction": 136000.0,
-        "maxLev": 5.56,
-        "limit": 3400000.0
-      },
-      {
-        "tier": 18,
-        "mmr": 0.095,
-        "deduction": 153000.0,
-        "maxLev": 5.26,
-        "limit": 3900000.0
-      },
-      {
-        "tier": 19,
-        "mmr": 0.1,
-        "deduction": 172500.0,
-        "maxLev": 5.0,
-        "limit": 4400000.0
-      },
-      {
-        "tier": 20,
-        "mmr": 0.105,
-        "deduction": 194500.0,
-        "maxLev": 4.76,
-        "limit": 4900000.0
-      }
-    ],
-    "OKX": [
-      {
-        "tier": 1,
-        "mmr": 0.006500000000000001,
-        "deduction": 0.0,
-        "maxLev": 50.0,
-        "limitQty": 6200.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.01,
-        "deduction": 0.0,
-        "maxLev": 40.0,
-        "limitQty": 12000.0
-      },
-      {
-        "tier": 3,
-        "mmr": 0.015,
-        "deduction": 0.0,
-        "maxLev": 20.0,
-        "limitQty": 25000.0
-      },
-      {
-        "tier": 4,
-        "mmr": 0.02,
-        "deduction": 0.0,
-        "maxLev": 18.18,
-        "limitQty": 50000.0
-      },
-      {
-        "tier": 5,
-        "mmr": 0.025,
-        "deduction": 0.0,
-        "maxLev": 16.66,
-        "limitQty": 75000.0
-      },
-      {
-        "tier": 6,
-        "mmr": 0.03,
-        "deduction": 0.0,
-        "maxLev": 15.38,
-        "limitQty": 100000.0
-      },
-      {
-        "tier": 7,
-        "mmr": 0.035,
-        "deduction": 0.0,
-        "maxLev": 14.28,
-        "limitQty": 125000.0
-      },
-      {
-        "tier": 8,
-        "mmr": 0.04,
-        "deduction": 0.0,
-        "maxLev": 13.33,
-        "limitQty": 150000.0
-      },
-      {
-        "tier": 9,
-        "mmr": 0.045,
-        "deduction": 0.0,
-        "maxLev": 12.5,
-        "limitQty": 175000.0
-      },
-      {
-        "tier": 10,
-        "mmr": 0.05,
-        "deduction": 0.0,
-        "maxLev": 11.76,
-        "limitQty": 200000.0
-      },
-      {
-        "tier": 11,
-        "mmr": 0.055,
-        "deduction": 0.0,
-        "maxLev": 11.11,
-        "limitQty": 225000.0
-      },
-      {
-        "tier": 12,
-        "mmr": 0.06,
-        "deduction": 0.0,
-        "maxLev": 10.52,
-        "limitQty": 250000.0
-      },
-      {
-        "tier": 13,
-        "mmr": 0.065,
-        "deduction": 0.0,
-        "maxLev": 10.0,
-        "limitQty": 275000.0
-      },
-      {
-        "tier": 14,
-        "mmr": 0.07,
-        "deduction": 0.0,
-        "maxLev": 9.52,
-        "limitQty": 300000.0
-      },
-      {
-        "tier": 15,
-        "mmr": 0.075,
-        "deduction": 0.0,
-        "maxLev": 9.09,
-        "limitQty": 325000.0
-      },
-      {
-        "tier": 16,
-        "mmr": 0.08,
-        "deduction": 0.0,
-        "maxLev": 8.69,
-        "limitQty": 350000.0
-      },
-      {
-        "tier": 17,
-        "mmr": 0.085,
-        "deduction": 0.0,
-        "maxLev": 8.33,
-        "limitQty": 375000.0
-      },
-      {
-        "tier": 18,
-        "mmr": 0.09,
-        "deduction": 0.0,
-        "maxLev": 8.0,
-        "limitQty": 400000.0
-      },
-      {
-        "tier": 19,
-        "mmr": 0.095,
-        "deduction": 0.0,
-        "maxLev": 7.69,
-        "limitQty": 425000.0
-      },
-      {
-        "tier": 20,
-        "mmr": 0.1,
-        "deduction": 0.0,
-        "maxLev": 7.4,
-        "limitQty": 450000.0
-      }
-    ],
-    "MEXC": [
-      {
-        "tier": 1,
-        "mmr": 0.0023,
-        "deduction": 0.0,
-        "maxLev": 300.0,
-        "limitQty": 23000.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.004,
-        "deduction": 0.0,
-        "maxLev": 200.0,
-        "limitQty": 200000.0
-      }
-    ],
-    "Hyperliquid": [
-      {
-        "tier": "固定",
-        "limit": 999999999,
-        "mmr": 0.03,
         "deduction": 0,
         "maxLev": 20
       }
@@ -6457,7 +6002,7 @@
   }
 };
 
-    let LAST_UPDATED = "2026-08-06 16:06:47";
+    let LAST_UPDATED = "2026-08-06 16:21:14";
 
     async function loadLastUpdatedTime() {
       try {
@@ -6691,6 +6236,69 @@
       return DEFAULT_PRICES[coin] || 1.0;
     }
 
+    function getSavedCoinPrice(coin) {
+      try {
+        const prices = JSON.parse(localStorage.getItem('savedCoinPrices') || '{}');
+        if (prices[coin] && prices[coin] > 0) return prices[coin];
+      } catch (e) {}
+      return null;
+    }
+
+    function saveCoinPrice(coin, price) {
+      if (!coin || price <= 0) return;
+      try {
+        const prices = JSON.parse(localStorage.getItem('savedCoinPrices') || '{}');
+        prices[coin] = price;
+        localStorage.setItem('savedCoinPrices', JSON.stringify(prices));
+      } catch (e) {}
+    }
+
+    function onEntryPriceChange() {
+      const coin = document.getElementById('coinSelect').value;
+      const price = parseFloat(document.getElementById('entryPrice').value);
+      if (coin && price > 0) {
+        saveCoinPrice(coin, price);
+        DEFAULT_PRICES[coin] = price;
+      }
+      calculate();
+    }
+
+    function getDefaultHyperliquidMMR(coin) {
+      if (coin === 'BTCUSDT' || coin === 'BTC') return 1.25;
+      if (coin === 'ETHUSDT' || coin === 'ETH') return 2.0;
+      if (coin === 'SOLUSDT' || coin === 'SOL') return 2.5;
+      return 5.0; // 其他所有幣種預設皆為 5%
+    }
+
+    function getSavedHyperliquidMMR(coin) {
+      try {
+        const mmrs = JSON.parse(localStorage.getItem('savedHlMMRs') || '{}');
+        if (mmrs[coin] && mmrs[coin] > 0) return mmrs[coin];
+      } catch (e) {}
+      return getDefaultHyperliquidMMR(coin);
+    }
+
+    function saveHyperliquidMMR(coin, mmrVal) {
+      if (!coin || mmrVal <= 0) return;
+      try {
+        const mmrs = JSON.parse(localStorage.getItem('savedHlMMRs') || '{}');
+        mmrs[coin] = mmrVal;
+        localStorage.setItem('savedHlMMRs', JSON.stringify(mmrs));
+      } catch (e) {}
+    }
+
+    function onHlMMRChange() {
+      const coin = document.getElementById('coinSelect').value;
+      const hlInput = document.getElementById('hlMMRInput');
+      if (hlInput) {
+        const val = parseFloat(hlInput.value);
+        if (coin && !isNaN(val) && val > 0) {
+          saveHyperliquidMMR(coin, val);
+        }
+      }
+      calculate();
+    }
+
     async function onCoinChange() {
       const select = document.getElementById('coinSelect');
       if (!select) return;
@@ -6702,10 +6310,13 @@
       const mexcBadge = document.getElementById('mexcUnitBadge');
       if (mexcBadge) mexcBadge.innerText = `單位: ${baseCoin}`;
       
-      let price = DEFAULT_PRICES[coin];
+      let price = getSavedCoinPrice(coin);
+      if (!price) {
+        price = DEFAULT_PRICES[coin];
+      }
       if (!price) {
         price = await fetchPriceForCoin(coin);
-        DEFAULT_PRICES[coin] = price;
+        if (price > 0) DEFAULT_PRICES[coin] = price;
       }
 
       if (price > 0) {
@@ -6727,6 +6338,12 @@
         updateValueChips();
         updateMarginFromLeverage();
       }
+
+      const hlInput = document.getElementById('hlMMRInput');
+      if (hlInput) {
+        hlInput.value = getSavedHyperliquidMMR(coin);
+      }
+
       calculate();
     }
 
@@ -7261,6 +6878,8 @@
     window.showTierModal = showTierModal;
     window.closeTierModal = closeTierModal;
     window.calculate = calculate;
+    window.onEntryPriceChange = onEntryPriceChange;
+    window.onHlMMRChange = onHlMMRChange;
     window.refreshDataSource = refreshDataSource;
 
     // ==========================================

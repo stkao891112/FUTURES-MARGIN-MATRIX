@@ -93,7 +93,7 @@ def export_tiers_to_json():
             elif coin == "SOLUSDT":
                 all_data[coin]["Hyperliquid"] = [{"tier": "固定", "limit": 999999999, "mmr": 0.025, "deduction": 0, "maxLev": 25}]
             else:
-                all_data[coin]["Hyperliquid"] = [{"tier": "固定", "limit": 999999999, "mmr": 0.03, "deduction": 0, "maxLev": 20}]
+                all_data[coin]["Hyperliquid"] = [{"tier": "固定", "limit": 999999999, "mmr": 0.05, "deduction": 0, "maxLev": 20}]
 
             for _, row in df.iterrows():
                 ex = str(row.get("交易所", "")).strip()
