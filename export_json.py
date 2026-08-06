@@ -130,18 +130,18 @@ def export_tiers_to_json():
                 all_data[coin][ex_key].append(item)
 
         # 寫入 JSON
-        json_path = os.path.join("data", "tiers.json")
+        json_path = os.path.join(BASE_DIR, "data", "tiers.json")
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(all_data, f, ensure_ascii=False, indent=2)
         
-        last_updated_path = os.path.join("data", "last_updated.json")
+        last_updated_path = os.path.join(BASE_DIR, "data", "last_updated.json")
         with open(last_updated_path, "w", encoding="utf-8") as f:
             json.dump({"last_updated": timestamp_str}, f, ensure_ascii=False, indent=2)
 
         print(f"✅ 已成功將匯總總表檔位數據轉出至 JSON (包含時間戳 {timestamp_str})")
 
         # 同步嵌入更新 index.html 中的 let EXCHANGE_TIERS 與 let LAST_UPDATED
-        html_path = "index.html"
+        html_path = os.path.join(BASE_DIR, "index.html")
         if os.path.exists(html_path):
             with open(html_path, "r", encoding="utf-8") as f:
                 html_content = f.read()
