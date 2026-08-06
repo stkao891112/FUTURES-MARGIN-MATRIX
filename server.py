@@ -94,6 +94,102 @@ def refresh_data():
         print(f"❌ 處理更新請求時出錯: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/coins', methods=['GET'])
+def get_coins():
+    coins_path = os.path.join(BASE_DIR, "data", "coins.json")
+    if os.path.exists(coins_path):
+        try:
+            with open(coins_path, "r", encoding="utf-8") as f:
+                return jsonify({"coins": json.load(f)})
+        except Exception:
+            pass
+    return jsonify({"coins": ["BTCUSDT", "ETHUSDT", "SOLUSDT"]})
+
+@app.route('/api/coins', methods=['POST'])
+def add_coin():
+    try:
+        req = request.get_json() or {}
+        coin = str(req.get('coin', '')).strip().upper()
+        if not coin:
+            return jsonify({"success": False, "error": "幣種名稱不可空白"}), 400
+
+        if not coin.endswith('USDT'):
+            coin += 'USDT'
+
+        coins_path = os.path.join(BASE_DIR, "data", "coins.json")
+        coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+        if os.path.exists(coins_path):
+            try:
+                with open(coins_path, "r", encoding="utf-8") as f:
+                    coins = json.load(f)
+            except Exception:
+                pass
+
+        if coin not in coins:
+            coins.append(coin)
+            os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
+            with open(coins_path, "w", encoding="utf-8") as f:
+                json.dump(coins, f, ensure_ascii=False, indent=2)
+
+        # 觸發爬蟲更新與導出
+        python_exe = sys.executable
+        print(f"🚀 準備爬取新增幣種 [{coin}]...")
+        result = subprocess.run(
+            [python_exe, os.path.join(BASE_DIR, "main.py")],
+            cwd=BASE_DIR,
+            capture_output=True,
+            text=True,
+            encoding='utf-8'
+        )
+
+        subprocess.run(
+            [python_exe, os.path.join(BASE_DIR, "export_json.py")],
+            cwd=BASE_DIR,
+            capture_output=True,
+            text=True,
+            encoding='utf-8'
+        )
+
+        return jsonify({"success": True, "coins": coins, "added": coin})
+    except Exception as e:
+        print(f"❌ 新增幣種失敗: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/coins', methods=['DELETE'])
+def delete_coin():
+    try:
+        req = request.get_json() or {}
+        coin = str(req.get('coin', '')).strip().upper()
+        if not coin:
+            return jsonify({"success": False, "error": "請指定要刪除的幣種"}), 400
+
+        coins_path = os.path.join(BASE_DIR, "data", "coins.json")
+        coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+        if os.path.exists(coins_path):
+            try:
+                with open(coins_path, "r", encoding="utf-8") as f:
+                    coins = json.load(f)
+            except Exception:
+                pass
+
+        if coin in coins:
+            coins.remove(coin)
+            with open(coins_path, "w", encoding="utf-8") as f:
+                json.dump(coins, f, ensure_ascii=False, indent=2)
+
+        python_exe = sys.executable
+        subprocess.run(
+            [python_exe, os.path.join(BASE_DIR, "export_json.py")],
+            cwd=BASE_DIR,
+            capture_output=True,
+            text=True,
+            encoding='utf-8'
+        )
+
+        return jsonify({"success": True, "coins": coins, "deleted": coin})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 if __name__ == '__main__':
     port = 5000
     print(f"🌐 FUTURES MARGIN MATRIX 伺服器啟動於: http://localhost:{port}")

@@ -56,14 +56,26 @@ def export_tiers_to_json():
         return
 
     try:
+        coins_path = os.path.join("data", "coins.json")
+        allowed_coins = None
+        if os.path.exists(coins_path):
+            try:
+                with open(coins_path, "r", encoding="utf-8") as f:
+                    allowed_coins = set(c.upper() for c in json.load(f))
+            except Exception:
+                pass
+
         excel_file = pd.ExcelFile(excel_path)
         all_data = {}
         timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         all_data["_last_updated"] = timestamp_str
 
         for sheet in excel_file.sheet_names:
-            df = pd.read_excel(excel_file, sheet_name=sheet)
             coin = sheet.upper()
+            if allowed_coins is not None and coin not in allowed_coins:
+                continue
+
+            df = pd.read_excel(excel_file, sheet_name=sheet)
             all_data[coin] = {
                 "Binance": [],
                 "Bitget": [],
@@ -79,6 +91,8 @@ def export_tiers_to_json():
                 all_data[coin]["Hyperliquid"] = [{"tier": "固定", "limit": 999999999, "mmr": 0.02, "deduction": 0, "maxLev": 50}]
             elif coin == "SOLUSDT":
                 all_data[coin]["Hyperliquid"] = [{"tier": "固定", "limit": 999999999, "mmr": 0.025, "deduction": 0, "maxLev": 25}]
+            else:
+                all_data[coin]["Hyperliquid"] = [{"tier": "固定", "limit": 999999999, "mmr": 0.03, "deduction": 0, "maxLev": 20}]
 
             for _, row in df.iterrows():
                 ex = str(row.get("交易所", "")).strip()

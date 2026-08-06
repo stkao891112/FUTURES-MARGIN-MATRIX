@@ -506,6 +506,34 @@
       text-decoration: line-through;
     }
 
+    /* Coin Action Buttons */
+    .coin-action-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .coin-action-btn.add:hover {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #10B981;
+      color: #00F5A0;
+    }
+
+    .coin-action-btn.del:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #EF4444;
+      color: #EF4444;
+    }
+
     /* Effective Leverage Display */
     .eff-lev-box {
       background: rgba(99, 102, 241, 0.1);
@@ -1086,6 +1114,32 @@
       </div>
     </div>
 
+    <!-- Coin Add Modal -->
+    <div id="coinModal" class="pwa-modal-overlay" onclick="if(event.target===this) closeCoinModal()">
+      <div class="pwa-modal-card" style="max-width: 450px;">
+        <button class="pwa-modal-close" onclick="closeCoinModal()"><i class="fa-solid fa-xmark"></i></button>
+        <div style="font-size: 2.2rem; margin-bottom: 8px; color: #00F5A0;">🪙</div>
+        <h3 style="font-family:'Orbitron', sans-serif; font-size:1.2rem; color:#FFFFFF; margin-bottom:6px;">新增合約幣種</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:18px;">輸入幣種代碼，系統將自動爬取並永久更新 5 大交易所階梯檔位</p>
+        
+        <div class="form-group" style="text-align: left; margin-bottom: 20px;">
+          <label>幣種代碼 (例如: DOGE, XRP, BNB)</label>
+          <div class="input-wrapper">
+            <input type="text" id="newCoinInput" placeholder="例如 DOGE 或 DOGEUSDT" style="text-transform: uppercase;">
+          </div>
+        </div>
+
+        <div id="coinStatusBox" style="display:none; font-size:0.85rem; padding:12px; border-radius:12px; margin-bottom:18px; text-align:center; line-height:1.5;"></div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button onclick="closeCoinModal()" class="coin-action-btn" style="padding:10px 18px; font-size:0.85rem; border-radius:10px;">取消</button>
+          <button id="btnSubmitAddCoin" onclick="submitAddCoin()" class="pwa-install-btn" style="padding:10px 20px; font-size:0.85rem; border-radius:10px;">
+            <i class="fa-solid fa-cloud-arrow-up"></i> 新增並同步資料
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="calc-layout">
       <!-- Left Panel: Controls -->
       <div class="panel-card">
@@ -1096,7 +1150,17 @@
 
         <!-- Coin Select -->
         <div class="form-group">
-          <label>選擇目標幣種</label>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <label style="margin-bottom: 0;">選擇目標幣種</label>
+            <div style="display: flex; gap: 6px;">
+              <button class="coin-action-btn add" onclick="openAddCoinModal()" title="新增幣種數據">
+                <i class="fa-solid fa-plus"></i> 新增幣種
+              </button>
+              <button class="coin-action-btn del" onclick="promptDeleteCoin()" title="刪除當前幣種">
+                <i class="fa-solid fa-trash-can"></i> 刪除
+              </button>
+            </div>
+          </div>
           <div class="input-wrapper">
             <select id="coinSelect" onchange="onCoinChange()">
               <option value="BTCUSDT">BTC/USDT (比特幣)</option>
@@ -3390,27 +3454,206 @@
       calculate();
     }
 
-    function onCoinChange() {
+    async function fetchPriceForCoin(coin) {
+      try {
+        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${coin}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.price) return parseFloat(data.price);
+        }
+      } catch (e) {}
+      return DEFAULT_PRICES[coin] || 1.0;
+    }
+
+    async function onCoinChange() {
       const coin = document.getElementById('coinSelect').value;
+      if (!coin) return;
       const baseCoin = coin.replace('USDT', '');
       document.getElementById('okxUnitBadge').innerText = `單位: ${baseCoin}`;
       if (document.getElementById('mexcUnitBadge')) {
         document.getElementById('mexcUnitBadge').innerText = `單位: ${baseCoin}`;
       }
       
-      if (DEFAULT_PRICES[coin]) {
-        document.getElementById('entryPrice').value = DEFAULT_PRICES[coin];
+      let price = DEFAULT_PRICES[coin];
+      if (!price) {
+        price = await fetchPriceForCoin(coin);
+        DEFAULT_PRICES[coin] = price;
+      }
+
+      if (price > 0) {
+        document.getElementById('entryPrice').value = price;
         if (coin === 'BTCUSDT') {
           document.getElementById('positionValue').value = 50000;
         } else if (coin === 'ETHUSDT') {
           document.getElementById('positionValue').value = 20000;
         } else if (coin === 'SOLUSDT') {
           document.getElementById('positionValue').value = 5000;
+        } else {
+          document.getElementById('positionValue').value = Math.round(price * 1000);
         }
         updateValueChips();
         updateMarginFromLeverage();
       }
       calculate();
+    }
+
+    async function loadCoins() {
+      const select = document.getElementById('coinSelect');
+      let coins = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
+
+      try {
+        const res = await fetch('/api/coins?t=' + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          if (data.coins && data.coins.length > 0) {
+            coins = data.coins;
+          }
+        }
+      } catch (e) {
+        const local = localStorage.getItem('customCoins');
+        if (local) {
+          try { coins = JSON.parse(local); } catch (err) {}
+        }
+      }
+
+      const currentVal = select.value;
+      select.innerHTML = '';
+      coins.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        const base = c.replace('USDT', '');
+        opt.innerText = `${base}/USDT (${getCoinZhName(base)})`;
+        select.appendChild(opt);
+      });
+
+      if (coins.includes(currentVal)) {
+        select.value = currentVal;
+      } else if (coins.length > 0) {
+        select.value = coins[0];
+      }
+      localStorage.setItem('customCoins', JSON.stringify(coins));
+    }
+
+    function getCoinZhName(base) {
+      const names = {
+        BTC: '比特幣',
+        ETH: '乙太幣',
+        SOL: '索拉納',
+        DOGE: '狗狗幣',
+        XRP: '瑞波幣',
+        BNB: '幣安幣',
+        ADA: '艾達幣',
+        AVAX: '雪崩幣',
+        DOT: '波卡幣',
+        LINK: 'Chainlink',
+        SUI: 'Sui',
+        PEPE: 'Pepe'
+      };
+      return names[base] || base;
+    }
+
+    function openAddCoinModal() {
+      document.getElementById('newCoinInput').value = '';
+      document.getElementById('coinStatusBox').style.display = 'none';
+      document.getElementById('coinModal').classList.add('active');
+    }
+
+    function closeCoinModal() {
+      document.getElementById('coinModal').classList.remove('active');
+    }
+
+    async function submitAddCoin() {
+      const input = document.getElementById('newCoinInput');
+      const statusBox = document.getElementById('coinStatusBox');
+      const submitBtn = document.getElementById('btnSubmitAddCoin');
+
+      let rawCoin = input.value.trim().toUpperCase();
+      if (!rawCoin) {
+        alert('❌ 請輸入幣種名稱！');
+        return;
+      }
+      if (!rawCoin.endsWith('USDT')) rawCoin += 'USDT';
+
+      submitBtn.disabled = true;
+      statusBox.style.display = 'block';
+      statusBox.style.background = 'rgba(99, 102, 241, 0.15)';
+      statusBox.style.border = '1px solid rgba(99, 102, 241, 0.4)';
+      statusBox.style.color = '#FFFFFF';
+      statusBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 正在爬取 [${rawCoin}] 五大交易所數據... (約30-40秒)`;
+
+      try {
+        const res = await fetch('/api/coins', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ coin: rawCoin })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            statusBox.style.background = 'rgba(16, 185, 129, 0.2)';
+            statusBox.style.border = '1px solid #10B981';
+            statusBox.style.color = '#00F5A0';
+            statusBox.innerHTML = `✅ [${rawCoin}] 新增並同步完成！`;
+
+            await loadCoins();
+            document.getElementById('coinSelect').value = rawCoin;
+
+            const livePrice = await fetchPriceForCoin(rawCoin);
+            DEFAULT_PRICES[rawCoin] = livePrice;
+            await onCoinChange();
+
+            setTimeout(() => {
+              closeCoinModal();
+            }, 1200);
+          } else {
+            throw new Error(data.error || '失敗');
+          }
+        } else {
+          throw new Error('伺服器未回應或發生錯誤');
+        }
+      } catch (err) {
+        statusBox.style.background = 'rgba(239, 68, 68, 0.2)';
+        statusBox.style.border = '1px solid #EF4444';
+        statusBox.style.color = '#EF4444';
+        statusBox.innerHTML = `❌ 新增失敗: ${err.message}`;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    }
+
+    async function promptDeleteCoin() {
+      const select = document.getElementById('coinSelect');
+      const coin = select.value;
+
+      if (!coin) return;
+      if (['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].includes(coin)) {
+        if (!confirm(`⚠️ [${coin}] 為預設主要幣種，確定要刪除嗎？`)) return;
+      } else {
+        if (!confirm(`確定要刪除幣種 [${coin}] 嗎？`)) return;
+      }
+
+      try {
+        const res = await fetch('/api/coins', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ coin })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            alert(`✅ 已成功刪除幣種 [${coin}]！`);
+          }
+        }
+      } catch (e) {}
+
+      let coins = JSON.parse(localStorage.getItem('customCoins') || '["BTCUSDT","ETHUSDT","SOLUSDT"]');
+      coins = coins.filter(c => c !== coin);
+      localStorage.setItem('customCoins', JSON.stringify(coins));
+
+      await loadCoins();
+      await onCoinChange();
     }
 
     // 依據檔位上限門檻嚴格比對 (0 ~ 上限)
@@ -3735,8 +3978,10 @@
 
     // 初始化載入
     updateExchangeFilterUI();
-    loadLastUpdatedTime();
-    loadScrapedTiersJSON();
+    loadCoins().then(() => {
+      loadLastUpdatedTime();
+      loadScrapedTiersJSON();
+    });
   </script>
 </body>
 </html>

@@ -207,15 +207,17 @@ def main():
     print(" 🚀 跨交易所合約保證金數據自動化爬蟲（Binance/Bybit/Bitget/OKX/MEXC 5家並行版） ")
     print("=" * 60)
     
-    # 支援命令列參數傳入或互動式輸入
+    # 支援命令列參數傳入、coins.json 設定檔讀取或互動式輸入
     if len(sys.argv) > 1:
         coins = [c.upper() for c in sys.argv[1:] if c.strip()]
+    elif os.path.exists(os.path.join("data", "coins.json")):
+        try:
+            with open(os.path.join("data", "coins.json"), "r", encoding="utf-8") as f:
+                coins = json.load(f)
+        except Exception:
+            coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
     else:
-        raw_input = input("\n請輸入想要查詢合約保證金數據的幣種 (用空白分隔，例如: BTCUSDT ETHUSDT SOLUSDT): ").strip().upper()
-        if not raw_input:
-            print("❌ 幣種名稱不可空白！程式結束。")
-            return
-        coins = raw_input.split()
+        coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
 
     print(f"\n📌 本次任務將為以下 {len(coins)} 個幣種抓取五大交易所數據: {coins}")
     
