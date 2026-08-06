@@ -128,6 +128,18 @@ def run_background_crawler(coin):
         if res2.stdout:
             print("export_json.py output:\n", res2.stdout.decode('utf-8', errors='ignore')[-500:])
 
+        # 標記全流程 export 寫入完畢
+        status_file = os.path.join(BASE_DIR, "data", "crawl_status.json")
+        try:
+            with open(status_file, "r", encoding="utf-8") as f:
+                sdata = json.load(f)
+            if coin not in sdata: sdata[coin] = {}
+            sdata[coin]["_export_finished"] = True
+            with open(status_file, "w", encoding="utf-8") as f:
+                json.dump(sdata, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
+
         print(f"✅ [背景爬蟲完成] 新增幣種 [{coin}] 數據已成功導出寫入 JSON！")
     except Exception as e:
         print(f"❌ [背景爬蟲失敗] {e}")
