@@ -3351,7 +3351,20 @@
 
     let currentDirection = 'LONG';
     let currentLeverage = 10;
-    let hiddenExchanges = new Set(JSON.parse(localStorage.getItem('hiddenExchanges') || '[]'));
+
+    function getStoredHiddenExchanges() {
+      try {
+        const stored = localStorage.getItem('hiddenExchanges');
+        if (stored) {
+          const arr = JSON.parse(stored);
+          if (Array.isArray(arr)) return new Set(arr);
+        }
+      } catch (e) {
+        console.warn('[Storage] reset hiddenExchanges:', e);
+      }
+      return new Set();
+    }
+    let hiddenExchanges = getStoredHiddenExchanges();
 
     function toggleExchange(ex) {
       if (hiddenExchanges.has(ex)) {
@@ -3363,7 +3376,9 @@
         }
         hiddenExchanges.add(ex);
       }
-      localStorage.setItem('hiddenExchanges', JSON.stringify([...hiddenExchanges]));
+      try {
+        localStorage.setItem('hiddenExchanges', JSON.stringify([...hiddenExchanges]));
+      } catch (e) {}
       updateExchangeFilterUI();
       calculate();
     }
@@ -3386,8 +3401,10 @@
 
     function setDirection(dir) {
       currentDirection = dir;
-      document.getElementById('btnLong').classList.toggle('active', dir === 'LONG');
-      document.getElementById('btnShort').classList.toggle('active', dir === 'SHORT');
+      const btnL = document.getElementById('btnLong');
+      if (btnL) btnL.classList.toggle('active', dir === 'LONG');
+      const btnS = document.getElementById('btnShort');
+      if (btnS) btnS.classList.toggle('active', dir === 'SHORT');
       calculate();
     }
 
@@ -3404,7 +3421,8 @@
     }
 
     function updateValueChips() {
-      const valVal = parseFloat(document.getElementById('positionValue').value) || 0;
+      const posValElem = document.getElementById('positionValue');
+      const valVal = posValElem ? (parseFloat(posValElem.value) || 0) : 0;
       const valChips = document.querySelectorAll('.val-chip');
       valChips.forEach(chip => {
         const chipVal = parseFloat(chip.getAttribute('data-val'));
@@ -3417,15 +3435,18 @@
     }
 
     function updateMarginFromLeverage() {
-      const V = parseFloat(document.getElementById('positionValue').value) || 0;
-      if (currentLeverage > 0) {
+      const posValElem = document.getElementById('positionValue');
+      const V = posValElem ? (parseFloat(posValElem.value) || 0) : 0;
+      const marginElem = document.getElementById('marginInput');
+      if (marginElem && currentLeverage > 0) {
         const M = V / currentLeverage;
-        document.getElementById('marginInput').value = M % 1 === 0 ? M.toFixed(0) : M.toFixed(2);
+        marginElem.value = M % 1 === 0 ? M.toFixed(0) : M.toFixed(2);
       }
     }
 
     function setQuickValue(val) {
-      document.getElementById('positionValue').value = val;
+      const posValElem = document.getElementById('positionValue');
+      if (posValElem) posValElem.value = val;
       updateValueChips();
       updateMarginFromLeverage();
       calculate();
@@ -3445,8 +3466,10 @@
     }
 
     function onMarginInput() {
-      const V = parseFloat(document.getElementById('positionValue').value) || 0;
-      const M = parseFloat(document.getElementById('marginInput').value) || 0;
+      const posValElem = document.getElementById('positionValue');
+      const V = posValElem ? (parseFloat(posValElem.value) || 0) : 0;
+      const marginElem = document.getElementById('marginInput');
+      const M = marginElem ? (parseFloat(marginElem.value) || 0) : 0;
       if (M > 0 && V > 0) {
         currentLeverage = V / M;
       }
@@ -3466,13 +3489,15 @@
     }
 
     async function onCoinChange() {
-      const coin = document.getElementById('coinSelect').value;
+      const select = document.getElementById('coinSelect');
+      if (!select) return;
+      const coin = select.value;
       if (!coin) return;
       const baseCoin = coin.replace('USDT', '');
-      document.getElementById('okxUnitBadge').innerText = `單位: ${baseCoin}`;
-      if (document.getElementById('mexcUnitBadge')) {
-        document.getElementById('mexcUnitBadge').innerText = `單位: ${baseCoin}`;
-      }
+      const okxBadge = document.getElementById('okxUnitBadge');
+      if (okxBadge) okxBadge.innerText = `單位: ${baseCoin}`;
+      const mexcBadge = document.getElementById('mexcUnitBadge');
+      if (mexcBadge) mexcBadge.innerText = `單位: ${baseCoin}`;
       
       let price = DEFAULT_PRICES[coin];
       if (!price) {
@@ -3481,15 +3506,20 @@
       }
 
       if (price > 0) {
-        document.getElementById('entryPrice').value = price;
-        if (coin === 'BTCUSDT') {
-          document.getElementById('positionValue').value = 50000;
-        } else if (coin === 'ETHUSDT') {
-          document.getElementById('positionValue').value = 20000;
-        } else if (coin === 'SOLUSDT') {
-          document.getElementById('positionValue').value = 5000;
-        } else {
-          document.getElementById('positionValue').value = Math.round(price * 1000);
+        const entryElem = document.getElementById('entryPrice');
+        if (entryElem) entryElem.value = price;
+
+        const posElem = document.getElementById('positionValue');
+        if (posElem) {
+          if (coin === 'BTCUSDT') {
+            posElem.value = 50000;
+          } else if (coin === 'ETHUSDT') {
+            posElem.value = 20000;
+          } else if (coin === 'SOLUSDT') {
+            posElem.value = 5000;
+          } else {
+            posElem.value = Math.round(price * 1000);
+          }
         }
         updateValueChips();
         updateMarginFromLeverage();
@@ -3499,21 +3529,25 @@
 
     async function loadCoins() {
       const select = document.getElementById('coinSelect');
+      if (!select) return;
       let coins = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
 
       try {
         const res = await fetch('/api/coins?t=' + Date.now());
         if (res.ok) {
           const data = await res.json();
-          if (data.coins && data.coins.length > 0) {
+          if (data.coins && Array.isArray(data.coins) && data.coins.length > 0) {
             coins = data.coins;
           }
         }
       } catch (e) {
-        const local = localStorage.getItem('customCoins');
-        if (local) {
-          try { coins = JSON.parse(local); } catch (err) {}
-        }
+        try {
+          const local = localStorage.getItem('customCoins');
+          if (local) {
+            const parsed = JSON.parse(local);
+            if (Array.isArray(parsed) && parsed.length > 0) coins = parsed;
+          }
+        } catch (err) {}
       }
 
       const currentVal = select.value;
@@ -3531,7 +3565,9 @@
       } else if (coins.length > 0) {
         select.value = coins[0];
       }
-      localStorage.setItem('customCoins', JSON.stringify(coins));
+      try {
+        localStorage.setItem('customCoins', JSON.stringify(coins));
+      } catch (e) {}
     }
 
     function getCoinZhName(base) {
