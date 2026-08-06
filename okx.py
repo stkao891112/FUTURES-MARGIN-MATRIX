@@ -166,7 +166,7 @@ def crawl_okx_position_tiers(coins=None, save_excel=True):
                             search_input.click()
                             page.keyboard.press("Control+A")
                             page.keyboard.press("Backspace")
-                            print(f"⌨️ 在搜尋框中輸入 [{coin}]...")
+                            print(f"⌨️ 在 OKX 搜尋框中輸入 [{coin}]...")
                             search_input.type(coin, delay=100)
                         else:
                             print(f"⌨️ 直接發送全域鍵盤輸入 [{coin}]...")
@@ -174,9 +174,38 @@ def crawl_okx_position_tiers(coins=None, save_excel=True):
 
                         page.wait_for_timeout(800)
 
-                        # 核心優化：輸入後直接按下 Enter 鍵選取搜尋項目並觸發頁面載入
-                        print(f"⌨️ 發送 Enter 鍵選取 [{coin}]...")
-                        page.keyboard.press("Enter")
+                        # 核心優化：進行 100% 嚴格完全比對，徹底解決 MSTR 誤點選 HMSTR 等問題
+                        base_unit = get_base_coin(coin)
+                        exact_targets = [
+                            f"{base_unit}-USDT-SWAP",
+                            f"{base_unit}-USDT",
+                            f"{base_unit} / USDT",
+                            f"{base_unit}USDT",
+                            base_unit
+                        ]
+
+                        options = popup.locator("div.okui-select-item, li, div[class*='select-item'], div[role='option'], div[class*='item']").all()
+                        target_clicked = False
+                        for opt in options:
+                            txt = opt.inner_text().strip().upper()
+                            first_line = txt.split('\n')[0].strip()
+                            if txt in exact_targets or first_line in exact_targets:
+                                opt.click(force=True)
+                                print(f"🎯 [OKX] 100% 嚴格完全對應！成功點擊選單選項 [{first_line}]！")
+                                target_clicked = True
+                                break
+                            
+                            # 比對拆解後的首個代幣名稱 (例如 "MSTR-USDT-SWAP" -> "MSTR")
+                            parts = [p.strip() for p in re.split(r'[\s/_\-]+', first_line) if p.strip()]
+                            if parts and parts[0] == base_unit:
+                                opt.click(force=True)
+                                print(f"🎯 [OKX] 標的代碼完全相同，點擊選項 [{first_line}]！")
+                                target_clicked = True
+                                break
+
+                        if not target_clicked:
+                            print(f"⌨️ 未找到列表項，發送 Enter 鍵選取 [{coin}]...")
+                            page.keyboard.press("Enter")
 
                         # 等待 OKX React DOM 與表格數據重載
                         print("⏳ 等待 OKX 表格數據更新中...")
