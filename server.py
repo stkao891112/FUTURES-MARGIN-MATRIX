@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import subprocess
+import threading
 from datetime import datetime
 from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
@@ -105,6 +106,28 @@ def get_coins():
             pass
     return jsonify({"coins": ["BTCUSDT", "ETHUSDT", "SOLUSDT"]})
 
+def run_background_crawler(coin):
+    try:
+        python_exe = sys.executable
+        print(f"🚀 [背景爬蟲啟動] 開始爬取新增幣種 [{coin}]...")
+        subprocess.run(
+            [python_exe, os.path.join(BASE_DIR, "main.py")],
+            cwd=BASE_DIR,
+            capture_output=True,
+            text=True,
+            encoding='utf-8'
+        )
+        subprocess.run(
+            [python_exe, os.path.join(BASE_DIR, "export_json.py")],
+            cwd=BASE_DIR,
+            capture_output=True,
+            text=True,
+            encoding='utf-8'
+        )
+        print(f"✅ [背景爬蟲完成] 新增幣種 [{coin}] 數據已寫入！")
+    except Exception as e:
+        print(f"❌ [背景爬蟲失敗] {e}")
+
 @app.route('/api/coins', methods=['POST'])
 def add_coin():
     try:
@@ -131,26 +154,12 @@ def add_coin():
             with open(coins_path, "w", encoding="utf-8") as f:
                 json.dump(coins, f, ensure_ascii=False, indent=2)
 
-        # 觸發爬蟲更新與導出
-        python_exe = sys.executable
-        print(f"🚀 準備爬取新增幣種 [{coin}]...")
-        result = subprocess.run(
-            [python_exe, os.path.join(BASE_DIR, "main.py")],
-            cwd=BASE_DIR,
-            capture_output=True,
-            text=True,
-            encoding='utf-8'
-        )
+        # 啟動非同步背景線程進行爬取
+        t = threading.Thread(target=run_background_crawler, args=(coin,))
+        t.daemon = True
+        t.start()
 
-        subprocess.run(
-            [python_exe, os.path.join(BASE_DIR, "export_json.py")],
-            cwd=BASE_DIR,
-            capture_output=True,
-            text=True,
-            encoding='utf-8'
-        )
-
-        return jsonify({"success": True, "coins": coins, "added": coin})
+        return jsonify({"success": True, "coins": coins, "added": coin, "message": "幣種已新增，背景正進行連線爬取！"})
     except Exception as e:
         print(f"❌ 新增幣種失敗: {e}")
         return jsonify({"success": False, "error": str(e)}), 500

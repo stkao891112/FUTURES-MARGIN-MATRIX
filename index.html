@@ -3259,7 +3259,7 @@
 
     async function loadLastUpdatedTime() {
       try {
-        const res = await fetch('/api/last_updated?t=' + Date.now());
+        const res = await apiFetch('/api/last_updated?t=' + Date.now());
         if (res.ok) {
           const data = await res.json();
           if (data.last_updated) {
@@ -3289,7 +3289,7 @@
       if (text) text.innerText = '正在重跑爬蟲... (約30-40秒)';
 
       try {
-        const res = await fetch('/api/refresh', {
+        const res = await apiFetch('/api/refresh', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' }
         });
@@ -3527,13 +3527,30 @@
       calculate();
     }
 
+    async function apiFetch(endpoint, options = {}) {
+      let urls = [endpoint];
+      if (location.protocol === 'file:' || location.port !== '5000') {
+        urls = ['http://localhost:5000' + endpoint, endpoint];
+      }
+      let lastErr = null;
+      for (let url of urls) {
+        try {
+          const res = await fetch(url, options);
+          return res;
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      throw lastErr || new Error('無法連線至本地 API 伺服器 (請確認已執行 py server.py)');
+    }
+
     async function loadCoins() {
       const select = document.getElementById('coinSelect');
       if (!select) return;
       let coins = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT'];
 
       try {
-        const res = await fetch('/api/coins?t=' + Date.now());
+        const res = await apiFetch('/api/coins?t=' + Date.now());
         if (res.ok) {
           const data = await res.json();
           if (data.coins && Array.isArray(data.coins) && data.coins.length > 0) {
@@ -3615,38 +3632,34 @@
       statusBox.style.background = 'rgba(99, 102, 241, 0.15)';
       statusBox.style.border = '1px solid rgba(99, 102, 241, 0.4)';
       statusBox.style.color = '#FFFFFF';
-      statusBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 正在爬取 [${rawCoin}] 五大交易所數據... (約30-40秒)`;
+      statusBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 正在通訊新增 [${rawCoin}]...`;
 
       try {
-        const res = await fetch('/api/coins', {
+        const res = await apiFetch('/api/coins', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ coin: rawCoin })
         });
 
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            statusBox.style.background = 'rgba(16, 185, 129, 0.2)';
-            statusBox.style.border = '1px solid #10B981';
-            statusBox.style.color = '#00F5A0';
-            statusBox.innerHTML = `✅ [${rawCoin}] 新增並同步完成！`;
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          statusBox.style.background = 'rgba(16, 185, 129, 0.2)';
+          statusBox.style.border = '1px solid #10B981';
+          statusBox.style.color = '#00F5A0';
+          statusBox.innerHTML = `✅ [${rawCoin}] 新增成功！後台連線爬取中...`;
 
-            await loadCoins();
-            document.getElementById('coinSelect').value = rawCoin;
+          await loadCoins();
+          document.getElementById('coinSelect').value = rawCoin;
 
-            const livePrice = await fetchPriceForCoin(rawCoin);
-            DEFAULT_PRICES[rawCoin] = livePrice;
-            await onCoinChange();
+          const livePrice = await fetchPriceForCoin(rawCoin);
+          DEFAULT_PRICES[rawCoin] = livePrice;
+          await onCoinChange();
 
-            setTimeout(() => {
-              closeCoinModal();
-            }, 1200);
-          } else {
-            throw new Error(data.error || '失敗');
-          }
+          setTimeout(() => {
+            closeCoinModal();
+          }, 1400);
         } else {
-          throw new Error('伺服器未回應或發生錯誤');
+          throw new Error(data.error || `HTTP ${res.status} 錯誤`);
         }
       } catch (err) {
         statusBox.style.background = 'rgba(239, 68, 68, 0.2)';
@@ -3660,7 +3673,7 @@
 
     async function promptDeleteCoin() {
       const select = document.getElementById('coinSelect');
-      const coin = select.value;
+      const coin = select ? select.value : '';
 
       if (!coin) return;
       if (['BTCUSDT', 'ETHUSDT', 'SOLUSDT'].includes(coin)) {
@@ -3670,7 +3683,7 @@
       }
 
       try {
-        const res = await fetch('/api/coins', {
+        const res = await apiFetch('/api/coins', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ coin })
