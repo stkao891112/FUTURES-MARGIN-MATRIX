@@ -9,6 +9,21 @@
       "status": "success",
       "count": 96,
       "updated_at": "15:38:20"
+    },
+    "Bybit": {
+      "status": "success",
+      "count": 180,
+      "updated_at": "15:38:29"
+    },
+    "Binance (幣安)": {
+      "status": "success",
+      "count": 93,
+      "updated_at": "15:38:39"
+    },
+    "MEXC": {
+      "status": "success",
+      "count": 32,
+      "updated_at": "15:38:39"
     }
   },
   "ETHUSDT": {
@@ -21,6 +36,21 @@
       "status": "success",
       "count": 96,
       "updated_at": "15:38:20"
+    },
+    "Bybit": {
+      "status": "success",
+      "count": 180,
+      "updated_at": "15:38:29"
+    },
+    "Binance (幣安)": {
+      "status": "success",
+      "count": 93,
+      "updated_at": "15:38:39"
+    },
+    "MEXC": {
+      "status": "success",
+      "count": 32,
+      "updated_at": "15:38:39"
     }
   },
   "SOLUSDT": {
@@ -33,6 +63,21 @@
       "status": "success",
       "count": 96,
       "updated_at": "15:38:20"
+    },
+    "Bybit": {
+      "status": "success",
+      "count": 180,
+      "updated_at": "15:38:29"
+    },
+    "Binance (幣安)": {
+      "status": "success",
+      "count": 93,
+      "updated_at": "15:38:39"
+    },
+    "MEXC": {
+      "status": "success",
+      "count": 32,
+      "updated_at": "15:38:39"
     }
   },
   "HYPEUSDT": {
@@ -45,6 +90,21 @@
       "status": "success",
       "count": 96,
       "updated_at": "15:38:20"
+    },
+    "Bybit": {
+      "status": "success",
+      "count": 180,
+      "updated_at": "15:38:29"
+    },
+    "Binance (幣安)": {
+      "status": "success",
+      "count": 93,
+      "updated_at": "15:38:39"
+    },
+    "MEXC": {
+      "status": "success",
+      "count": 32,
+      "updated_at": "15:38:39"
     }
   },
   "DOGEUSDT": {
@@ -57,6 +117,21 @@
       "status": "success",
       "count": 96,
       "updated_at": "15:38:20"
+    },
+    "Bybit": {
+      "status": "success",
+      "count": 180,
+      "updated_at": "15:38:29"
+    },
+    "Binance (幣安)": {
+      "status": "success",
+      "count": 93,
+      "updated_at": "15:38:39"
+    },
+    "MEXC": {
+      "status": "success",
+      "count": 32,
+      "updated_at": "15:38:39"
     }
   },
   "XRPUSDT": {
@@ -69,6 +144,21 @@
       "status": "success",
       "count": 96,
       "updated_at": "15:38:20"
+    },
+    "Bybit": {
+      "status": "success",
+      "count": 180,
+      "updated_at": "15:38:29"
+    },
+    "Binance (幣安)": {
+      "status": "success",
+      "count": 93,
+      "updated_at": "15:38:39"
+    },
+    "MEXC": {
+      "status": "success",
+      "count": 32,
+      "updated_at": "15:38:39"
     }
   },
   "ADAUSDT": {
@@ -81,6 +171,21 @@
       "status": "success",
       "count": 96,
       "updated_at": "15:38:20"
+    },
+    "Bybit": {
+      "status": "success",
+      "count": 180,
+      "updated_at": "15:38:29"
+    },
+    "Binance (幣安)": {
+      "status": "success",
+      "count": 93,
+      "updated_at": "15:38:39"
+    },
+    "MEXC": {
+      "status": "success",
+      "count": 32,
+      "updated_at": "15:38:39"
     }
   },
   "SOXLUSDT": {
@@ -93,6 +198,21 @@
       "status": "success",
       "count": 96,
       "updated_at": "15:38:20"
+    },
+    "Bybit": {
+      "status": "success",
+      "count": 180,
+      "updated_at": "15:38:29"
+    },
+    "Binance (幣安)": {
+      "status": "success",
+      "count": 93,
+      "updated_at": "15:38:39"
+    },
+    "MEXC": {
+      "status": "success",
+      "count": 32,
+      "updated_at": "15:38:39"
     }
   },
   "MSTRUSDT": {
@@ -105,6 +225,21 @@
       "status": "success",
       "count": 96,
       "updated_at": "15:38:20"
+    },
+    "Bybit": {
+      "status": "success",
+      "count": 180,
+      "updated_at": "15:38:29"
+    },
+    "Binance (幣安)": {
+      "status": "success",
+      "count": 93,
+      "updated_at": "15:38:39"
+    },
+    "MEXC": {
+      "status": "success",
+      "count": 32,
+      "updated_at": "15:38:39"
     }
   }
 }
