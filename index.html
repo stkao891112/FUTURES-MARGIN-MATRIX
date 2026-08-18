@@ -2027,7 +2027,7 @@
 
     // 預設備援檔位數據
     let EXCHANGE_TIERS = {
-  "_last_updated": "2026-08-18 15:38:40",
+  "_last_updated": "2026-08-18 16:19:46",
   "BTCUSDT": {
     "Binance": [
       {
@@ -6286,7 +6286,7 @@
   }
 };
 
-    let LAST_UPDATED = "2026-08-18 15:38:40";
+    let LAST_UPDATED = "2026-08-18 16:19:46";
 
     async function loadLastUpdatedTime() {
       try {
@@ -6724,23 +6724,45 @@
       if (!select) return;
       let coins = [...DEFAULT_COINS_LIST];
 
+      let loadedFromApi = false;
       try {
         const res = await apiFetch('/api/coins?t=' + Date.now());
         if (res.ok) {
           const data = await res.json();
           if (data.coins && Array.isArray(data.coins) && data.coins.length > 0) {
             coins = data.coins;
+            loadedFromApi = true;
           }
         }
-      } catch (e) {
+      } catch (e) {}
+
+      if (!loadedFromApi) {
+        try {
+          const resStatic = await fetch('data/coins.json?t=' + Date.now());
+          if (resStatic.ok) {
+            const staticCoins = await resStatic.json();
+            if (Array.isArray(staticCoins) && staticCoins.length > 0) {
+              coins = staticCoins;
+              loadedFromApi = true;
+            }
+          }
+        } catch (err) {}
+      }
+
+      if (!loadedFromApi) {
         try {
           const local = localStorage.getItem('customCoins');
           if (local) {
             const parsed = JSON.parse(local);
-            if (Array.isArray(parsed) && parsed.length > 0) coins = parsed;
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              coins = parsed;
+            }
           }
         } catch (err) {}
       }
+
+      // 確保 9 大預設幣種全數包含，不被手機舊版 localStorage 覆蓋缺失
+      coins = Array.from(new Set([...DEFAULT_COINS_LIST, ...coins]));
 
       const currentVal = select.value;
       select.innerHTML = '';
