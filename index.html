@@ -47,6 +47,9 @@
       --hyperliquid-color: #00F5A0;
       --hyperliquid-glow: rgba(0, 245, 160, 0.35);
 
+      --bingx-color: #2B5BFF;
+      --bingx-glow: rgba(43, 91, 255, 0.35);
+
       --long-color: #10B981;
       --short-color: #EF4444;
       --accent-neon: #6366F1;
@@ -497,6 +500,7 @@
     .ex-chip.active.okx { border-color: var(--okx-color); color: var(--okx-color); background: rgba(168, 85, 247, 0.15); box-shadow: 0 0 10px var(--okx-glow); }
     .ex-chip.active.mexc { border-color: var(--mexc-color); color: var(--mexc-color); background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 10px var(--mexc-glow); }
     .ex-chip.active.hyperliquid { border-color: var(--hyperliquid-color); color: var(--hyperliquid-color); background: rgba(0, 245, 160, 0.15); box-shadow: 0 0 10px var(--hyperliquid-glow); }
+    .ex-chip.active.bingx { border-color: var(--bingx-color); color: var(--bingx-color); background: rgba(43, 91, 255, 0.15); box-shadow: 0 0 10px var(--bingx-glow); }
 
     .ex-chip.disabled {
       opacity: 0.4;
@@ -763,6 +767,9 @@
     .ex-card.hyperliquid { border-top: 4px solid var(--hyperliquid-color); }
     .ex-card.hyperliquid:hover { box-shadow: 0 15px 35px var(--hyperliquid-glow); }
 
+    .ex-card.bingx { border-top: 4px solid var(--bingx-color); }
+    .ex-card.bingx:hover { box-shadow: 0 15px 35px var(--bingx-glow); }
+
     .ex-header {
       display: flex;
       align-items: center;
@@ -786,6 +793,7 @@
     .okx .ex-name { color: var(--okx-color); text-shadow: 0 0 12px var(--okx-glow); }
     .mexc .ex-name { color: #FFFFFF; text-shadow: 0 0 12px var(--mexc-glow); }
     .hyperliquid .ex-name { color: var(--hyperliquid-color); text-shadow: 0 0 12px var(--hyperliquid-glow); }
+    .bingx .ex-name { color: var(--bingx-color); text-shadow: 0 0 12px var(--bingx-glow); }
 
     .unit-badge {
       font-size: 0.75rem;
@@ -1138,6 +1146,7 @@
     .source-tag.okx { color: var(--okx-color); }
     .source-tag.mexc { color: #FFFFFF; }
     .source-tag.hyperliquid { color: var(--hyperliquid-color); }
+    .source-tag.bingx { color: var(--bingx-color); }
 
     .source-item.binance:hover { border-color: var(--binance-color); box-shadow: 0 0 20px var(--binance-glow); }
     .source-item.bitget:hover { border-color: var(--bitget-color); box-shadow: 0 0 20px var(--bitget-glow); }
@@ -1145,6 +1154,7 @@
     .source-item.okx:hover { border-color: var(--okx-color); box-shadow: 0 0 20px var(--okx-glow); }
     .source-item.mexc:hover { border-color: var(--mexc-color); box-shadow: 0 0 20px var(--mexc-glow); }
     .source-item.hyperliquid:hover { border-color: var(--hyperliquid-color); box-shadow: 0 0 20px var(--hyperliquid-glow); }
+    .source-item.bingx:hover { border-color: var(--bingx-color); box-shadow: 0 0 20px var(--bingx-glow); }
 
     .source-ext-icon {
       font-size: 0.85rem;
@@ -1448,6 +1458,9 @@
             </button>
             <button id="filterBtnHyperliquid" class="ex-chip hyperliquid active" onclick="toggleExchange('Hyperliquid')">
               <i class="fa-solid fa-check"></i> Hyperliquid
+            </button>
+            <button id="filterBtnBingX" class="ex-chip bingx active" onclick="toggleExchange('BingX')">
+              <i class="fa-solid fa-check"></i> BingX
             </button>
           </div>
         </div>
@@ -1769,6 +1782,55 @@
             </div>
           </div>
 
+          <!-- BingX Card -->
+          <div class="ex-card bingx" id="cardBingX" onclick="showTierModal('BingX')">
+            <div class="card-rank-badge rank-5" id="bingxRankBadge">🎖️ #6</div>
+            <div class="ex-header">
+              <div class="ex-name">
+                <i class="fa-solid fa-building-columns"></i> BingX
+              </div>
+              <div class="unit-badge" id="bingxUnitBadge">單位: USDT</div>
+            </div>
+            <div class="liq-price-box">
+              <div class="liq-label">預估爆倉清算價格</div>
+              <div class="liq-price-val" id="bingxLiqPrice">$62,543.75</div>
+            </div>
+            <div class="distance-wrapper">
+              <div class="distance-header">
+                <span>距離爆倉安全幅度</span>
+                <span class="dist-val" id="bingxDistVal">3.78%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="bingxBar" style="width: 75%;"></div>
+              </div>
+            </div>
+            <div class="detail-rows">
+              <div class="detail-item">
+                <span>當前適用檔位</span>
+                <span id="bingxTier">檔位 1</span>
+              </div>
+              <div class="detail-item">
+                <span>檔位維持保證金率 (MMR)</span>
+                <span id="bingxMMR">0.50%</span>
+              </div>
+              <div class="detail-item">
+                <span>維持金額扣減額</span>
+                <span id="bingxDeduction">0 USDT</span>
+              </div>
+              <div class="detail-item highlight">
+                <span>扣減額後有效保證金率</span>
+                <span id="bingxEffMMR">0.50%</span>
+              </div>
+              <div class="detail-item">
+                <span>該檔位最高槓桿</span>
+                <span id="bingxMaxLev">125x</span>
+              </div>
+            </div>
+            <div class="click-hint-badge">
+              <i class="fa-solid fa-table-list"></i> 點擊查看完整檔位表
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -1844,6 +1906,16 @@
           </div>
           <div class="source-title">Hyperliquid 官方頁面</div>
           <div class="source-desc">去中心化永續合約 DEX 交易界面與文檔說明</div>
+        </a>
+
+        <!-- BingX -->
+        <a id="dsLinkBingX" href="https://bingx.com/zh-tc/tradeInfo/perpetual/maintenance-margin-ratio/BTC-USDT" target="_blank" rel="noopener noreferrer" class="source-item bingx">
+          <div class="source-item-top">
+            <span class="source-tag bingx"><i class="fa-solid fa-building-columns"></i> BingX</span>
+            <i class="fa-solid fa-arrow-up-right-from-square source-ext-icon"></i>
+          </div>
+          <div class="source-title">BingX 檔位保證金率</div>
+          <div class="source-desc">永續合約維持保證金率、最高槓桿與風險限額說明</div>
         </a>
       </div>
     </div>
@@ -2027,7 +2099,7 @@
 
     // 預設備援檔位數據
     let EXCHANGE_TIERS = {
-  "_last_updated": "2026-08-18 16:23:25",
+  "_last_updated": "2026-08-18 16:30:13",
   "BTCUSDT": {
     "Binance": [
       {
@@ -6286,7 +6358,7 @@
   }
 };
 
-    let LAST_UPDATED = "2026-08-18 16:23:25";
+    let LAST_UPDATED = "2026-08-18 16:30:13";
 
     async function loadLastUpdatedTime() {
       try {
@@ -6416,7 +6488,7 @@
     }
 
     function updateExchangeFilterUI() {
-      const exchanges = ['Binance', 'Bitget', 'Bybit', 'OKX', 'MEXC', 'Hyperliquid'];
+      const exchanges = ['Binance', 'Bitget', 'Bybit', 'OKX', 'MEXC', 'Hyperliquid', 'BingX'];
       exchanges.forEach(ex => {
         const isHidden = hiddenExchanges.has(ex);
         const btn = document.getElementById(`filterBtn${ex}`);
@@ -6651,7 +6723,8 @@
       Bybit: 'https://www.bybit.com/zh-TW/announcement-info/margin-parameters/',
       OKX: 'https://www.okx.com/zh-hant/trade-market/position/swap',
       MEXC: 'https://www.mexc.com/zh-TW/futures/information/risk_limit/',
-      Hyperliquid: 'https://app.hyperliquid.xyz/trade'
+      Hyperliquid: 'https://app.hyperliquid.xyz/trade',
+      BingX: 'https://bingx.com/zh-tc/tradeInfo/perpetual/maintenance-margin-ratio/'
     };
 
     function getExchangeSourceUrl(exchange, coinSymbol) {
@@ -6659,6 +6732,11 @@
         const coin = coinSymbol || (document.getElementById('coinSelect') ? document.getElementById('coinSelect').value : 'BTCUSDT');
         const base = coin.replace('USDT', '');
         return `https://www.mexc.com/zh-TW/futures/information/risk_limit/${base}_USDT`;
+      }
+      if (exchange === 'BingX') {
+        const coin = coinSymbol || (document.getElementById('coinSelect') ? document.getElementById('coinSelect').value : 'BTCUSDT');
+        const base = coin.replace('USDT', '');
+        return `https://bingx.com/zh-tc/tradeInfo/perpetual/maintenance-margin-ratio/${base}-USDT`;
       }
       return EXCHANGE_SOURCE_URLS[exchange] || '#';
     }
@@ -6669,6 +6747,10 @@
 
       const dsMexc = document.getElementById('dsLinkMEXC');
       if (dsMexc) dsMexc.href = mexcUrl;
+
+      const bingxUrl = getExchangeSourceUrl('BingX', coin);
+      const dsBingX = document.getElementById('dsLinkBingX');
+      if (dsBingX) dsBingX.href = bingxUrl;
 
       const cardMexc = document.getElementById('linkMEXCHeader');
       if (cardMexc) cardMexc.href = mexcUrl;
@@ -7112,7 +7194,7 @@
 
       if (P <= 0 || V <= 0 || M <= 0) return;
 
-      const exchanges = ['Binance', 'Bitget', 'Bybit', 'OKX', 'MEXC', 'Hyperliquid'];
+      const exchanges = ['Binance', 'Bitget', 'Bybit', 'OKX', 'MEXC', 'Hyperliquid', 'BingX'];
       const calcResults = [];
 
       const visibleCount = exchanges.length - hiddenExchanges.size;
