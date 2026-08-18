@@ -1,7 +1,15 @@
 import os
 import re
+import sys
 from playwright.sync_api import sync_playwright
 import pandas as pd
+
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
 
 def clean_range_value(val_str: str) -> str:
     """
@@ -132,46 +140,56 @@ def crawl_binance_leverage_margin(coins=None, save_excel=True):
                     dropdown_trigger.click()
                     page.wait_for_timeout(800)
 
-                    # 清空輸入框並輸入目標幣種名稱 (例如 SOLUSDT)
+                    base_coin = coin.replace('USDT', '')
+                    # 清空輸入框並輸入目標幣種名稱 (例如 SOLUSDT, PEPE)
                     search_input = page.locator("input[type='text'], input[placeholder*='搜尋'], input[placeholder*='Search']").last
                     if search_input.count() > 0 and search_input.is_visible():
                         search_input.click()
                         page.keyboard.press("Control+A")
                         page.keyboard.press("Backspace")
                         print(f"⌨️ 在搜尋框中輸入 [{coin}]...")
-                        page.keyboard.type(coin, delay=100)
+                        page.keyboard.type(coin, delay=80)
                     else:
-                        page.keyboard.type(coin, delay=100)
+                        page.keyboard.type(coin, delay=80)
 
                     page.wait_for_timeout(1000)
 
-                    # 核心修復：比對選項文字是否為 "SOLUSDT 永續" 或 "SOLUSDT"
-                    target_text_1 = f"{coin} 永續"
-                    target_text_2 = coin
+                    # 廣泛與精準候選匹配文字 (含 1000PEPEUSDT 永續 等 Meme 幣命名規律)
+                    target_candidates = [
+                        f"{coin} 永續",
+                        coin,
+                        f"1000{coin} 永續",
+                        f"1000{coin}",
+                        f"1000{base_coin}USDT 永續",
+                        f"1000{base_coin}USDT"
+                    ]
                     
                     options = page.locator("div[class*='bn-select-option'], div[class*='select-option'], div[role='option']").all()
                     
                     target_clicked = False
+                    # 1. 嚴格對應比對
                     for opt in options:
                         txt = opt.inner_text().strip()
-                        # 嚴格精準比對，徹底消除 RAYSOLUSDT 永續的干擾
-                        if txt == target_text_1 or txt == target_text_2:
+                        first_line = txt.split('\n')[0].strip()
+                        if txt in target_candidates or first_line in target_candidates:
                             opt.click()
                             print(f"🎯 完美對應！成功點擊選單選項 [{txt}]！")
                             target_clicked = True
                             break
-                    
+
+                    # 2. 備援名稱包含比對 (例如 搜尋 PEPE 時匹配 1000PEPEUSDT)
                     if not target_clicked:
-                        print(f"⚠️ 嘗試使用 Locator Exact 文字比對點擊...")
-                        exact_locator = page.get_by_text(target_text_1, exact=True)
-                        if exact_locator.count() > 0 and exact_locator.is_visible():
-                            exact_locator.first.click()
-                            print(f"🎯 成功點擊 [{target_text_1}]！")
-                        else:
-                            print(f"⌨️ 備援機制：按向下鍵選取並 Enter...")
-                            page.keyboard.press("ArrowDown")
-                            page.wait_for_timeout(200)
-                            page.keyboard.press("Enter")
+                        for opt in options:
+                            txt = opt.inner_text().strip()
+                            first_line = txt.split('\n')[0].strip()
+                            if base_coin in first_line or f"1000{base_coin}" in first_line:
+                                opt.click()
+                                print(f"🎯 [Binance 備援] 成功點擊選單選項 [{first_line}]！")
+                                target_clicked = True
+                                break
+
+                    if not target_clicked:
+                        print(f"⚠️ [Binance] 未在選單中找到匹配 [{coin}] 的選項！")
 
                     # 等待 React 伺服器回應與 DOM 更新
                     print("⏳ 等待數據更新中...")

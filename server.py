@@ -222,24 +222,7 @@ def delete_coin():
             with open(coins_path, "w", encoding="utf-8") as f:
                 json.dump(coins, f, ensure_ascii=False, indent=2)
 
-        # 刪除 Excel 文件中該幣種 Sheet
-        excel_path = os.path.join(BASE_DIR, "data", "all_exchanges_futures_margin.xlsx")
-        if os.path.exists(excel_path):
-            try:
-                import openpyxl
-                wb = openpyxl.load_workbook(excel_path)
-                if coin in wb.sheetnames:
-                    del wb[coin]
-                    wb.save(excel_path)
-            except Exception as e:
-                print("刪除 Excel 工作表提醒:", e)
-
-        python_exe = sys.executable
-        subprocess.run(
-            [python_exe, os.path.join(BASE_DIR, "export_json.py")],
-            cwd=BASE_DIR,
-            capture_output=True
-        )
+        # 依據使用者需求：刪除幣種時，僅從下拉選單 (coins.json) 中移除，後台 Excel 與 JSON 中的歷史數據完整保留不刪除！
 
         return jsonify({"success": True, "coins": coins, "deleted": coin})
     except Exception as e:

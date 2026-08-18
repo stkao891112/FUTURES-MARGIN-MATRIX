@@ -1,6 +1,14 @@
 import os
+import sys
 from playwright.sync_api import sync_playwright
 import pandas as pd
+
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
 
 def clean_range_upper_bound(val_str: str) -> str:
     """
@@ -128,43 +136,51 @@ def crawl_bitget_position_tiers(coins=None, save_excel=True):
                     is_first_coin = False
                 else:
                     is_first_coin = False
-                    
-                    print("👉 使用精準 Selector 開啟 Bitget 合約下拉選單...")
-                    dropdown = page.locator(exact_dropdown_selector)
+                    try:
+                        print(f"👉 開啟 Bitget 合約幣種下拉選單 (目標: {coin})...")
+                        selects = page.locator(".bit-select").all()
+                        if selects:
+                            selects[-1].scroll_into_view_if_needed()
+                            selects[-1].click(force=True)
+                        else:
+                            page.locator("div.flex.gap-\\[12px\\] > div:nth-child(3)").click(force=True)
 
-                    if dropdown.count() > 0:
-                        dropdown.scroll_into_view_if_needed()
-                        page.wait_for_timeout(500)
-                        dropdown.click()
-                    else:
-                        print("⚠️ 精準 Selector 未直接命中，嘗試點擊第三個選單容器...")
-                        page.locator("div.flex.gap-\\[12px\\] > div:nth-child(3)").click()
+                        page.wait_for_timeout(800)
 
-                    page.wait_for_timeout(1000)
+                        print(f"⌨️ 在搜尋框中輸入 [{coin}]...")
+                        page.keyboard.type(coin, delay=80)
+                        page.wait_for_timeout(800)
 
-                    # 聚焦輸入框並輸入幣種
-                    search_input = page.locator("input[type='text'], input[placeholder*='搜尋'], input[placeholder*='Search']").last
-                    
-                    if search_input.count() > 0 and search_input.is_visible():
-                        print(f"⌨️ 在搜尋框中清空並輸入 [{coin}]...")
-                        search_input.fill("")
-                        search_input.type(coin)
-                    else:
-                        print(f"⌨️ 直接發送鍵盤輸入 [{coin}]...")
-                        page.keyboard.type(coin)
+                        base_unit = coin.replace("USDT", "")
+                        items = page.locator(".bit-select-item, div[class*='option'], div[class*='item']").all()
+                        target_clicked = False
+                        
+                        for it in items:
+                            txt = it.inner_text().strip().upper()
+                            first_line = txt.split('\n')[0].strip()
+                            if first_line == coin or first_line == base_unit or txt == coin or txt == base_unit:
+                                it.click(force=True)
+                                print(f"🎯 [Bitget] 成功點擊選單選項 [{first_line}]！")
+                                target_clicked = True
+                                break
+                        
+                        if not target_clicked:
+                            for it in items:
+                                txt = it.inner_text().strip().upper()
+                                if coin in txt or base_unit in txt:
+                                    it.click(force=True)
+                                    print(f"🎯 [Bitget 備援] 成功點擊選項 [{txt}]！")
+                                    target_clicked = True
+                                    break
 
-                    page.wait_for_timeout(800)
+                        if not target_clicked:
+                            print(f"⚠️ [Bitget] 未找到匹配 [{coin}] 的選項！")
 
-                    # 選擇目標幣種選項
-                    option_item = page.locator(f"text={coin}").last
-                    if option_item.count() > 0 and option_item.is_visible():
-                        option_item.click()
-                        print(f"🎯 成功點擊選單選項 [{coin}]！")
-                    else:
-                        page.keyboard.press("Enter")
-                        print(f"⌨️ 按下 Enter 確認選取 [{coin}]！")
+                        page.wait_for_timeout(3000)
 
-                    page.wait_for_timeout(3000)
+                    except Exception as bg_err:
+                        print(f"⚠️ 切換 Bitget 幣種提示: {bg_err}")
+                        page.wait_for_timeout(3000)
 
                 # 擷取資料並寫入 Excel
                 print(f"✅ 正在擷取並解析 [{coin}] 的檔位表格...")

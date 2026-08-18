@@ -1,7 +1,15 @@
 import os
 import re
+import sys
 from playwright.sync_api import sync_playwright
 import pandas as pd
+
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
 
 def parse_okx_quantity(val_str: str) -> str:
     """
@@ -135,86 +143,75 @@ def crawl_okx_position_tiers(coins=None, save_excel=True):
                 print(f"\n--------------------------------------------------")
                 print(f"🔄 正在處理幣種: [{coin}]...")
 
-                # 第一個幣種若是 BTCUSDT，直接擷取預設頁面
-                if is_first_coin and (coin == "BTCUSDT" or coin == "BTC"):
-                    print("⚡ [BTCUSDT] 為預設載入幣種，無需切換選單，直接擷取！")
-                    is_first_coin = False
-                else:
-                    is_first_coin = False
-                    try:
-                        print("👉 開啟 OKX 合約幣種下拉選單...")
-                        
-                        # 定位 OKX 第四個下拉選單（幣種選單）
-                        dropdown_trigger = page.locator(dropdown_selector)
-                        if dropdown_trigger.count() == 0:
-                            dropdown_trigger = page.locator("section.info-query > div:nth-child(4)").first
-                        if dropdown_trigger.count() == 0:
-                            dropdown_trigger = page.locator("div.info-query div.okui-select-value-box").last
+                try:
+                    base_unit = get_base_coin(coin)
+                    symbol_usdt = f"{base_unit}USDT"
+                    print(f"👉 開啟 OKX 合約幣種下拉選單 (目標: {symbol_usdt})...")
+                    
+                    # 定位 OKX 第 4 個 .okui-select (永續合約幣種選單)
+                    triggers = page.locator(".okui-select").all()
+                    if len(triggers) >= 4:
+                        triggers[3].scroll_into_view_if_needed()
+                        triggers[3].click(force=True)
+                    else:
+                        page.locator("section.info-query > div:nth-child(4)").click(force=True)
 
-                        dropdown_trigger.scroll_into_view_if_needed()
-                        page.wait_for_timeout(300)
-                        dropdown_trigger.click(force=True)
-                        print(f"🎯 成功點擊 OKX 幣種下拉選單！")
-                        page.wait_for_timeout(1000)
+                    page.wait_for_timeout(500)
 
-                        # 定位浮動選單容器 (Popover / Dropdown Container)
-                        popup = page.locator("div.okui-select-dropdown, div.okui-popover, div.okui-select-popup-container, div[class*='select-popup']").last
-                        
-                        # 尋找浮動選單內的搜尋框
-                        search_input = popup.locator("input[type='text'], input").first
-                        if search_input.count() > 0 and search_input.is_visible():
-                            search_input.click()
+                    # 在浮動視窗中尋找搜尋框輸入幣種代碼 (例如 DOGE)
+                    dropdown = page.locator(".okui-select-dropdown").first
+                    if dropdown.count() > 0 and dropdown.is_visible():
+                        inp = dropdown.locator("input").first
+                        if inp.count() > 0:
+                            inp.click()
                             page.keyboard.press("Control+A")
                             page.keyboard.press("Backspace")
-                            print(f"⌨️ 在 OKX 搜尋框中輸入 [{coin}]...")
-                            search_input.type(coin, delay=100)
-                        else:
-                            print(f"⌨️ 直接發送全域鍵盤輸入 [{coin}]...")
-                            page.keyboard.type(coin, delay=100)
+                            inp.type(base_unit, delay=50)
+                            page.wait_for_timeout(500)
 
-                        page.wait_for_timeout(800)
+                    # 全頁定位浮動選項 (.okui-select-item)
+                    items = page.locator(".okui-select-item").all()
+                    target_clicked = False
+                    
+                    exact_targets = [
+                        symbol_usdt,
+                        base_unit,
+                        f"{base_unit}-USDT-SWAP",
+                        f"{base_unit}-USDT",
+                        f"{base_unit} / USDT"
+                    ]
 
-                        # 核心優化：進行 100% 嚴格完全比對，徹底解決 MSTR 誤點選 HMSTR 等問題
-                        base_unit = get_base_coin(coin)
-                        exact_targets = [
-                            f"{base_unit}-USDT-SWAP",
-                            f"{base_unit}-USDT",
-                            f"{base_unit} / USDT",
-                            f"{base_unit}USDT",
-                            base_unit
-                        ]
+                    # 1. 嚴格對應比對
+                    for item in items:
+                        txt = item.inner_text().strip().upper()
+                        first_line = txt.split('\n')[0].strip()
+                        if txt in exact_targets or first_line in exact_targets:
+                            item.click(force=True)
+                            print(f"🎯 [OKX] 100% 嚴格完全對應！成功點擊選單選項 [{first_line}]！")
+                            target_clicked = True
+                            break
 
-                        options = popup.locator("div.okui-select-item, li, div[class*='select-item'], div[role='option'], div[class*='item']").all()
-                        target_clicked = False
-                        for opt in options:
-                            txt = opt.inner_text().strip().upper()
+                    # 2. 備援名稱比對
+                    if not target_clicked:
+                        for item in items:
+                            txt = item.inner_text().strip().upper()
                             first_line = txt.split('\n')[0].strip()
-                            if txt in exact_targets or first_line in exact_targets:
-                                opt.click(force=True)
-                                print(f"🎯 [OKX] 100% 嚴格完全對應！成功點擊選單選項 [{first_line}]！")
-                                target_clicked = True
-                                break
-                            
-                            # 比對拆解後的首個代幣名稱 (例如 "MSTR-USDT-SWAP" -> "MSTR")
-                            parts = [p.strip() for p in re.split(r'[\s/_\-]+', first_line) if p.strip()]
-                            if parts and parts[0] == base_unit:
-                                opt.click(force=True)
-                                print(f"🎯 [OKX] 標的代碼完全相同，點擊選項 [{first_line}]！")
+                            if first_line == symbol_usdt or first_line == base_unit or (base_unit in first_line and "USDT" in first_line):
+                                item.click(force=True)
+                                print(f"🎯 [OKX 備援] 成功點擊選單選項 [{first_line}]！")
                                 target_clicked = True
                                 break
 
-                        if not target_clicked:
-                            print(f"⌨️ 未找到列表項，發送 Enter 鍵選取 [{coin}]...")
-                            page.keyboard.press("Enter")
+                    if not target_clicked:
+                        print(f"⚠️ [OKX] 未在選單中找到匹配 [{coin}] 的選項！")
 
-                        # 等待 OKX React DOM 與表格數據重載
-                        print("⏳ 等待 OKX 表格數據更新中...")
-                        page.wait_for_timeout(3500)
+                    # 等待 OKX React DOM 與表格數據重載
+                    print("⏳ 等待 OKX 表格數據更新中...")
+                    page.wait_for_timeout(3500)
 
-                    except Exception as ex_err:
-                        print(f"⚠️ 切換幣種 [{coin}] 過程提示: {ex_err}，發送 Enter 繼續... ")
-                        page.keyboard.press("Enter")
-                        page.wait_for_timeout(3500)
+                except Exception as ex_err:
+                    print(f"⚠️ 切換幣種 [{coin}] 過程提示: {ex_err}")
+                    page.wait_for_timeout(3500)
 
                 # 擷取資料
                 print(f"✅ 正在擷取並解析 [{coin}] 的 OKX 檔位表格...")

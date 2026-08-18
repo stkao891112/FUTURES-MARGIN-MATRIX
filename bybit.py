@@ -1,6 +1,14 @@
 import os
+import sys
 from playwright.sync_api import sync_playwright
 import pandas as pd
+
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
 
 def parse_html_table_to_dataframe(table_element):
     """
@@ -146,13 +154,22 @@ def crawl_bybit_multi_coins_to_excel(coins=None, save_excel=True):
                     page.keyboard.type(coin)
                     page.wait_for_timeout(800)
 
-                    target_option = page.locator(f"text={coin}").last
-                    if target_option.count() > 0 and target_option.is_visible():
-                        target_option.click()
-                        print(f"🎯 成功點擊選單中的 [{coin}]！")
-                    else:
+                    # 在浮動選單清單中選擇第一個匹配項目 (首項即為 USDT 永續合約)
+                    popover_options = page.locator("div[class*='option'], div[role='option'], li, div[class*='item']").filter(has_text=coin).all()
+                    target_clicked = False
+                    for opt in popover_options:
+                        # 排除選單觸發器本身
+                        if opt.is_visible() and opt != coin_anchor:
+                            opt.click()
+                            print(f"🎯 成功點擊 Bybit 選單首項 [{coin}] (USDT 永續)！")
+                            target_clicked = True
+                            break
+
+                    if not target_clicked:
+                        page.keyboard.press("ArrowDown")
+                        page.wait_for_timeout(200)
                         page.keyboard.press("Enter")
-                        print(f"⌨️ 按下 Enter 確認選取 [{coin}]！")
+                        print(f"⌨️ 備援機制：按向下鍵與 Enter 選取 [{coin}] (首項 USDT 永續)！")
 
                     current_active_coin = coin
                     page.wait_for_timeout(3000)

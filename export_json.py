@@ -57,15 +57,6 @@ def export_tiers_to_json():
         return
 
     try:
-        coins_path = os.path.join(BASE_DIR, "data", "coins.json")
-        allowed_coins = None
-        if os.path.exists(coins_path):
-            try:
-                with open(coins_path, "r", encoding="utf-8") as f:
-                    allowed_coins = set(c.upper() for c in json.load(f))
-            except Exception:
-                pass
-
         excel_file = pd.ExcelFile(excel_path)
         all_data = {}
         timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -73,8 +64,6 @@ def export_tiers_to_json():
 
         for sheet in excel_file.sheet_names:
             coin = sheet.upper()
-            if allowed_coins is not None and coin not in allowed_coins:
-                continue
 
             df = pd.read_excel(excel_file, sheet_name=sheet)
             all_data[coin] = {

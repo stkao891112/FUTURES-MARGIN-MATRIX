@@ -7,6 +7,13 @@ import concurrent.futures
 import pandas as pd
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 from binance import crawl_binance_leverage_margin
 from bybit import crawl_bybit_multi_coins_to_excel
 from bitget import crawl_bitget_position_tiers
