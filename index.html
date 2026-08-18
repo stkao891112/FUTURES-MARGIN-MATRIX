@@ -2027,7 +2027,7 @@
 
     // 預設備援檔位數據
     let EXCHANGE_TIERS = {
-  "_last_updated": "2026-08-18 16:19:46",
+  "_last_updated": "2026-08-18 16:23:25",
   "BTCUSDT": {
     "Binance": [
       {
@@ -6286,7 +6286,7 @@
   }
 };
 
-    let LAST_UPDATED = "2026-08-18 16:19:46";
+    let LAST_UPDATED = "2026-08-18 16:23:25";
 
     async function loadLastUpdatedTime() {
       try {
@@ -6477,14 +6477,22 @@
     }
 
     function setQuickValue(val) {
+      const select = document.getElementById('coinSelect');
+      const coin = select ? select.value : '';
       const posValElem = document.getElementById('positionValue');
       if (posValElem) posValElem.value = val;
+      if (coin && val > 0) savePosValue(coin, val);
       updateValueChips();
       updateMarginFromLeverage();
       calculate();
     }
 
     function onPositionValueInput() {
+      const select = document.getElementById('coinSelect');
+      const coin = select ? select.value : '';
+      const posValElem = document.getElementById('positionValue');
+      const val = posValElem ? (parseFloat(posValElem.value) || 0) : 0;
+      if (coin && val > 0) savePosValue(coin, val);
       updateValueChips();
       updateMarginFromLeverage();
       calculate();
@@ -6534,6 +6542,27 @@
         const prices = JSON.parse(localStorage.getItem('savedCoinPrices') || '{}');
         prices[coin] = price;
         localStorage.setItem('savedCoinPrices', JSON.stringify(prices));
+      } catch (e) {}
+    }
+
+    function getSavedPosValue(coin) {
+      try {
+        const vals = JSON.parse(localStorage.getItem('savedPosValues') || '{}');
+        if (vals[coin] && vals[coin] > 0) return vals[coin];
+      } catch (e) {}
+      if (coin === 'BTCUSDT' || coin === 'BTC') return 50000;
+      if (coin === 'ETHUSDT' || coin === 'ETH') return 20000;
+      if (coin === 'SOLUSDT' || coin === 'SOL') return 5000;
+      const price = getSavedCoinPrice(coin) || DEFAULT_PRICES[coin] || 10;
+      return Math.round(price * 1000);
+    }
+
+    function savePosValue(coin, posVal) {
+      if (!coin || posVal <= 0) return;
+      try {
+        const vals = JSON.parse(localStorage.getItem('savedPosValues') || '{}');
+        vals[coin] = posVal;
+        localStorage.setItem('savedPosValues', JSON.stringify(vals));
       } catch (e) {}
     }
 
@@ -6670,22 +6699,15 @@
       if (price > 0) {
         const entryElem = document.getElementById('entryPrice');
         if (entryElem) entryElem.value = price;
-
-        const posElem = document.getElementById('positionValue');
-        if (posElem) {
-          if (coin === 'BTCUSDT') {
-            posElem.value = 50000;
-          } else if (coin === 'ETHUSDT') {
-            posElem.value = 20000;
-          } else if (coin === 'SOLUSDT') {
-            posElem.value = 5000;
-          } else {
-            posElem.value = Math.round(price * 1000);
-          }
-        }
-        updateValueChips();
-        updateMarginFromLeverage();
       }
+
+      const savedPosVal = getSavedPosValue(coin);
+      const posElem = document.getElementById('positionValue');
+      if (posElem && savedPosVal > 0) {
+        posElem.value = savedPosVal;
+      }
+      updateValueChips();
+      updateMarginFromLeverage();
 
       const hlInput = document.getElementById('hlMMRInput');
       if (hlInput) {
