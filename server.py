@@ -100,6 +100,8 @@ def refresh_data():
         print(f"❌ 處理更新請求時出錯: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+DEFAULT_COINS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "HYPEUSDT", "DOGEUSDT", "XRPUSDT", "ADAUSDT", "SOXLUSDT", "MSTRUSDT"]
+
 @app.route('/api/coins', methods=['GET'])
 def get_coins():
     coins_path = os.path.join(BASE_DIR, "data", "coins.json")
@@ -109,7 +111,7 @@ def get_coins():
                 return jsonify({"coins": json.load(f)})
         except Exception:
             pass
-    return jsonify({"coins": ["BTCUSDT", "ETHUSDT", "SOLUSDT"]})
+    return jsonify({"coins": DEFAULT_COINS})
 
 def run_background_crawler(coin):
     try:
@@ -161,7 +163,7 @@ def add_coin():
             coin += 'USDT'
 
         coins_path = os.path.join(BASE_DIR, "data", "coins.json")
-        coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+        coins = list(DEFAULT_COINS)
         if os.path.exists(coins_path):
             try:
                 with open(coins_path, "r", encoding="utf-8") as f:
@@ -209,7 +211,7 @@ def delete_coin():
             return jsonify({"success": False, "error": "請指定要刪除的幣種"}), 400
 
         coins_path = os.path.join(BASE_DIR, "data", "coins.json")
-        coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+        coins = list(DEFAULT_COINS)
         if os.path.exists(coins_path):
             try:
                 with open(coins_path, "r", encoding="utf-8") as f:

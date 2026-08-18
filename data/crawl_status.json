@@ -2,271 +2,109 @@
   "BTCUSDT": {
     "OKX": {
       "status": "success",
-      "count": 200,
-      "updated_at": "14:25:36"
+      "count": 180,
+      "updated_at": "15:38:18"
     },
     "Bitget": {
       "status": "success",
-      "count": 108,
-      "updated_at": "14:25:40"
-    },
-    "Bybit": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:48"
-    },
-    "Binance (幣安)": {
-      "status": "success",
-      "count": 102,
-      "updated_at": "14:25:55"
-    },
-    "MEXC": {
-      "status": "success",
-      "count": 32,
-      "updated_at": "14:25:55"
+      "count": 96,
+      "updated_at": "15:38:20"
     }
   },
   "ETHUSDT": {
     "OKX": {
       "status": "success",
-      "count": 200,
-      "updated_at": "14:25:36"
+      "count": 180,
+      "updated_at": "15:38:18"
     },
     "Bitget": {
       "status": "success",
-      "count": 108,
-      "updated_at": "14:25:40"
-    },
-    "Bybit": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:48"
-    },
-    "Binance (幣安)": {
-      "status": "success",
-      "count": 102,
-      "updated_at": "14:25:55"
-    },
-    "MEXC": {
-      "status": "success",
-      "count": 32,
-      "updated_at": "14:25:55"
+      "count": 96,
+      "updated_at": "15:38:20"
     }
   },
   "SOLUSDT": {
     "OKX": {
       "status": "success",
-      "count": 200,
-      "updated_at": "14:25:36"
+      "count": 180,
+      "updated_at": "15:38:18"
     },
     "Bitget": {
       "status": "success",
-      "count": 108,
-      "updated_at": "14:25:40"
-    },
-    "Bybit": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:48"
-    },
-    "Binance (幣安)": {
-      "status": "success",
-      "count": 102,
-      "updated_at": "14:25:55"
-    },
-    "MEXC": {
-      "status": "success",
-      "count": 32,
-      "updated_at": "14:25:55"
-    }
-  },
-  "DOGEUSDT": {
-    "OKX": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:36"
-    },
-    "Bitget": {
-      "status": "success",
-      "count": 108,
-      "updated_at": "14:25:40"
-    },
-    "Bybit": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:48"
-    },
-    "Binance (幣安)": {
-      "status": "success",
-      "count": 102,
-      "updated_at": "14:25:55"
-    },
-    "MEXC": {
-      "status": "success",
-      "count": 32,
-      "updated_at": "14:25:55"
-    }
-  },
-  "PEPEUSDT": {
-    "OKX": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:36"
-    },
-    "Bitget": {
-      "status": "success",
-      "count": 108,
-      "updated_at": "14:25:40"
-    },
-    "Bybit": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:48"
-    },
-    "Binance (幣安)": {
-      "status": "success",
-      "count": 102,
-      "updated_at": "14:25:55"
-    },
-    "MEXC": {
-      "status": "success",
-      "count": 32,
-      "updated_at": "14:25:55"
-    }
-  },
-  "ADAUSDT": {
-    "OKX": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:36"
-    },
-    "Bitget": {
-      "status": "success",
-      "count": 108,
-      "updated_at": "14:25:40"
-    },
-    "Bybit": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:48"
-    },
-    "Binance (幣安)": {
-      "status": "success",
-      "count": 102,
-      "updated_at": "14:25:55"
-    },
-    "MEXC": {
-      "status": "success",
-      "count": 32,
-      "updated_at": "14:25:55"
+      "count": 96,
+      "updated_at": "15:38:20"
     }
   },
   "HYPEUSDT": {
     "OKX": {
       "status": "success",
-      "count": 200,
-      "updated_at": "14:25:36"
+      "count": 180,
+      "updated_at": "15:38:18"
     },
     "Bitget": {
       "status": "success",
-      "count": 108,
-      "updated_at": "14:25:40"
-    },
-    "Bybit": {
+      "count": 96,
+      "updated_at": "15:38:20"
+    }
+  },
+  "DOGEUSDT": {
+    "OKX": {
       "status": "success",
-      "count": 200,
-      "updated_at": "14:25:48"
+      "count": 180,
+      "updated_at": "15:38:18"
     },
-    "Binance (幣安)": {
+    "Bitget": {
       "status": "success",
-      "count": 102,
-      "updated_at": "14:25:55"
-    },
-    "MEXC": {
-      "status": "success",
-      "count": 32,
-      "updated_at": "14:25:55"
+      "count": 96,
+      "updated_at": "15:38:20"
     }
   },
   "XRPUSDT": {
     "OKX": {
       "status": "success",
-      "count": 200,
-      "updated_at": "14:25:36"
+      "count": 180,
+      "updated_at": "15:38:18"
     },
     "Bitget": {
       "status": "success",
-      "count": 108,
-      "updated_at": "14:25:40"
-    },
-    "Bybit": {
+      "count": 96,
+      "updated_at": "15:38:20"
+    }
+  },
+  "ADAUSDT": {
+    "OKX": {
       "status": "success",
-      "count": 200,
-      "updated_at": "14:25:48"
+      "count": 180,
+      "updated_at": "15:38:18"
     },
-    "Binance (幣安)": {
+    "Bitget": {
       "status": "success",
-      "count": 102,
-      "updated_at": "14:25:55"
+      "count": 96,
+      "updated_at": "15:38:20"
+    }
+  },
+  "SOXLUSDT": {
+    "OKX": {
+      "status": "success",
+      "count": 180,
+      "updated_at": "15:38:18"
     },
-    "MEXC": {
+    "Bitget": {
       "status": "success",
-      "count": 32,
-      "updated_at": "14:25:55"
+      "count": 96,
+      "updated_at": "15:38:20"
     }
   },
   "MSTRUSDT": {
     "OKX": {
       "status": "success",
-      "count": 200,
-      "updated_at": "14:25:36"
+      "count": 180,
+      "updated_at": "15:38:18"
     },
     "Bitget": {
       "status": "success",
-      "count": 108,
-      "updated_at": "14:25:40"
-    },
-    "Bybit": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:48"
-    },
-    "Binance (幣安)": {
-      "status": "success",
-      "count": 102,
-      "updated_at": "14:25:55"
-    },
-    "MEXC": {
-      "status": "success",
-      "count": 32,
-      "updated_at": "14:25:55"
-    }
-  },
-  "LINKUSDT": {
-    "OKX": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:36"
-    },
-    "Bitget": {
-      "status": "success",
-      "count": 108,
-      "updated_at": "14:25:40"
-    },
-    "Bybit": {
-      "status": "success",
-      "count": 200,
-      "updated_at": "14:25:48"
-    },
-    "Binance (幣安)": {
-      "status": "success",
-      "count": 102,
-      "updated_at": "14:25:55"
-    },
-    "MEXC": {
-      "status": "success",
-      "count": 32,
-      "updated_at": "14:25:55"
+      "count": 96,
+      "updated_at": "15:38:20"
     }
   }
 }
