@@ -47,11 +47,12 @@ jobs:
         run: |
           python check_diff.py
 
-      - name: 💾 Commit & Push Changes (僅在數據有變動時執行)
+      - name: 🛡️ Audit Alert (檢測到異動：安全停止自動 Commit，提示人工審查)
         if: steps.check_diff.outputs.has_changes == 'true'
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/ index.html
-          git commit -m "🤖 [Auto-Crawl] 7大交易所檔位數據自動更新 ($(date +'%Y-%m-%d %H:%M:%S'))"
-          git push
+          echo "============================================================"
+          echo "⚠️ 【安全保護提示】本次自動巡檢檢測到 7 大交易所數據有變動！"
+          echo "🛡️ 已按照您的要求：【安全保護】已停止自動 Commit 與 Push 寫入儲存庫。"
+          echo "👉 請查看 GitHub Actions 摘要頁面 (Summary) 的詳細變動報告。"
+          echo "👉 確認異動無誤後，您可以再手動於本機執行爬蟲或更新推送。"
+          echo "============================================================"

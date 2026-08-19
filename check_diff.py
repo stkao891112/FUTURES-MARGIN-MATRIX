@@ -47,13 +47,12 @@ def compare_tiers():
 
             if old_list != new_list:
                 if not old_list and new_list:
-                    changes.append(f"  ✨ [{coin}] -> [{ex}]: 新增成功，共擷取到 {len(new_list)} 檔階梯檔位數據")
+                    changes.append(f"✨ [{coin}] -> [{ex}]: 新增成功，共擷取到 {len(new_list)} 檔階梯檔位數據")
                 elif old_list and not new_list:
-                    changes.append(f"  ⚠️ [{coin}] -> [{ex}]: 數據丟失 (原 {len(old_list)} 檔 ➔ 變為 0 檔)")
+                    changes.append(f"⚠️ [{coin}] -> [{ex}]: 數據丟失 (原 {len(old_list)} 檔 ➔ 變為 0 檔)")
                 elif len(old_list) != len(new_list):
-                    changes.append(f"  🔄 [{coin}] -> [{ex}]: 檔位總數變更 ({len(old_list)} 檔 ➔ {len(new_list)} 檔)")
+                    changes.append(f"🔄 [{coin}] -> [{ex}]: 檔位總數變更 ({len(old_list)} 檔 ➔ {len(new_list)} 檔)")
                 else:
-                    # 比較具體檔位細節
                     diff_details = []
                     for i in range(min(len(old_list), len(new_list))):
                         o_item = old_list[i]
@@ -63,7 +62,7 @@ def compare_tiers():
                     detail_str = ", ".join(diff_details[:3])
                     if len(diff_details) > 3:
                         detail_str += "..."
-                    changes.append(f"  📝 [{coin}] -> [{ex}]: 檔位細節變更 ({detail_str})")
+                    changes.append(f"📝 [{coin}] -> [{ex}]: 檔位細節變更 ({detail_str})")
 
     return changes
 
@@ -73,16 +72,29 @@ if __name__ == "__main__":
     print("============================================================")
     
     diff_list = compare_tiers()
+    summary_path = os.environ.get('GITHUB_STEP_SUMMARY')
+
     if diff_list:
         print(f"✨ 檢測到共 {len(diff_list)} 項交易所檔位數據發生變動:\n")
         for item in diff_list:
-            print(item)
+            print("  " + item)
         print("\n============================================================")
-        # 設定 output 供 GitHub Actions 判斷
+        
+        if summary_path:
+            with open(summary_path, 'a', encoding='utf-8') as sf:
+                sf.write("### ⚠️ 檢測到 7 大交易所合約檔位/MMR數據發生變動 (待人工審查)\n\n")
+                sf.write("> 🛡️ **安全保護啟用**：系統已自動停止更新儲存庫資料。請審查以下變動細節後，再決定是否於本機手動更新並推送：\n\n")
+                for item in diff_list:
+                    sf.write(f"- {item}\n")
+                sf.write("\n---\n")
+
         with open(os.environ.get('GITHUB_OUTPUT', 'github_output.txt'), 'a', encoding='utf-8') as f:
             f.write("has_changes=true\n")
     else:
         print("ℹ️ 所有幣種與交易所之階梯檔位與 MMR 數據無任何實質變動。")
         print("============================================================")
+        if summary_path:
+            with open(summary_path, 'a', encoding='utf-8') as sf:
+                sf.write("### ✅ 7 大交易所數據巡檢完成：無任何變動\n")
         with open(os.environ.get('GITHUB_OUTPUT', 'github_output.txt'), 'a', encoding='utf-8') as f:
             f.write("has_changes=false\n")
