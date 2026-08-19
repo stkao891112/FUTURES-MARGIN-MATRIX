@@ -1,0 +1,59 @@
+name: Daily Exchange Margin Matrix Auto-Crawl
+
+on:
+  schedule:
+    # 每天台灣時間 08:00 AM (UTC 00:00) 自動執行一次
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 支援在 GitHub Actions 頁面手動點擊「Run workflow」觸發
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: 📦 Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🎭 Install Playwright Browsers & OS Dependencies
+        run: |
+          playwright install chromium --with-deps
+
+      - name: 🚀 Run Multi-Exchange Parallel Crawlers (main.py)
+        run: |
+          python main.py
+
+      - name: 📊 Export JSON & Sync index.html (export_json.py)
+        run: |
+          python export_json.py
+
+      - name: 🔍 Check if Data Has Changed (檢查數據是否有實質變動)
+        id: check_diff
+        run: |
+          # 檢查數據檔案 (data/tiers.json 或 Excel 總表) 是否有變動
+          if git diff --name-only | grep -E 'data/tiers.json|data/all_exchanges_futures_margin.xlsx'; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "✨ 檢測到交易所檔位數據有變動！"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ 交易所數據無任何實質變動，跳過 Commit 與 Push。"
+          fi
+
+      - name: 💾 Commit & Push Changes (僅在數據有變動時執行)
+        if: steps.check_diff.outputs.has_changes == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/ index.html
+          git commit -m "🤖 [Auto-Crawl] 7大交易所檔位數據自動更新 ($(date +'%Y-%m-%d %H:%M:%S'))"
+          git push

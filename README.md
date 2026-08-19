@@ -137,6 +137,11 @@ python server.py
 python main.py
 ```
 
+### 🤖 5.4 雲端每日自動爬蟲 (GitHub Actions + 數據變動比對)
+本專案已整合 GitHub Actions 自動化工作流 (`.github/workflows/crawl.yml`)：
+- **每天台灣時間 08:00 AM (UTC 00:00)** 自動在 GitHub 雲端 Linux 虛擬機啟動 7 大交易所 Playwright 並行爬蟲。
+- **智能數據 Diff 檢查**：自動比對 `data/tiers.json` 與 Excel 總表。**僅在檢測到檔位/MMR 數據發生實質變動時，才會自動 Commit 並發佈至 GitHub Pages**；若數據無變動則保持靜默不做任何動作，避免產生無效 Commit 紀錄！
+
 ---
 
 ## 📝 6. 總結 (Conclusion)
