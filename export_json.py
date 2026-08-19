@@ -72,6 +72,8 @@ def export_tiers_to_json():
                 "Bybit": [],
                 "OKX": [],
                 "MEXC": [],
+                "BingX": [],
+                "Pionex": [],
                 "Hyperliquid": []
             }
 
@@ -96,6 +98,10 @@ def export_tiers_to_json():
                     ex_key = "OKX"
                 elif "MEXC" in ex:
                     ex_key = "MEXC"
+                elif "BingX" in ex:
+                    ex_key = "BingX"
+                elif "Pionex" in ex:
+                    ex_key = "Pionex"
                 else:
                     continue
 

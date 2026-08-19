@@ -19,6 +19,8 @@ from bybit import crawl_bybit_multi_coins_to_excel
 from bitget import crawl_bitget_position_tiers
 from okx import crawl_okx_position_tiers
 from mexc import crawl_mexc_position_tiers
+from bingx import crawl_bingx_position_tiers
+from pionex import crawl_pionex_position_tiers
 
 def extract_tier_number(val):
     """
@@ -71,10 +73,10 @@ def normalize_dataframe_columns(df):
             column_mapping[col] = "倉位分級"
         elif "槓桿" in c_str or c_str == "欄位_3":
             column_mapping[col] = "最大槓桿"
-        elif any(k in c_str for k in ["保證金"]) or c_str == "欄位_4":
-            column_mapping[col] = "維持保證金率"
         elif any(k in c_str for k in ["金額", "扣減額"]) or c_str == "欄位_5":
             column_mapping[col] = "維持金額(USDT)"
+        elif any(k in c_str for k in ["保證金"]) or c_str == "欄位_4":
+            column_mapping[col] = "維持保證金率"
 
     renamed_df = df.rename(columns=column_mapping)
 
@@ -134,6 +136,8 @@ def apply_excel_styles_and_colors(ws):
     fill_bybit = PatternFill(start_color="FFE0B2", end_color="FFE0B2", fill_type="solid")    # Bybit 橘
     fill_okx = PatternFill(start_color="E8EAF6", end_color="E8EAF6", fill_type="solid")      # OKX 淡紫
     fill_mexc = PatternFill(start_color="E0F2F1", end_color="E0F2F1", fill_type="solid")     # MEXC 青綠
+    fill_bingx = PatternFill(start_color="EBF3FF", end_color="EBF3FF", fill_type="solid")    # BingX 藍
+    fill_pionex = PatternFill(start_color="FFF0E5", end_color="FFF0E5", fill_type="solid")   # Pionex 橘
     fill_default = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
 
     fill_header = PatternFill(start_color="2C3E50", end_color="2C3E50", fill_type="solid")
@@ -171,6 +175,10 @@ def apply_excel_styles_and_colors(ws):
             row_fill = fill_okx
         elif "MEXC" in ex_val:
             row_fill = fill_mexc
+        elif "BingX" in ex_val:
+            row_fill = fill_bingx
+        elif "Pionex" in ex_val:
+            row_fill = fill_pionex
         else:
             row_fill = fill_default
 
@@ -243,7 +251,7 @@ def run_single_exchange(args):
 
 def main():
     print("=" * 60)
-    print(" 🚀 跨交易所合約保證金數據自動化爬蟲（Binance/Bybit/Bitget/OKX/MEXC 5家並行版） ")
+    print(" 🚀 跨交易所合約保證金數據自動化爬蟲（Binance/Bybit/Bitget/OKX/MEXC/BingX 6家並行版） ")
     print("=" * 60)
     
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -262,7 +270,7 @@ def main():
     else:
         coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
 
-    print(f"\n📌 本次任務將為以下 {len(coins)} 個幣種抓取五大交易所數據: {coins}")
+    print(f"\n📌 本次任務將為以下 {len(coins)} 個幣種抓取各大交易所數據: {coins}")
     
     tasks = [
         ("Binance (幣安)", crawl_binance_leverage_margin, coins),
@@ -270,6 +278,8 @@ def main():
         ("Bitget", crawl_bitget_position_tiers, coins),
         ("OKX", crawl_okx_position_tiers, coins),
         ("MEXC", crawl_mexc_position_tiers, coins),
+        ("BingX", crawl_bingx_position_tiers, coins),
+        ("Pionex", crawl_pionex_position_tiers, coins),
     ]
 
     all_results = {}

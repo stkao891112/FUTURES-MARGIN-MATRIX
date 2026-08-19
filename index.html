@@ -50,6 +50,9 @@
       --bingx-color: #2B5BFF;
       --bingx-glow: rgba(43, 91, 255, 0.35);
 
+      --pionex-color: #FF4F29;
+      --pionex-glow: rgba(255, 79, 41, 0.4);
+
       --long-color: #10B981;
       --short-color: #EF4444;
       --accent-neon: #6366F1;
@@ -219,6 +222,19 @@
       transition: transform 0.3s ease;
     }
 
+    .refresh-btn.check-update-btn {
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.25) 0%, rgba(168, 85, 247, 0.25) 100%);
+      border: 1px solid rgba(0, 242, 254, 0.6);
+      box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
+    }
+    .refresh-btn.check-update-btn:hover {
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.4) 0%, rgba(168, 85, 247, 0.4) 100%);
+      box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
+    }
+    .refresh-btn.check-update-btn i {
+      color: #00F2FE;
+    }
+
     .last-updated-badge {
       display: inline-flex;
       align-items: center;
@@ -269,6 +285,27 @@
     }
     .pwa-modal-overlay.active .pwa-modal-card {
       transform: translateY(0);
+    }
+    .asset-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: left;
+    }
+    .asset-chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+    .asset-chip.active {
+      background: rgba(99, 102, 241, 0.18);
+      border-color: #6366F1;
+      box-shadow: 0 0 16px rgba(99, 102, 241, 0.35);
     }
     .pwa-modal-close {
       position: absolute;
@@ -501,6 +538,7 @@
     .ex-chip.active.mexc { border-color: var(--mexc-color); color: var(--mexc-color); background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 10px var(--mexc-glow); }
     .ex-chip.active.hyperliquid { border-color: var(--hyperliquid-color); color: var(--hyperliquid-color); background: rgba(0, 245, 160, 0.15); box-shadow: 0 0 10px var(--hyperliquid-glow); }
     .ex-chip.active.bingx { border-color: var(--bingx-color); color: var(--bingx-color); background: rgba(43, 91, 255, 0.15); box-shadow: 0 0 10px var(--bingx-glow); }
+    .ex-chip.active.pionex { border-color: var(--pionex-color); color: var(--pionex-color); background: rgba(255, 79, 41, 0.15); box-shadow: 0 0 10px var(--pionex-glow); }
 
     .ex-chip.disabled {
       opacity: 0.4;
@@ -681,9 +719,32 @@
       padding: 24px;
       position: relative;
       overflow: hidden;
-      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.2s ease;
       box-shadow: 0 15px 35px rgba(0,0,0,0.5);
       cursor: pointer;
+    }
+
+    .ex-card.dragging {
+      opacity: 0.35 !important;
+      transform: scale(0.96) !important;
+      border: 2px dashed #00F5A0 !important;
+      box-shadow: 0 0 30px rgba(0, 245, 160, 0.4) !important;
+    }
+
+    .drag-handle-icon {
+      cursor: grab;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-right: 8px;
+      opacity: 0.6;
+      transition: opacity 0.2s, color 0.2s;
+    }
+    .drag-handle-icon:hover {
+      opacity: 1;
+      color: var(--accent-neon);
+    }
+    .drag-handle-icon:active {
+      cursor: grabbing;
     }
 
     .ex-card:hover {
@@ -769,6 +830,9 @@
 
     .ex-card.bingx { border-top: 4px solid var(--bingx-color); }
     .ex-card.bingx:hover { box-shadow: 0 15px 35px var(--bingx-glow); }
+
+    .ex-card.pionex { border-top: 4px solid var(--pionex-color); }
+    .ex-card.pionex:hover { box-shadow: 0 15px 35px var(--pionex-glow); }
 
     .ex-header {
       display: flex;
@@ -1256,9 +1320,13 @@
         </div>
       </div>
       <div class="header-action-row">
-        <button id="btnRefreshData" class="refresh-btn" onclick="refreshDataSource()">
+        <button id="btnRefreshData" class="refresh-btn" onclick="refreshDataSource()" title="調用爬蟲連線 7 大交易所更新數據">
           <i class="fa-solid fa-arrows-rotate" id="refreshIcon"></i>
           <span id="refreshBtnText">更新資料來源</span>
+        </button>
+        <button id="btnCheckUpdate" class="refresh-btn check-update-btn" onclick="checkUpdateAndClearCache()" title="強制清除手機與瀏覽器快取並重新載入">
+          <i class="fa-solid fa-sync" id="checkUpdateIcon"></i>
+          <span>檢查更新 (清除快取)</span>
         </button>
         <div class="last-updated-badge">
           <i class="fa-regular fa-clock"></i>
@@ -1302,16 +1370,65 @@
       </div>
     </div>
 
+    <!-- 全局爬蟲更新進度條彈窗 (Refresh Progress Modal) -->
+    <div id="refreshProgressModal" class="pwa-modal-overlay">
+      <div class="pwa-modal-card" style="max-width: 520px; text-align: left; padding: 30px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="font-family:'Orbitron', sans-serif; font-size:1.15rem; font-weight:800; color:#FFFFFF; display:flex; align-items:center; gap:10px;">
+            <i class="fa-solid fa-cloud-arrow-down" style="color:#00F5A0; font-size:1.3rem;"></i>
+            <span>7 大交易所數據同步中</span>
+          </div>
+          <span id="refreshProgressPctText" style="font-family:'Orbitron', sans-serif; font-size:1.2rem; font-weight:800; color:#00F2FE;">0%</span>
+        </div>
+        
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px; line-height:1.5;">
+          正在同時啟動 Binance, Bitget, Bybit, OKX, MEXC, BingX, Pionex 並行爬蟲擷取全檔位保證金率...
+        </p>
+
+        <!-- Progress Bar Track -->
+        <div style="background:rgba(255,255,255,0.08); border-radius:14px; height:18px; width:100%; overflow:hidden; border:1px solid rgba(255,255,255,0.15); margin-bottom:16px; position:relative;">
+          <div id="refreshProgressBarFill" style="background:linear-gradient(90deg, #6366F1 0%, #00F2FE 50%, #00F5A0 100%); height:100%; width:0%; transition:width 0.4s ease; box-shadow:0 0 15px rgba(0,245,160,0.6);"></div>
+        </div>
+
+        <!-- Status Text & Sub-steps -->
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:var(--text-muted);">
+          <span id="refreshProgressStatusText"><i class="fa-solid fa-spinner fa-spin" style="color:#00F5A0;"></i> 正在連線啟動並行爬蟲...</span>
+          <span id="refreshProgressTimerText" style="font-family:monospace; color:#818CF8; font-weight:bold;">0 秒</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Coin Add Modal -->
     <div id="coinModal" class="pwa-modal-overlay" onclick="if(event.target===this) closeCoinModal()">
-      <div class="pwa-modal-card" style="max-width: 450px;">
+      <div class="pwa-modal-card" style="max-width: 480px;">
         <button class="pwa-modal-close" onclick="closeCoinModal()"><i class="fa-solid fa-xmark"></i></button>
         <div style="font-size: 2.2rem; margin-bottom: 8px; color: #00F5A0;">🪙</div>
-        <h3 style="font-family:'Orbitron', sans-serif; font-size:1.2rem; color:#FFFFFF; margin-bottom:6px;">新增合約幣種</h3>
-        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:18px;">輸入幣種代碼，系統將自動爬取並永久更新 5 大交易所階梯檔位</p>
+        <h3 style="font-family:'Orbitron', sans-serif; font-size:1.2rem; color:#FFFFFF; margin-bottom:6px;">新增合約標的數據</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">選擇標的種類並輸入代碼，系統將自動連線爬取並同步 6 大交易所全檔位數據</p>
         
+        <!-- Asset Category Selector -->
+        <div class="form-group" style="text-align: left; margin-bottom: 16px;">
+          <label style="color:var(--text-muted); font-size:0.85rem; margin-bottom:8px; display:block;">標的種類 (Asset Category)</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div id="typeChipCrypto" class="asset-chip active" onclick="setAddCoinAssetType('crypto')">
+              <span style="font-size:1.3rem;">🪙</span>
+              <div>
+                <div style="font-weight:bold; font-size:0.88rem; color:#FFFFFF;">加密貨幣 (Crypto)</div>
+                <div style="font-size:0.72rem; color:var(--text-muted);">BTC, ETH, SOL, DOGE</div>
+              </div>
+            </div>
+            <div id="typeChipStock" class="asset-chip" onclick="setAddCoinAssetType('stock')">
+              <span style="font-size:1.3rem;">📈</span>
+              <div>
+                <div style="font-weight:bold; font-size:0.88rem; color:#FFFFFF;">美股 / 指數 (Stocks)</div>
+                <div style="font-size:0.72rem; color:var(--text-muted);">SOXL, MSTR, NVDA</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="form-group" style="text-align: left; margin-bottom: 20px;">
-          <label>幣種代碼 (例如: DOGE, XRP, BNB)</label>
+          <label id="lblCoinCodeInput">標的代碼 (例如: DOGE, XRP, SOL)</label>
           <div class="input-wrapper">
             <input type="text" id="newCoinInput" placeholder="例如 DOGE 或 DOGEUSDT" style="text-transform: uppercase;">
           </div>
@@ -1456,17 +1573,20 @@
             <button id="filterBtnMEXC" class="ex-chip mexc active" onclick="toggleExchange('MEXC')">
               <i class="fa-solid fa-check"></i> MEXC
             </button>
-            <button id="filterBtnHyperliquid" class="ex-chip hyperliquid active" onclick="toggleExchange('Hyperliquid')">
-              <i class="fa-solid fa-check"></i> Hyperliquid
-            </button>
             <button id="filterBtnBingX" class="ex-chip bingx active" onclick="toggleExchange('BingX')">
               <i class="fa-solid fa-check"></i> BingX
+            </button>
+            <button id="filterBtnPionex" class="ex-chip pionex active" onclick="toggleExchange('Pionex')">
+              <i class="fa-solid fa-check"></i> Pionex
+            </button>
+            <button id="filterBtnHyperliquid" class="ex-chip hyperliquid active" onclick="toggleExchange('Hyperliquid')">
+              <i class="fa-solid fa-check"></i> Hyperliquid
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Right Column: Leaderboard + 6 Exchange Matrix -->
+      <!-- Right Column: Leaderboard + 8 Exchange Matrix -->
       <div>
         
         <!-- Leaderboard Card (防爆倉安全係數與排名榜) -->
@@ -1474,7 +1594,7 @@
           <div class="lb-header">
             <div class="lb-title">
               <i class="fa-solid fa-trophy"></i>
-              <span id="lbTitleText">6 大交易所防爆倉安全度排名 (依匯總總表檔位即時連動)</span>
+              <span id="lbTitleText">8 大交易所防爆倉安全度排名 (依匯總總表檔位即時連動)</span>
             </div>
           </div>
           <div class="lb-grid" id="leaderboardGrid">
@@ -1482,14 +1602,15 @@
           </div>
         </div>
 
-        <!-- Right Panel: 5 Exchange Matrix Cards -->
-        <div class="matrix-grid">
+        <!-- Right Panel: 8 Exchange Matrix Cards -->
+        <div class="matrix-grid" id="matrixGrid">
           
           <!-- Binance Card -->
-          <div class="ex-card binance" id="cardBinance" onclick="showTierModal('Binance')">
+          <div class="ex-card binance" id="cardBinance" data-exchange="Binance" draggable="true" onclick="showTierModal('Binance')">
             <div class="card-rank-badge rank-1" id="binanceRankBadge">🥇 #1</div>
             <div class="ex-header">
               <div class="ex-name">
+                <i class="fa-solid fa-grip-vertical drag-handle-icon" title="按住可拖曳調整順序"></i>
                 <i class="fa-solid fa-bolt"></i> Binance (幣安)
               </div>
               <div class="unit-badge">單位: USDT</div>
@@ -1535,10 +1656,11 @@
           </div>
 
           <!-- Bitget Card -->
-          <div class="ex-card bitget" id="cardBitget" onclick="showTierModal('Bitget')">
+          <div class="ex-card bitget" id="cardBitget" data-exchange="Bitget" draggable="true" onclick="showTierModal('Bitget')">
             <div class="card-rank-badge rank-2" id="bitgetRankBadge">🥈 #2</div>
             <div class="ex-header">
               <div class="ex-name">
+                <i class="fa-solid fa-grip-vertical drag-handle-icon" title="按住可拖曳調整順序"></i>
                 <i class="fa-solid fa-cube"></i> Bitget
               </div>
               <div class="unit-badge">單位: USDT</div>
@@ -1584,10 +1706,11 @@
           </div>
 
           <!-- Bybit Card -->
-          <div class="ex-card bybit" id="cardBybit" onclick="showTierModal('Bybit')">
+          <div class="ex-card bybit" id="cardBybit" data-exchange="Bybit" draggable="true" onclick="showTierModal('Bybit')">
             <div class="card-rank-badge rank-3" id="bybitRankBadge">🥉 #3</div>
             <div class="ex-header">
               <div class="ex-name">
+                <i class="fa-solid fa-grip-vertical drag-handle-icon" title="按住可拖曳調整順序"></i>
                 <i class="fa-solid fa-fire"></i> Bybit
               </div>
               <div class="unit-badge">單位: USDT</div>
@@ -1633,10 +1756,11 @@
           </div>
 
           <!-- OKX Card -->
-          <div class="ex-card okx" id="cardOKX" onclick="showTierModal('OKX')">
+          <div class="ex-card okx" id="cardOKX" data-exchange="OKX" draggable="true" onclick="showTierModal('OKX')">
             <div class="card-rank-badge rank-4" id="okxRankBadge">🎖️ #4</div>
             <div class="ex-header">
               <div class="ex-name">
+                <i class="fa-solid fa-grip-vertical drag-handle-icon" title="按住可拖曳調整順序"></i>
                 <i class="fa-solid fa-layer-group"></i> OKX
               </div>
               <div class="unit-badge" id="okxUnitBadge">單位: BTC</div>
@@ -1682,10 +1806,11 @@
           </div>
 
           <!-- MEXC Card -->
-          <div class="ex-card mexc" id="cardMEXC" onclick="showTierModal('MEXC')">
+          <div class="ex-card mexc" id="cardMEXC" data-exchange="MEXC" draggable="true" onclick="showTierModal('MEXC')">
             <div class="card-rank-badge rank-5" id="mexcRankBadge">🎖️ #5</div>
             <div class="ex-header">
               <div class="ex-name">
+                <i class="fa-solid fa-grip-vertical drag-handle-icon" title="按住可拖曳調整順序"></i>
                 <i class="fa-solid fa-chart-line"></i> MEXC (抹茶)
               </div>
               <div class="unit-badge" id="mexcUnitBadge">單位: BTC</div>
@@ -1730,11 +1855,112 @@
             </div>
           </div>
 
-          <!-- Hyperliquid Card -->
-          <div class="ex-card hyperliquid" id="cardHyperliquid" onclick="showTierModal('Hyperliquid')">
-            <div class="card-rank-badge rank-5" id="hyperliquidRankBadge">🎖️ #5</div>
+          <!-- BingX Card -->
+          <div class="ex-card bingx" id="cardBingX" data-exchange="BingX" draggable="true" onclick="showTierModal('BingX')">
+            <div class="card-rank-badge rank-5" id="bingxRankBadge">🎖️ #6</div>
             <div class="ex-header">
               <div class="ex-name">
+                <i class="fa-solid fa-grip-vertical drag-handle-icon" title="按住可拖曳調整順序"></i>
+                <i class="fa-solid fa-building-columns"></i> BingX
+              </div>
+              <div class="unit-badge" id="bingxUnitBadge">單位: USDT</div>
+            </div>
+            <div class="liq-price-box">
+              <div class="liq-label">預估爆倉清算價格</div>
+              <div class="liq-price-val" id="bingxLiqPrice">$62,543.75</div>
+            </div>
+            <div class="distance-wrapper">
+              <div class="distance-header">
+                <span>距離爆倉安全幅度</span>
+                <span class="dist-val" id="bingxDistVal">3.78%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="bingxBar" style="width: 75%;"></div>
+              </div>
+            </div>
+            <div class="detail-rows">
+              <div class="detail-item">
+                <span>當前適用檔位</span>
+                <span id="bingxTier">檔位 1</span>
+              </div>
+              <div class="detail-item">
+                <span>檔位維持保證金率 (MMR)</span>
+                <span id="bingxMMR">0.50%</span>
+              </div>
+              <div class="detail-item">
+                <span>維持金額扣減額</span>
+                <span id="bingxDeduction">0 USDT</span>
+              </div>
+              <div class="detail-item highlight">
+                <span>扣減額後有效保證金率</span>
+                <span id="bingxEffMMR">0.50%</span>
+              </div>
+              <div class="detail-item">
+                <span>該檔位最高槓桿</span>
+                <span id="bingxMaxLev">125x</span>
+              </div>
+            </div>
+            <div class="click-hint-badge">
+              <i class="fa-solid fa-table-list"></i> 點擊查看完整檔位表
+            </div>
+          </div>
+
+          <!-- Pionex Card -->
+          <div class="ex-card pionex" id="cardPionex" data-exchange="Pionex" draggable="true" onclick="showTierModal('Pionex')">
+            <div class="card-rank-badge rank-5" id="pionexRankBadge">🎖️ #7</div>
+            <div class="ex-header">
+              <div class="ex-name">
+                <i class="fa-solid fa-grip-vertical drag-handle-icon" title="按住可拖曳調整順序"></i>
+                <i class="fa-solid fa-robot"></i> Pionex (派網)
+              </div>
+              <div class="unit-badge" id="pionexUnitBadge">單位: USDT</div>
+            </div>
+            <div class="liq-price-box">
+              <div class="liq-label">預估爆倉清算價格</div>
+              <div class="liq-price-val" id="pionexLiqPrice">$62,543.75</div>
+            </div>
+            <div class="distance-wrapper">
+              <div class="distance-header">
+                <span>距離爆倉安全幅度</span>
+                <span class="dist-val" id="pionexDistVal">3.78%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="pionexBar" style="width: 75%;"></div>
+              </div>
+            </div>
+            <div class="detail-rows">
+              <div class="detail-item">
+                <span>當前適用檔位</span>
+                <span id="pionexTier">檔位 1</span>
+              </div>
+              <div class="detail-item">
+                <span>檔位維持保證金率 (MMR)</span>
+                <span id="pionexMMR">0.50%</span>
+              </div>
+              <div class="detail-item">
+                <span>維持保證金速算額</span>
+                <span id="pionexDeduction">0 USDT</span>
+              </div>
+              <div class="detail-item highlight">
+                <span>扣減額後有效保證金率</span>
+                <span id="pionexEffMMR">0.50%</span>
+              </div>
+              <div class="detail-item">
+                <span>該檔位最高槓桿</span>
+                <span id="pionexMaxLev">100x</span>
+              </div>
+            </div>
+            <div class="click-hint-badge">
+              <i class="fa-solid fa-table-list"></i> 點擊查看完整檔位表
+            </div>
+          </div>
+
+          <!-- Hyperliquid Card (DEFAULT AT THE END) -->
+          <div class="ex-card hyperliquid" id="cardHyperliquid" data-exchange="Hyperliquid" draggable="true" onclick="showTierModal('Hyperliquid')">
+            <div class="card-rank-badge rank-5" id="hyperliquidRankBadge">🎖️ #8</div>
+            <div class="ex-header">
+              <div class="ex-name">
+                <i class="fa-solid fa-grip-vertical drag-handle-icon" title="按住可拖曳調整順序"></i>
                 <i class="fa-solid fa-water"></i> Hyperliquid
               </div>
               <div class="unit-badge">單位: USDC</div>
@@ -1775,55 +2001,6 @@
               <div class="detail-item">
                 <span>幣種最高槓桿</span>
                 <span id="hyperliquidMaxLev">50x</span>
-              </div>
-            </div>
-            <div class="click-hint-badge">
-              <i class="fa-solid fa-table-list"></i> 點擊查看完整檔位表
-            </div>
-          </div>
-
-          <!-- BingX Card -->
-          <div class="ex-card bingx" id="cardBingX" onclick="showTierModal('BingX')">
-            <div class="card-rank-badge rank-5" id="bingxRankBadge">🎖️ #6</div>
-            <div class="ex-header">
-              <div class="ex-name">
-                <i class="fa-solid fa-building-columns"></i> BingX
-              </div>
-              <div class="unit-badge" id="bingxUnitBadge">單位: USDT</div>
-            </div>
-            <div class="liq-price-box">
-              <div class="liq-label">預估爆倉清算價格</div>
-              <div class="liq-price-val" id="bingxLiqPrice">$62,543.75</div>
-            </div>
-            <div class="distance-wrapper">
-              <div class="distance-header">
-                <span>距離爆倉安全幅度</span>
-                <span class="dist-val" id="bingxDistVal">3.78%</span>
-              </div>
-              <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="bingxBar" style="width: 75%;"></div>
-              </div>
-            </div>
-            <div class="detail-rows">
-              <div class="detail-item">
-                <span>當前適用檔位</span>
-                <span id="bingxTier">檔位 1</span>
-              </div>
-              <div class="detail-item">
-                <span>檔位維持保證金率 (MMR)</span>
-                <span id="bingxMMR">0.50%</span>
-              </div>
-              <div class="detail-item">
-                <span>維持金額扣減額</span>
-                <span id="bingxDeduction">0 USDT</span>
-              </div>
-              <div class="detail-item highlight">
-                <span>扣減額後有效保證金率</span>
-                <span id="bingxEffMMR">0.50%</span>
-              </div>
-              <div class="detail-item">
-                <span>該檔位最高槓桿</span>
-                <span id="bingxMaxLev">125x</span>
               </div>
             </div>
             <div class="click-hint-badge">
@@ -1916,6 +2093,16 @@
           </div>
           <div class="source-title">BingX 檔位保證金率</div>
           <div class="source-desc">永續合約維持保證金率、最高槓桿與風險限額說明</div>
+        </a>
+
+        <!-- Pionex -->
+        <a id="dsLinkPionex" href="https://www.pionex.com/zh-TW/futures/BTC.PERP_USDT/Bot" target="_blank" rel="noopener noreferrer" class="source-item pionex">
+          <div class="source-item-top">
+            <span class="source-tag pionex"><i class="fa-solid fa-robot"></i> Pionex (派網)</span>
+            <i class="fa-solid fa-arrow-up-right-from-square source-ext-icon"></i>
+          </div>
+          <div class="source-title">派網 幣種概況槓桿與保證金</div>
+          <div class="source-desc">永續合約名義價值檔位、維持保證金比率與速算額</div>
         </a>
       </div>
     </div>
@@ -2099,7 +2286,7 @@
 
     // 預設備援檔位數據
     let EXCHANGE_TIERS = {
-  "_last_updated": "2026-08-18 16:30:13",
+  "_last_updated": "2026-08-19 10:25:27",
   "BTCUSDT": {
     "Binance": [
       {
@@ -2273,148 +2460,7 @@
         "limit": 1200000000.0
       }
     ],
-    "Bybit": [
-      {
-        "tier": 1,
-        "mmr": 0.005,
-        "deduction": 0.0,
-        "maxLev": 100.0,
-        "limit": 2000000.0
-      },
-      {
-        "tier": 2,
-        "mmr": 0.005600000000000001,
-        "deduction": 1200.0,
-        "maxLev": 90.0,
-        "limit": 2600000.0
-      },
-      {
-        "tier": 3,
-        "mmr": 0.0063,
-        "deduction": 3020.0,
-        "maxLev": 80.0,
-        "limit": 3200000.0
-      },
-      {
-        "tier": 4,
-        "mmr": 0.0067,
-        "deduction": 4300.0,
-        "maxLev": 75.0,
-        "limit": 3800000.0
-      },
-      {
-        "tier": 5,
-        "mmr": 0.0070999999999999995,
-        "deduction": 5820.0,
-        "maxLev": 70.0,
-        "limit": 4400000.0
-      },
-      {
-        "tier": 6,
-        "mmr": 0.0077,
-        "deduction": 8460.0,
-        "maxLev": 65.0,
-        "limit": 5000000.0
-      },
-      {
-        "tier": 7,
-        "mmr": 0.0091,
-        "deduction": 15460.0,
-        "maxLev": 55.0,
-        "limit": 5600000.0
-      },
-      {
-        "tier": 8,
-        "mmr": 0.01,
-        "deduction": 20500.0,
-        "maxLev": 50.0,
-        "limit": 8500000.0
-      },
-      {
-        "tier": 9,
-        "mmr": 0.013000000000000001,
-        "deduction": 46000.0,
-        "maxLev": 45.0,
-        "limit": 10000000.0
-      },
-      {
-        "tier": 10,
-        "mmr": 0.015,
-        "deduction": 66000.0,
-        "maxLev": 40.0,
-        "limit": 14000000.0
-      },
-      {
-        "tier": 11,
-        "mmr": 0.016,
-        "deduction": 80000.0,
-        "maxLev": 35.0,
-        "limit": 20000000.0
-      },
-      {
-        "tier": 12,
-        "mmr": 0.02,
-        "deduction": 160000.0,
-        "maxLev": 30.0,
-        "limit": 28000000.0
-      },
-      {
-        "tier": 13,
-        "mmr": 0.025,
-        "deduction": 300000.0,
-        "maxLev": 25.0,
-        "limit": 38000000.0
-      },
-      {
-        "tier": 14,
-        "mmr": 0.028999999999999998,
-        "deduction": 452000.0,
-        "maxLev": 20.0,
-        "limit": 50000000.0
-      },
-      {
-        "tier": 15,
-        "mmr": 0.03,
-        "deduction": 502000.0,
-        "maxLev": 19.0,
-        "limit": 55000000.0
-      },
-      {
-        "tier": 16,
-        "mmr": 0.035,
-        "deduction": 777000.0,
-        "maxLev": 18.0,
-        "limit": 60000000.0
-      },
-      {
-        "tier": 17,
-        "mmr": 0.036000000000000004,
-        "deduction": 837000.0,
-        "maxLev": 17.0,
-        "limit": 65000000.0
-      },
-      {
-        "tier": 18,
-        "mmr": 0.038,
-        "deduction": 967000.0,
-        "maxLev": 16.0,
-        "limit": 70000000.0
-      },
-      {
-        "tier": 19,
-        "mmr": 0.04,
-        "deduction": 1107000.0,
-        "maxLev": 15.0,
-        "limit": 75000000.0
-      },
-      {
-        "tier": 20,
-        "mmr": 0.045,
-        "deduction": 1482000.0,
-        "maxLev": 14.0,
-        "limit": 80000000.0
-      }
-    ],
+    "Bybit": [],
     "OKX": [
       {
         "tier": 1,
@@ -2599,6 +2645,199 @@
         "deduction": 0.0,
         "maxLev": 10.0,
         "limitQty": 1900.0
+      }
+    ],
+    "BingX": [
+      {
+        "tier": 1,
+        "mmr": 0.001,
+        "deduction": 0.0,
+        "maxLev": 150.0,
+        "limit": 320000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.0025,
+        "deduction": 480.0,
+        "maxLev": 125.0,
+        "limit": 1500000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.004,
+        "deduction": 2730.0,
+        "maxLev": 125.0,
+        "limit": 7500000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.01,
+        "deduction": 47730.0,
+        "maxLev": 62.0,
+        "limit": 8500000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.013000000000000001,
+        "deduction": 73230.0,
+        "maxLev": 62.0,
+        "limit": 10000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.015,
+        "deduction": 93230.0,
+        "maxLev": 41.0,
+        "limit": 14000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.016,
+        "deduction": 107230.0,
+        "maxLev": 25.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.02,
+        "deduction": 187230.0,
+        "maxLev": 25.0,
+        "limit": 28000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.025,
+        "deduction": 327230.0,
+        "maxLev": 25.0,
+        "limit": 38000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.028999999999999998,
+        "deduction": 479230.0,
+        "maxLev": 25.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.03,
+        "deduction": 529230.0,
+        "maxLev": 25.0,
+        "limit": 55000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.035,
+        "deduction": 804230.0,
+        "maxLev": 25.0,
+        "limit": 60000000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.036000000000000004,
+        "deduction": 864230.0,
+        "maxLev": 25.0,
+        "limit": 65000000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.038,
+        "deduction": 994230.0,
+        "maxLev": 25.0,
+        "limit": 70000000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.04,
+        "deduction": 1134230.0,
+        "maxLev": 20.0,
+        "limit": 75000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.045,
+        "deduction": 1509230.0,
+        "maxLev": 20.0,
+        "limit": 80000000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.05,
+        "deduction": 1909230.0,
+        "maxLev": 20.0,
+        "limit": 230000000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.125,
+        "deduction": 19159230.0,
+        "maxLev": 5.0,
+        "limit": 600000000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.25,
+        "deduction": 94159230.0,
+        "maxLev": 3.0,
+        "limit": 1200000000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.5,
+        "deduction": 394159230.0,
+        "maxLev": 1.0,
+        "limit": 1800000000.0
+      }
+    ],
+    "Pionex": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 10000.0,
+        "maxLev": 50.0,
+        "limit": 12000000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.025,
+        "deduction": 190000.0,
+        "maxLev": 20.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.05,
+        "deduction": 2690000.0,
+        "maxLev": 10.0,
+        "limit": 200000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.1,
+        "deduction": 12690000.0,
+        "maxLev": 5.0,
+        "limit": 500000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.25,
+        "deduction": 87690000.0,
+        "maxLev": 2.0,
+        "limit": 600000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.5,
+        "deduction": 237690000.0,
+        "maxLev": 1.0,
+        "limit": 800000000.0
       }
     ],
     "Hyperliquid": [
@@ -3133,6 +3372,220 @@
         "limitQty": 48000.0
       }
     ],
+    "BingX": [
+      {
+        "tier": 1,
+        "mmr": 0.001,
+        "deduction": 0.0,
+        "maxLev": 150.0,
+        "limit": 320000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.0033,
+        "deduction": 736.0,
+        "maxLev": 125.0,
+        "limit": 900000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.004,
+        "deduction": 1366.0,
+        "maxLev": 125.0,
+        "limit": 3000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.0077,
+        "deduction": 12466.0,
+        "maxLev": 62.0,
+        "limit": 3200000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.0091,
+        "deduction": 16946.0,
+        "maxLev": 62.0,
+        "limit": 4000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.01,
+        "deduction": 20546.0,
+        "maxLev": 41.0,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.012,
+        "deduction": 30546.0,
+        "maxLev": 25.0,
+        "limit": 8000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.013000000000000001,
+        "deduction": 38546.0,
+        "maxLev": 25.0,
+        "limit": 12000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.013999999999999999,
+        "deduction": 50546.0,
+        "maxLev": 25.0,
+        "limit": 16000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.015,
+        "deduction": 66546.0,
+        "maxLev": 25.0,
+        "limit": 22000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.02,
+        "deduction": 176546.0,
+        "maxLev": 25.0,
+        "limit": 28000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.025,
+        "deduction": 316546.0,
+        "maxLev": 25.0,
+        "limit": 32000000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.03,
+        "deduction": 476546.0,
+        "maxLev": 25.0,
+        "limit": 34000000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.033,
+        "deduction": 578546.0,
+        "maxLev": 25.0,
+        "limit": 36000000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.035,
+        "deduction": 650546.0,
+        "maxLev": 25.0,
+        "limit": 38000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.038,
+        "deduction": 764546.0,
+        "maxLev": 25.0,
+        "limit": 40000000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.039,
+        "deduction": 804546.0,
+        "maxLev": 25.0,
+        "limit": 42000000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.042,
+        "deduction": 930546.0,
+        "maxLev": 25.0,
+        "limit": 44000000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.045,
+        "deduction": 1062546.0,
+        "maxLev": 25.0,
+        "limit": 46000000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.05,
+        "deduction": 1292546.0,
+        "maxLev": 25.0,
+        "limit": 150000000.0
+      },
+      {
+        "tier": 21,
+        "mmr": 0.125,
+        "deduction": 12542546.0,
+        "maxLev": 5.0,
+        "limit": 400000000.0
+      },
+      {
+        "tier": 22,
+        "mmr": 0.25,
+        "deduction": 62542546.0,
+        "maxLev": 3.0,
+        "limit": 800000000.0
+      },
+      {
+        "tier": 23,
+        "mmr": 0.5,
+        "deduction": 262542546.0,
+        "maxLev": 1.0,
+        "limit": 1200000000.0
+      }
+    ],
+    "Pionex": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 5000.0,
+        "maxLev": 50.0,
+        "limit": 12000000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.025,
+        "deduction": 185000.0,
+        "maxLev": 20.0,
+        "limit": 70000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.05,
+        "deduction": 1935000.0,
+        "maxLev": 10.0,
+        "limit": 150000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.1,
+        "deduction": 9435000.0,
+        "maxLev": 5.0,
+        "limit": 300000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.25,
+        "deduction": 54435000.0,
+        "maxLev": 2.0,
+        "limit": 400000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.5,
+        "deduction": 154435000.0,
+        "maxLev": 1.0,
+        "limit": 500000000.0
+      }
+    ],
     "Hyperliquid": [
       {
         "tier": "固定",
@@ -3586,6 +4039,136 @@
         "deduction": 0.0,
         "maxLev": 200.0,
         "limitQty": 160000.0
+      }
+    ],
+    "BingX": [
+      {
+        "tier": 1,
+        "mmr": 0.0017000000000000001,
+        "deduction": 0.0,
+        "maxLev": 300.0,
+        "limit": 220000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.0025,
+        "deduction": 176.0,
+        "maxLev": 300.0,
+        "limit": 13000000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.02,
+        "deduction": 227676.0,
+        "maxLev": 15.0,
+        "limit": 15000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.04,
+        "deduction": 527676.0,
+        "maxLev": 15.0,
+        "limit": 30000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.08,
+        "deduction": 1727676.0,
+        "maxLev": 10.0,
+        "limit": 60000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.1,
+        "deduction": 2927676.0,
+        "maxLev": 5.0,
+        "limit": 80000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.1333,
+        "deduction": 5591676.0,
+        "maxLev": 4.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.2,
+        "deduction": 12261676.0,
+        "maxLev": 2.0,
+        "limit": 150000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.4,
+        "deduction": 42261676.0,
+        "maxLev": 2.0,
+        "limit": 300000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.5,
+        "deduction": 72261676.0,
+        "maxLev": 1.0,
+        "limit": 400000000.0
+      }
+    ],
+    "Pionex": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 50000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.006500000000000001,
+        "deduction": 75.0,
+        "maxLev": 75.0,
+        "limit": 400000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.01,
+        "deduction": 1475.0,
+        "maxLev": 50.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.02,
+        "deduction": 11475.0,
+        "maxLev": 25.0,
+        "limit": 4000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.05,
+        "deduction": 131475.0,
+        "maxLev": 10.0,
+        "limit": 40000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.1,
+        "deduction": 2131475.0,
+        "maxLev": 5.0,
+        "limit": 80000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.25,
+        "deduction": 14131475.0,
+        "maxLev": 2.0,
+        "limit": 200000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.5,
+        "deduction": 64131475.0,
+        "maxLev": 1.0,
+        "limit": 400000000.0
       }
     ],
     "Hyperliquid": [
@@ -4043,6 +4626,136 @@
         "limitQty": 44000000.0
       }
     ],
+    "BingX": [
+      {
+        "tier": 1,
+        "mmr": 0.0017000000000000001,
+        "deduction": 0.0,
+        "maxLev": 300.0,
+        "limit": 190000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.0025,
+        "deduction": 152.0,
+        "maxLev": 200.0,
+        "limit": 4200000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.05,
+        "deduction": 199652.0,
+        "maxLev": 10.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.115,
+        "deduction": 1499652.0,
+        "maxLev": 5.0,
+        "limit": 21000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.12,
+        "deduction": 1604652.0,
+        "maxLev": 5.0,
+        "limit": 23000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.125,
+        "deduction": 1719652.0,
+        "maxLev": 5.0,
+        "limit": 25000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.13,
+        "deduction": 1844652.0,
+        "maxLev": 5.0,
+        "limit": 27000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.135,
+        "deduction": 1979652.0,
+        "maxLev": 5.0,
+        "limit": 29000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.2,
+        "deduction": 3864652.0,
+        "maxLev": 5.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.25,
+        "deduction": 6364652.0,
+        "maxLev": 2.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.5,
+        "deduction": 31364652.0,
+        "maxLev": 1.0,
+        "limit": 200000000.0
+      }
+    ],
+    "Pionex": [
+      {
+        "tier": 1,
+        "mmr": 0.006500000000000001,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 80000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 280.0,
+        "maxLev": 50.0,
+        "limit": 150000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.02,
+        "deduction": 1780.0,
+        "maxLev": 25.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.05,
+        "deduction": 61780.0,
+        "maxLev": 10.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.1,
+        "deduction": 1061780.0,
+        "maxLev": 5.0,
+        "limit": 40000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.25,
+        "deduction": 7061780.0,
+        "maxLev": 2.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.5,
+        "deduction": 32061780.0,
+        "maxLev": 1.0,
+        "limit": 200000000.0
+      }
+    ],
     "Hyperliquid": [
       {
         "tier": "固定",
@@ -4498,6 +5211,136 @@
         "limitQty": 13500000.0
       }
     ],
+    "BingX": [
+      {
+        "tier": 1,
+        "mmr": 0.0017000000000000001,
+        "deduction": 0.0,
+        "maxLev": 300.0,
+        "limit": 84000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.0025,
+        "deduction": 67.2,
+        "maxLev": 300.0,
+        "limit": 2900000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.025,
+        "deduction": 65317.2,
+        "maxLev": 10.0,
+        "limit": 3000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.05,
+        "deduction": 140317.2,
+        "maxLev": 10.0,
+        "limit": 15000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.133,
+        "deduction": 1385317.2,
+        "maxLev": 5.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.2,
+        "deduction": 2725317.2,
+        "maxLev": 5.0,
+        "limit": 30000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.4,
+        "deduction": 8725317.2,
+        "maxLev": 3.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.5,
+        "deduction": 13725317.2,
+        "maxLev": 100.0,
+        "limit": 100000000.0
+      }
+    ],
+    "Pionex": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 10000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 50.0,
+        "maxLev": 50.0,
+        "limit": 50000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.015,
+        "deduction": 300.0,
+        "maxLev": 40.0,
+        "limit": 200000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.02,
+        "deduction": 1300.0,
+        "maxLev": 25.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.025,
+        "deduction": 6300.0,
+        "maxLev": 20.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.05,
+        "deduction": 56300.0,
+        "maxLev": 10.0,
+        "limit": 10000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.1,
+        "deduction": 556300.0,
+        "maxLev": 5.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.125,
+        "deduction": 1056300.0,
+        "maxLev": 4.0,
+        "limit": 25000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.25,
+        "deduction": 4181300.0,
+        "maxLev": 2.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.5,
+        "deduction": 16681300.0,
+        "maxLev": 1.0,
+        "limit": 100000000.0
+      }
+    ],
     "Hyperliquid": [
       {
         "tier": "固定",
@@ -4937,6 +5780,136 @@
         "deduction": 0.0,
         "maxLev": 100.0,
         "limitQty": 41000.0
+      }
+    ],
+    "BingX": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 2600000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.05,
+        "deduction": 117000.0,
+        "maxLev": 10.0,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.07139999999999999,
+        "deduction": 224000.0,
+        "maxLev": 5.0,
+        "limit": 27730000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.0833,
+        "deduction": 553987.0,
+        "maxLev": 100.0,
+        "limit": 55300000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.1,
+        "deduction": 1477497.0,
+        "maxLev": 100.0,
+        "limit": 58040000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.125,
+        "deduction": 2928497.0,
+        "maxLev": 100.0,
+        "limit": 59540000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.16670000000000001,
+        "deduction": 5411315.0,
+        "maxLev": 100.0,
+        "limit": 112260000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.25,
+        "deduction": 14762573.0,
+        "maxLev": 100.0,
+        "limit": 116760000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.5,
+        "deduction": 43952573.0,
+        "maxLev": 100.0,
+        "limit": 117440000.0
+      }
+    ],
+    "Pionex": [
+      {
+        "tier": 1,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 20000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.015,
+        "deduction": 100.0,
+        "maxLev": 50.0,
+        "limit": 200000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.02,
+        "deduction": 1100.0,
+        "maxLev": 25.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.025,
+        "deduction": 6100.0,
+        "maxLev": 20.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.05,
+        "deduction": 56100.0,
+        "maxLev": 10.0,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.1,
+        "deduction": 306100.0,
+        "maxLev": 5.0,
+        "limit": 7500000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.125,
+        "deduction": 493600.0,
+        "maxLev": 4.0,
+        "limit": 10000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.25,
+        "deduction": 1743600.0,
+        "maxLev": 2.0,
+        "limit": 12500000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.5,
+        "deduction": 4868600.0,
+        "maxLev": 1.0,
+        "limit": 15000000.0
       }
     ],
     "Hyperliquid": [
@@ -5422,6 +6395,150 @@
         "limitQty": 10800000.0
       }
     ],
+    "BingX": [
+      {
+        "tier": 1,
+        "mmr": 0.0017000000000000001,
+        "deduction": 0.0,
+        "maxLev": 300.0,
+        "limit": 180000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.0025,
+        "deduction": 144.0,
+        "maxLev": 200.0,
+        "limit": 2700000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.02,
+        "deduction": 47394.0,
+        "maxLev": 25.0,
+        "limit": 11000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.07139999999999999,
+        "deduction": 612794.0,
+        "maxLev": 25.0,
+        "limit": 45000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.1,
+        "deduction": 1899794.0,
+        "maxLev": 6.0,
+        "limit": 60000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.125,
+        "deduction": 3399794.0,
+        "maxLev": 4.0,
+        "limit": 80000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.16670000000000001,
+        "deduction": 6735794.0,
+        "maxLev": 3.0,
+        "limit": 100000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.25,
+        "deduction": 15065794.0,
+        "maxLev": 2.0,
+        "limit": 250000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.5,
+        "deduction": 77565794.0,
+        "maxLev": 1.0,
+        "limit": 300000000.0
+      }
+    ],
+    "Pionex": [
+      {
+        "tier": 1,
+        "mmr": 0.004,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 40000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005,
+        "deduction": 40.0,
+        "maxLev": 75.0,
+        "limit": 100000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.006500000000000001,
+        "deduction": 190.0,
+        "maxLev": 50.0,
+        "limit": 200000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.01,
+        "deduction": 890.0,
+        "maxLev": 40.0,
+        "limit": 500000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.02,
+        "deduction": 5890.0,
+        "maxLev": 25.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.035,
+        "deduction": 20890.0,
+        "maxLev": 20.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.05,
+        "deduction": 50890.0,
+        "maxLev": 10.0,
+        "limit": 10000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.1,
+        "deduction": 550890.0,
+        "maxLev": 5.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.125,
+        "deduction": 1050890.0,
+        "maxLev": 4.0,
+        "limit": 25000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.25,
+        "deduction": 4175890.0,
+        "maxLev": 2.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.5,
+        "deduction": 16675890.0,
+        "maxLev": 1.0,
+        "limit": 100000000.0
+      }
+    ],
     "Hyperliquid": [
       {
         "tier": "固定",
@@ -5891,6 +7008,80 @@
         "limitQty": 1900.0
       }
     ],
+    "BingX": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 51000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.01,
+        "deduction": 255.0,
+        "maxLev": 100.0,
+        "limit": 65000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0333,
+        "deduction": 1769.5,
+        "maxLev": 50.0,
+        "limit": 500000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.05,
+        "deduction": 10119.5,
+        "maxLev": 15.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.1,
+        "deduction": 110119.5,
+        "maxLev": 10.0,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.125,
+        "deduction": 235119.5,
+        "maxLev": 4.0,
+        "limit": 10000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.16670000000000001,
+        "deduction": 652119.5,
+        "maxLev": 3.0,
+        "limit": 25000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.25,
+        "deduction": 2734619.5,
+        "maxLev": 1.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.5,
+        "deduction": 15234619.5,
+        "maxLev": 100.0,
+        "limit": 100000000.0
+      }
+    ],
+    "Pionex": [
+      {
+        "tier": 1,
+        "mmr": 0.01,
+        "deduction": 0.0,
+        "maxLev": 50.0,
+        "limit": 2000000.0
+      }
+    ],
     "Hyperliquid": [
       {
         "tier": "固定",
@@ -6346,6 +7537,122 @@
         "limitQty": 53000.0
       }
     ],
+    "BingX": [
+      {
+        "tier": 1,
+        "mmr": 0.0025,
+        "deduction": 0.0,
+        "maxLev": 200.0,
+        "limit": 47000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.0125,
+        "deduction": 470.0,
+        "maxLev": 50.0,
+        "limit": 200000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.025,
+        "deduction": 2970.0,
+        "maxLev": 25.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.05,
+        "deduction": 27970.0,
+        "maxLev": 20.0,
+        "limit": 6500000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.16670000000000001,
+        "deduction": 786520.0,
+        "maxLev": 100.0,
+        "limit": 25000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.25,
+        "deduction": 2869020.0,
+        "maxLev": 100.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.5,
+        "deduction": 15369020.0,
+        "maxLev": 100.0,
+        "limit": 200000000.0
+      }
+    ],
+    "Pionex": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 75.0,
+        "limit": 50000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.006,
+        "deduction": 50.0,
+        "maxLev": 50.0,
+        "limit": 100000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.006999999999999999,
+        "deduction": 150.0,
+        "maxLev": 25.0,
+        "limit": 500000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.015,
+        "deduction": 4150.0,
+        "maxLev": 20.0,
+        "limit": 1000000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.017,
+        "deduction": 6150.0,
+        "maxLev": 10.0,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.05,
+        "deduction": 171150.0,
+        "maxLev": 5.0,
+        "limit": 8000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.125,
+        "deduction": 771150.0,
+        "maxLev": 4.0,
+        "limit": 25000000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.25,
+        "deduction": 3896150.0,
+        "maxLev": 2.0,
+        "limit": 37500000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.5,
+        "deduction": 13271150.0,
+        "maxLev": 1.0,
+        "limit": 50000000.0
+      }
+    ],
     "Hyperliquid": [
       {
         "tier": "固定",
@@ -6358,7 +7665,7 @@
   }
 };
 
-    let LAST_UPDATED = "2026-08-18 16:30:13";
+    let LAST_UPDATED = "2026-08-19 10:25:27";
 
     async function loadLastUpdatedTime() {
       try {
@@ -6382,44 +7689,140 @@
       if (el) el.innerText = LAST_UPDATED || "尚未更新";
     }
 
+    let refreshProgressInterval = null;
+    let refreshSecondsCount = 0;
+
     async function refreshDataSource() {
       const btn = document.getElementById('btnRefreshData');
       const icon = document.getElementById('refreshIcon');
       const text = document.getElementById('refreshBtnText');
-      
+
+      const modal = document.getElementById('refreshProgressModal');
+      const barFill = document.getElementById('refreshProgressBarFill');
+      const pctText = document.getElementById('refreshProgressPctText');
+      const statusText = document.getElementById('refreshProgressStatusText');
+      const timerText = document.getElementById('refreshProgressTimerText');
+
       if (btn) btn.disabled = true;
       if (icon) icon.className = 'fa-solid fa-arrows-rotate fa-spin';
-      if (text) text.innerText = '正在重跑爬蟲... (約30-40秒)';
+      if (text) text.innerText = '正在即時爬取...';
+
+      // 展開進度條 Modal 並初始化
+      if (modal) modal.classList.add('active');
+      if (barFill) barFill.style.width = '5%';
+      if (pctText) pctText.innerText = '5%';
+      if (statusText) statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color:#00F5A0;"></i> 🚀 正在啟動 7 大交易所並行爬蟲...`;
+      if (timerText) timerText.innerText = '0 秒';
+
+      refreshSecondsCount = 0;
+      if (refreshProgressInterval) clearInterval(refreshProgressInterval);
+
+      // 動態模擬爬蟲進度與提示
+      refreshProgressInterval = setInterval(() => {
+        refreshSecondsCount++;
+        if (timerText) timerText.innerText = `${refreshSecondsCount} 秒`;
+
+        // 預估爬蟲總耗時約 45 ~ 65 秒
+        let estPct = Math.min(95, Math.round(5 + (refreshSecondsCount / 65) * 90));
+        if (barFill) barFill.style.width = estPct + '%';
+        if (pctText) pctText.innerText = estPct + '%';
+
+        if (refreshSecondsCount === 5 && statusText) {
+          statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color:#00F2FE;"></i> 🔄 正在擷取 BingX、OKX、Bitget 階梯檔位...`;
+        } else if (refreshSecondsCount === 18 && statusText) {
+          statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color:#FFB100;"></i> 🔄 正在擷取 Binance 與 Bybit 檔位與名義價值...`;
+        } else if (refreshSecondsCount === 32 && statusText) {
+          statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color:#FF4F29;"></i> 🔄 正在擷取 Pionex (美股/加密貨幣) 概況檔位...`;
+        } else if (refreshSecondsCount === 48 && statusText) {
+          statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color:#A855F7;"></i> 🔀 正在進行跨交易所數據對齊與匯總...`;
+        }
+      }, 1000);
 
       try {
         const res = await apiFetch('/api/refresh', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' }
         });
-        
+
+        if (refreshProgressInterval) clearInterval(refreshProgressInterval);
+
         if (res.ok) {
           const data = await res.json();
           if (data.success) {
-            alert('✅ 五大交易所合約保證金數據更新成功！');
+            if (barFill) barFill.style.width = '100%';
+            if (pctText) pctText.innerText = '100%';
+            if (statusText) statusText.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#00F5A0;"></i> 🎉 7 大交易所檔位數據已成功全數更新！`;
+
             if (data.last_updated) {
               LAST_UPDATED = data.last_updated;
               const el = document.getElementById('lastUpdatedText');
               if (el) el.innerText = LAST_UPDATED;
             }
             await loadScrapedTiersJSON();
+
+            setTimeout(() => {
+              if (modal) modal.classList.remove('active');
+            }, 1800);
           } else {
             alert('❌ 更新失敗: ' + (data.error || '未知錯誤'));
+            if (modal) modal.classList.remove('active');
           }
         } else {
           const errData = await res.json().catch(() => ({}));
           alert('❌ 伺服器回應錯誤: ' + (errData.error || '請確認已啟動 py server.py 伺服器'));
+          if (modal) modal.classList.remove('active');
         }
       } catch (err) {
+        if (refreshProgressInterval) clearInterval(refreshProgressInterval);
         alert('⚠️ 無法連線至本地 API 伺服器！\n請先在命令列執行 `py server.py` 啟動本地服務。');
+        if (modal) modal.classList.remove('active');
       } finally {
         if (btn) btn.disabled = false;
         if (icon) icon.className = 'fa-solid fa-arrows-rotate';
         if (text) text.innerText = '更新資料來源';
+      }
+    }
+
+    async function checkUpdateAndClearCache() {
+      const btn = document.getElementById('btnCheckUpdate');
+      const icon = document.getElementById('checkUpdateIcon');
+      if (btn) btn.disabled = true;
+      if (icon) icon.className = 'fa-solid fa-spinner fa-spin';
+
+      try {
+        // 1. 解除所有 Service Worker 註冊
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (let registration of registrations) {
+            await registration.unregister();
+            console.log('[PWA Cache] 已解除註冊 SW:', registration.scope);
+          }
+        }
+
+        // 2. 清除所有 CacheStorage 快取
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          for (let key of keys) {
+            await caches.delete(key);
+            console.log('[PWA Cache] 已刪除快取:', key);
+          }
+        }
+
+        // 3. 清理 SessionStorage
+        sessionStorage.clear();
+
+        const ts = Date.now();
+        alert('✨ 已成功清除手機與瀏覽器快取！\n網頁將立即自動重整載入最新版本...');
+
+        let newUrl = window.location.pathname + '?v=' + ts;
+        if (window.location.hash) newUrl += window.location.hash;
+        window.location.replace(newUrl);
+
+      } catch (err) {
+        alert('⚠️ 清除快取時發生異常: ' + err.message);
+      } finally {
+        if (btn) btn.disabled = false;
+        if (icon) icon.className = 'fa-solid fa-sync';
       }
     }
 
@@ -6724,19 +8127,26 @@
       OKX: 'https://www.okx.com/zh-hant/trade-market/position/swap',
       MEXC: 'https://www.mexc.com/zh-TW/futures/information/risk_limit/',
       Hyperliquid: 'https://app.hyperliquid.xyz/trade',
-      BingX: 'https://bingx.com/zh-tc/tradeInfo/perpetual/maintenance-margin-ratio/'
+      BingX: 'https://bingx.com/zh-tc/tradeInfo/perpetual/maintenance-margin-ratio/',
+      Pionex: 'https://www.pionex.com/zh-TW/futures/BTC.PERP_USDT/Bot'
     };
 
     function getExchangeSourceUrl(exchange, coinSymbol) {
+      const coin = coinSymbol || (document.getElementById('coinSelect') ? document.getElementById('coinSelect').value : 'BTCUSDT');
+      const base = coin.replace('USDT', '');
+
       if (exchange === 'MEXC') {
-        const coin = coinSymbol || (document.getElementById('coinSelect') ? document.getElementById('coinSelect').value : 'BTCUSDT');
-        const base = coin.replace('USDT', '');
         return `https://www.mexc.com/zh-TW/futures/information/risk_limit/${base}_USDT`;
       }
       if (exchange === 'BingX') {
-        const coin = coinSymbol || (document.getElementById('coinSelect') ? document.getElementById('coinSelect').value : 'BTCUSDT');
-        const base = coin.replace('USDT', '');
-        return `https://bingx.com/zh-tc/tradeInfo/perpetual/maintenance-margin-ratio/${base}-USDT`;
+        if (base === 'SOXL') return `https://bingx.com/zh-tc/tradeInfo/perpetual/maintenance-margin-ratio/NCSKSOXL2USD-USDT/`;
+        if (base === 'MSTR') return `https://bingx.com/zh-tc/tradeInfo/perpetual/maintenance-margin-ratio/NCSKMSTR2USD-USDT/`;
+        return `https://bingx.com/zh-tc/tradeInfo/perpetual/maintenance-margin-ratio/${base}-USDT/`;
+      }
+      if (exchange === 'Pionex') {
+        const isStock = (base === 'SOXL' || base === 'MSTR' || base.startsWith('NCSK'));
+        const sym = isStock ? `${base}X` : base;
+        return `https://www.pionex.com/zh-TW/futures/${sym}.PERP_USDT/Bot`;
       }
       return EXCHANGE_SOURCE_URLS[exchange] || '#';
     }
@@ -6751,6 +8161,10 @@
       const bingxUrl = getExchangeSourceUrl('BingX', coin);
       const dsBingX = document.getElementById('dsLinkBingX');
       if (dsBingX) dsBingX.href = bingxUrl;
+
+      const pionexUrl = getExchangeSourceUrl('Pionex', coin);
+      const dsPionex = document.getElementById('dsLinkPionex');
+      if (dsPionex) dsPionex.href = pionexUrl;
 
       const cardMexc = document.getElementById('linkMEXCHeader');
       if (cardMexc) cardMexc.href = mexcUrl;
@@ -6909,7 +8323,30 @@
       return names[base] || base;
     }
 
+    let currentAddCoinAssetType = 'crypto';
+
+    function setAddCoinAssetType(type) {
+      currentAddCoinAssetType = type;
+      const cryptoChip = document.getElementById('typeChipCrypto');
+      const stockChip = document.getElementById('typeChipStock');
+      const input = document.getElementById('newCoinInput');
+      const lbl = document.getElementById('lblCoinCodeInput');
+
+      if (type === 'stock') {
+        if (cryptoChip) cryptoChip.classList.remove('active');
+        if (stockChip) stockChip.classList.add('active');
+        if (input) input.placeholder = '例如 SOXL, MSTR, NVDA';
+        if (lbl) lbl.innerText = '美股 / 指數代碼 (例如: SOXL, MSTR, NVDA)';
+      } else {
+        if (stockChip) stockChip.classList.remove('active');
+        if (cryptoChip) cryptoChip.classList.add('active');
+        if (input) input.placeholder = '例如 DOGE 或 DOGEUSDT';
+        if (lbl) lbl.innerText = '標的代碼 (例如: DOGE, XRP, SOL)';
+      }
+    }
+
     function openAddCoinModal() {
+      setAddCoinAssetType('crypto');
       document.getElementById('newCoinInput').value = '';
       document.getElementById('coinStatusBox').style.display = 'none';
       document.getElementById('coinModal').classList.add('active');
@@ -6926,7 +8363,7 @@
 
       let rawCoin = input.value.trim().toUpperCase();
       if (!rawCoin) {
-        alert('❌ 請輸入幣種名稱！');
+        alert('❌ 請輸入標的代碼！');
         return;
       }
       if (!rawCoin.endsWith('USDT')) rawCoin += 'USDT';
@@ -6936,13 +8373,13 @@
       statusBox.style.background = 'rgba(99, 102, 241, 0.15)';
       statusBox.style.border = '1px solid rgba(99, 102, 241, 0.4)';
       statusBox.style.color = '#FFFFFF';
-      statusBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 正在通訊新增 [${rawCoin}]...`;
+      statusBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 正在通訊新增 [${rawCoin}] (${currentAddCoinAssetType === 'stock' ? '美股/指數' : '加密貨幣'})...`;
 
       try {
         const res = await apiFetch('/api/coins', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ coin: rawCoin })
+          body: JSON.stringify({ coin: rawCoin, assetType: currentAddCoinAssetType })
         });
 
         const data = await res.json().catch(() => ({}));
@@ -6952,8 +8389,8 @@
           statusBox.style.color = '#FFFFFF';
           statusBox.innerHTML = `
             <div style="font-weight:bold; font-size:0.92rem; color:#00F5A0; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-              <span>🚀 正在連線爬取 [${rawCoin}] 五大交易所數據</span>
-              <span id="stCompletedCount" style="font-size:0.8rem; color:#00F2FE;">0/5 已完成</span>
+              <span>🚀 正在連線爬取 [${rawCoin}] 7 大交易所數據</span>
+              <span id="stCompletedCount" style="font-size:0.8rem; color:#00F2FE;">0/7 已完成</span>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:0.82rem; margin-top:10px;">
               <div id="stExBinance"><i class="fa-solid fa-spinner fa-spin" style="color:#F0B90B;"></i> 幣安 Binance: 抓取中...</div>
@@ -6961,6 +8398,8 @@
               <div id="stExBybit"><i class="fa-solid fa-spinner fa-spin" style="color:#FFB100;"></i> Bybit: 抓取中...</div>
               <div id="stExOKX"><i class="fa-solid fa-spinner fa-spin" style="color:#A855F7;"></i> OKX: 抓取中...</div>
               <div id="stExMEXC"><i class="fa-solid fa-spinner fa-spin" style="color:#00F5A0;"></i> MEXC: 抓取中...</div>
+              <div id="stExBingX"><i class="fa-solid fa-spinner fa-spin" style="color:#2B5BFF;"></i> BingX: 抓取中...</div>
+              <div id="stExPionex"><i class="fa-solid fa-spinner fa-spin" style="color:#FF4F29;"></i> Pionex: 抓取中...</div>
             </div>
           `;
 
@@ -6989,7 +8428,9 @@
                   'Bitget': { id: 'stExBitget', label: 'Bitget' },
                   'Bybit': { id: 'stExBybit', label: 'Bybit' },
                   'OKX': { id: 'stExOKX', label: 'OKX' },
-                  'MEXC': { id: 'stExMEXC', label: 'MEXC' }
+                  'MEXC': { id: 'stExMEXC', label: 'MEXC' },
+                  'BingX': { id: 'stExBingX', label: 'BingX' },
+                  'Pionex': { id: 'stExPionex', label: 'Pionex 派網' }
                 };
 
                 let doneCount = 0;
@@ -7008,10 +8449,10 @@
                 }
 
                 const totalElem = document.getElementById('stCompletedCount');
-                if (totalElem) totalElem.innerText = `${doneCount}/5 已完成`;
+                if (totalElem) totalElem.innerText = `${doneCount}/7 已完成`;
 
                 const isExportDone = exMap._export_finished === true;
-                if (isExportDone || doneCount >= 5 || attempts >= maxAttempts) {
+                if (isExportDone || doneCount >= 7 || attempts >= maxAttempts) {
                   clearInterval(pollInterval);
                   
                   // 重複三次確認新幣種載入 complete
@@ -7032,7 +8473,7 @@
                     const stBox = document.getElementById('coinStatusBox');
                     if (stBox) {
                       stBox.style.border = '1px solid #10B981';
-                      stBox.insertAdjacentHTML('afterbegin', `<div style="background:rgba(16,185,129,0.2); border-radius:6px; padding:6px 10px; margin-bottom:8px; font-weight:bold; color:#00F5A0;">🎉 [${rawCoin}] 5 大交易所數據已全數自動載入呈現！</div>`);
+                      stBox.insertAdjacentHTML('afterbegin', `<div style="background:rgba(16,185,129,0.2); border-radius:6px; padding:6px 10px; margin-bottom:8px; font-weight:bold; color:#00F5A0;">🎉 [${rawCoin}] 7 大交易所數據已全數自動載入呈現！</div>`);
                     }
                   }, 300);
 
@@ -7194,7 +8635,7 @@
 
       if (P <= 0 || V <= 0 || M <= 0) return;
 
-      const exchanges = ['Binance', 'Bitget', 'Bybit', 'OKX', 'MEXC', 'Hyperliquid', 'BingX'];
+      const exchanges = ['Binance', 'Bitget', 'Bybit', 'OKX', 'MEXC', 'BingX', 'Pionex', 'Hyperliquid'];
       const calcResults = [];
 
       const visibleCount = exchanges.length - hiddenExchanges.size;
@@ -7374,6 +8815,7 @@
     window.toggleExchange = toggleExchange;
     window.openAddCoinModal = openAddCoinModal;
     window.closeCoinModal = closeCoinModal;
+    window.setAddCoinAssetType = setAddCoinAssetType;
     window.submitAddCoin = submitAddCoin;
     window.promptDeleteCoin = promptDeleteCoin;
     window.showTierModal = showTierModal;
@@ -7383,6 +8825,7 @@
     window.onHlMMRChange = onHlMMRChange;
     window.onDecimalChange = onDecimalChange;
     window.refreshDataSource = refreshDataSource;
+    window.checkUpdateAndClearCache = checkUpdateAndClearCache;
 
     // ==========================================
     // PWA & Service Worker 註冊與安裝事件處理
@@ -7459,7 +8902,115 @@
       });
     }
 
+    // ==========================================
+    // 卡片拖曳排序與順序持久化 (Drag & Drop Card Reordering)
+    // ==========================================
+    let draggedCard = null;
+
+    function applySavedCardOrder() {
+      const container = document.getElementById('matrixGrid');
+      if (!container) return;
+
+      const defaultOrder = ['Binance', 'Bitget', 'Bybit', 'OKX', 'MEXC', 'BingX', 'Pionex', 'Hyperliquid'];
+      let order = defaultOrder;
+      try {
+        const saved = localStorage.getItem('customCardOrder');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            order = parsed;
+            defaultOrder.forEach(ex => {
+              if (!order.includes(ex)) {
+                if (ex === 'Hyperliquid') order.push(ex);
+                else order.splice(order.length - 1, 0, ex);
+              }
+            });
+          }
+        }
+      } catch (e) {}
+
+      order.forEach(ex => {
+        const card = document.getElementById(`card${ex}`);
+        if (card && container) {
+          container.appendChild(card);
+        }
+      });
+    }
+
+    function saveCardOrderFromDOM() {
+      const container = document.getElementById('matrixGrid');
+      if (!container) return;
+      const cards = container.querySelectorAll('.ex-card');
+      const order = [];
+      cards.forEach(card => {
+        const ex = card.dataset.exchange;
+        if (ex) order.push(ex);
+      });
+      try {
+        localStorage.setItem('customCardOrder', JSON.stringify(order));
+      } catch (e) {}
+    }
+
+    function initCardDragAndDrop() {
+      const container = document.getElementById('matrixGrid');
+      if (!container) return;
+
+      applySavedCardOrder();
+
+      const cards = container.querySelectorAll('.ex-card');
+      cards.forEach(card => {
+        card.setAttribute('draggable', 'true');
+
+        card.addEventListener('dragstart', (e) => {
+          if (['INPUT', 'BUTTON', 'A', 'SELECT'].includes(e.target.tagName)) {
+            e.preventDefault();
+            return;
+          }
+          draggedCard = card;
+          card.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', card.dataset.exchange || card.id);
+        });
+
+        card.addEventListener('dragend', () => {
+          if (draggedCard) {
+            draggedCard.classList.remove('dragging');
+            draggedCard = null;
+          }
+          saveCardOrderFromDOM();
+        });
+      });
+
+      container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (!draggedCard) return;
+        const afterElement = getDragAfterElement(container, e.clientY, e.clientX);
+        if (afterElement == null) {
+          container.appendChild(draggedCard);
+        } else {
+          container.insertBefore(draggedCard, afterElement);
+        }
+      });
+    }
+
+    function getDragAfterElement(container, y, x) {
+      const draggableElements = [...container.querySelectorAll('.ex-card:not(.dragging)')];
+
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offsetY = y - box.top - box.height / 2;
+        const offsetX = x - box.left - box.width / 2;
+        const distance = Math.hypot(offsetX, offsetY);
+        if (distance < closest.distance) {
+          return { distance: distance, element: child };
+        } else {
+          return closest;
+        }
+      }, { distance: Number.POSITIVE_INFINITY }).element;
+    }
+
     // 初始化載入
+    initCardDragAndDrop();
     updateExchangeFilterUI();
     loadCoins().then(() => {
       loadLastUpdatedTime();

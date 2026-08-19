@@ -53,7 +53,7 @@ def get_last_updated():
 @app.route('/api/refresh', methods=['POST'])
 def refresh_data():
     try:
-        print("🚀 收到前端請求，準備重跑五大交易所合約保證金爬蟲 (main.py)...")
+        print("🚀 收到前端請求，準備重跑各大交易所合約保證金爬蟲 (main.py)...")
         python_exe = sys.executable
         
         # 執行 main.py
@@ -156,6 +156,8 @@ def add_coin():
     try:
         req = request.get_json() or {}
         coin = str(req.get('coin', '')).strip().upper()
+        asset_type = str(req.get('assetType', 'crypto')).strip().lower()
+
         if not coin:
             return jsonify({"success": False, "error": "幣種名稱不可空白"}), 400
 
@@ -177,12 +179,28 @@ def add_coin():
             with open(coins_path, "w", encoding="utf-8") as f:
                 json.dump(coins, f, ensure_ascii=False, indent=2)
 
+        # 儲存標的種類 (assetType: crypto 或 stock) 至 data/coin_types.json
+        types_path = os.path.join(BASE_DIR, "data", "coin_types.json")
+        types_data = {}
+        if os.path.exists(types_path):
+            try:
+                with open(types_path, "r", encoding="utf-8") as f:
+                    types_data = json.load(f)
+            except Exception:
+                pass
+        types_data[coin] = asset_type
+        base_unit = coin[:-4] if coin.endswith('USDT') else coin
+        types_data[base_unit] = asset_type
+        os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
+        with open(types_path, "w", encoding="utf-8") as f:
+            json.dump(types_data, f, ensure_ascii=False, indent=2)
+
         # 啟動非同步背景線程進行爬取
         t = threading.Thread(target=run_background_crawler, args=(coin,))
         t.daemon = True
         t.start()
 
-        return jsonify({"success": True, "coins": coins, "added": coin, "message": "幣種已新增，背景正進行連線爬取！"})
+        return jsonify({"success": True, "coins": coins, "added": coin, "assetType": asset_type, "message": "幣種與標的種類已新增，背景正進行連線爬取！"})
     except Exception as e:
         print(f"❌ 新增幣種失敗: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
