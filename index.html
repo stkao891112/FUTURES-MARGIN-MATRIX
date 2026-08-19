@@ -2322,7 +2322,7 @@
 
     // 預設備援檔位數據
     let EXCHANGE_TIERS = {
-  "_last_updated": "2026-08-19 10:47:40",
+  "_last_updated": "2026-08-19 11:01:39",
   "BTCUSDT": {
     "Binance": [
       {
@@ -2496,7 +2496,148 @@
         "limit": 1200000000.0
       }
     ],
-    "Bybit": [],
+    "Bybit": [
+      {
+        "tier": 1,
+        "mmr": 0.005,
+        "deduction": 0.0,
+        "maxLev": 100.0,
+        "limit": 2000000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005600000000000001,
+        "deduction": 1200.0,
+        "maxLev": 90.0,
+        "limit": 2600000.0
+      },
+      {
+        "tier": 3,
+        "mmr": 0.0063,
+        "deduction": 3020.0,
+        "maxLev": 80.0,
+        "limit": 3200000.0
+      },
+      {
+        "tier": 4,
+        "mmr": 0.0067,
+        "deduction": 4300.0,
+        "maxLev": 75.0,
+        "limit": 3800000.0
+      },
+      {
+        "tier": 5,
+        "mmr": 0.0070999999999999995,
+        "deduction": 5820.0,
+        "maxLev": 70.0,
+        "limit": 4400000.0
+      },
+      {
+        "tier": 6,
+        "mmr": 0.0077,
+        "deduction": 8460.0,
+        "maxLev": 65.0,
+        "limit": 5000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.0091,
+        "deduction": 15460.0,
+        "maxLev": 55.0,
+        "limit": 5600000.0
+      },
+      {
+        "tier": 8,
+        "mmr": 0.01,
+        "deduction": 20500.0,
+        "maxLev": 50.0,
+        "limit": 8500000.0
+      },
+      {
+        "tier": 9,
+        "mmr": 0.013000000000000001,
+        "deduction": 46000.0,
+        "maxLev": 45.0,
+        "limit": 10000000.0
+      },
+      {
+        "tier": 10,
+        "mmr": 0.015,
+        "deduction": 66000.0,
+        "maxLev": 40.0,
+        "limit": 14000000.0
+      },
+      {
+        "tier": 11,
+        "mmr": 0.016,
+        "deduction": 80000.0,
+        "maxLev": 35.0,
+        "limit": 20000000.0
+      },
+      {
+        "tier": 12,
+        "mmr": 0.02,
+        "deduction": 160000.0,
+        "maxLev": 30.0,
+        "limit": 28000000.0
+      },
+      {
+        "tier": 13,
+        "mmr": 0.025,
+        "deduction": 300000.0,
+        "maxLev": 25.0,
+        "limit": 38000000.0
+      },
+      {
+        "tier": 14,
+        "mmr": 0.028999999999999998,
+        "deduction": 452000.0,
+        "maxLev": 20.0,
+        "limit": 50000000.0
+      },
+      {
+        "tier": 15,
+        "mmr": 0.03,
+        "deduction": 502000.0,
+        "maxLev": 19.0,
+        "limit": 55000000.0
+      },
+      {
+        "tier": 16,
+        "mmr": 0.035,
+        "deduction": 777000.0,
+        "maxLev": 18.0,
+        "limit": 60000000.0
+      },
+      {
+        "tier": 17,
+        "mmr": 0.036000000000000004,
+        "deduction": 837000.0,
+        "maxLev": 17.0,
+        "limit": 65000000.0
+      },
+      {
+        "tier": 18,
+        "mmr": 0.038,
+        "deduction": 967000.0,
+        "maxLev": 16.0,
+        "limit": 70000000.0
+      },
+      {
+        "tier": 19,
+        "mmr": 0.04,
+        "deduction": 1107000.0,
+        "maxLev": 15.0,
+        "limit": 75000000.0
+      },
+      {
+        "tier": 20,
+        "mmr": 0.045,
+        "deduction": 1482000.0,
+        "maxLev": 14.0,
+        "limit": 80000000.0
+      }
+    ],
     "OKX": [
       {
         "tier": 1,
@@ -7701,7 +7842,7 @@
   }
 };
 
-    let LAST_UPDATED = "2026-08-19 10:47:40";
+    let LAST_UPDATED = "2026-08-19 11:01:39";
 
     async function loadLastUpdatedTime() {
       try {

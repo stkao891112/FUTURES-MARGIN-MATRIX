@@ -102,7 +102,6 @@ def crawl_bybit_multi_coins_to_excel(coins=None, save_excel=True):
     print(f"\n📋 [Bybit] 即將查詢以下 {len(coins)} 個幣種: {coins}")
 
     url = "https://www.bybit.com/zh-TW/announcement-info/margin-parameters/"
-    table_selector = "#__next > main > div.flex-row.announcement-info.announcement-info-theme.bds-theme-component-dark > article > div > div:nth-child(4) > div:nth-child(2) > div"
 
     data_dir = "data"
     if not os.path.exists(data_dir):
@@ -110,22 +109,41 @@ def crawl_bybit_multi_coins_to_excel(coins=None, save_excel=True):
 
     excel_filename = os.path.join(data_dir, "bybit_margin_multi.xlsx")
 
-    print("\n🚀 正在啟用 Playwright 進行批次抓取...")
+    print("\n🚀 正在啟用 Playwright 進行批次抓取 (Chrome Channel 防護繞過模式)...")
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = None
+        for ch in ["chrome", "msedge"]:
+            try:
+                browser = p.chromium.launch(
+                    channel=ch,
+                    headless=True,
+                    args=["--disable-blink-features=AutomationControlled", "--no-sandbox"]
+                )
+                break
+            except Exception:
+                pass
+
+        if not browser:
+            browser = p.chromium.launch(
+                headless=True,
+                args=["--disable-blink-features=AutomationControlled", "--no-sandbox"]
+            )
+
         context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            viewport={'width': 1280, 'height': 800}
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            viewport={'width': 1600, 'height': 950},
+            locale="zh-TW"
         )
         page = context.new_page()
+        page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
 
         writer = pd.ExcelWriter(excel_filename, engine='openpyxl') if save_excel else None
 
         try:
             print(f"🔗 正在連線至: {url}")
             page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            page.wait_for_timeout(3000)
+            page.wait_for_timeout(3500)
 
             results = {}
             current_active_coin = "BTCUSDT"
@@ -134,17 +152,31 @@ def crawl_bybit_multi_coins_to_excel(coins=None, save_excel=True):
                 print(f"\n--------------------------------------------------")
                 print(f"🔄 正在處理幣種: [{coin}]...")
 
-                # 特殊處理 BTCUSDT，不執行點擊
+                # 尋找頁面上的表格 Element
+                table_locator = page.locator("article table").first
+                if table_locator.count() == 0:
+                    table_locator = page.locator("table").first
+
+                # 特殊處理首個幣種，若 DOM 已呈現則免點擊，否則強制透過選單搜尋選取
+                need_click = True
                 if coin == "BTCUSDT" and current_active_coin == "BTCUSDT":
-                    print("⚡ [BTCUSDT] 為預設幣種，直接擷取表格數據！")
-                else:
+                    if table_locator.count() > 0 and len(table_locator.locator("tr").all()) > 1:
+                        print("⚡ [BTCUSDT] 為預設幣種，網頁已完成渲染，直接擷取表格數據！")
+                        need_click = False
+
+                if need_click:
                     coin_anchor = page.locator("article div").filter(has_text=current_active_coin).last
+                    if coin_anchor.count() == 0:
+                        coin_anchor = page.locator("input, [class*='select']").first
 
                     if coin_anchor.count() > 0:
                         print(f"👉 點擊下拉選單 (當前顯示: {current_active_coin})...")
-                        coin_anchor.scroll_into_view_if_needed()
-                        page.wait_for_timeout(500)
-                        coin_anchor.click()
+                        try:
+                            coin_anchor.scroll_into_view_if_needed()
+                            page.wait_for_timeout(300)
+                            coin_anchor.click()
+                        except Exception:
+                            pass
                     else:
                         print("⚠️ 未能找到選單錨點，嘗試直接模擬鍵盤搜尋...")
 
@@ -158,12 +190,14 @@ def crawl_bybit_multi_coins_to_excel(coins=None, save_excel=True):
                     popover_options = page.locator("div[class*='option'], div[role='option'], li, div[class*='item']").filter(has_text=coin).all()
                     target_clicked = False
                     for opt in popover_options:
-                        # 排除選單觸發器本身
                         if opt.is_visible() and opt != coin_anchor:
-                            opt.click()
-                            print(f"🎯 成功點擊 Bybit 選單首項 [{coin}] (USDT 永續)！")
-                            target_clicked = True
-                            break
+                            try:
+                                opt.click()
+                                print(f"🎯 成功點擊 Bybit 選單首項 [{coin}] (USDT 永續)！")
+                                target_clicked = True
+                                break
+                            except Exception:
+                                pass
 
                     if not target_clicked:
                         page.keyboard.press("ArrowDown")
@@ -175,12 +209,13 @@ def crawl_bybit_multi_coins_to_excel(coins=None, save_excel=True):
                     page.wait_for_timeout(3000)
 
                 # 讀取 DOM 元素結構進行儲存格解析
-                table_element = page.locator(table_selector)
-                if table_element.count() > 0:
+                table_locator = page.locator("article table").first
+                if table_locator.count() == 0:
+                    table_locator = page.locator("table").first
+
+                if table_locator.count() > 0:
                     print(f"✅ 成功找到 [{coin}] 表格 DOM，正在逐格提取數值...")
-                    
-                    # 使用 HTML 儲存格（td/cell）精準解析
-                    df = parse_html_table_to_dataframe(table_element)
+                    df = parse_html_table_to_dataframe(table_locator)
                     results[coin] = df
                     
                     if writer:

@@ -1,39 +1,39 @@
 {
-  "DOGEUSDT": {
-    "BingX": {
+  "BTCUSDT": {
+    "Binance (幣安)": {
       "status": "success",
-      "count": 11,
-      "updated_at": "10:47:27"
-    },
-    "OKX": {
-      "status": "success",
-      "count": 20,
-      "updated_at": "10:47:28"
-    },
-    "Pionex": {
-      "status": "success",
-      "count": 7,
-      "updated_at": "10:47:29"
+      "count": 12,
+      "updated_at": "11:01:33"
     },
     "Bitget": {
       "status": "success",
-      "count": 10,
-      "updated_at": "10:47:30"
+      "count": 12,
+      "updated_at": "11:01:33"
     },
-    "MEXC": {
+    "BingX": {
       "status": "success",
-      "count": 2,
-      "updated_at": "10:47:30"
+      "count": 20,
+      "updated_at": "11:01:34"
     },
     "Bybit": {
       "status": "success",
       "count": 20,
-      "updated_at": "10:47:31"
+      "updated_at": "11:01:35"
     },
-    "Binance (幣安)": {
+    "MEXC": {
       "status": "success",
-      "count": 10,
-      "updated_at": "10:47:31"
+      "count": 6,
+      "updated_at": "11:01:37"
+    },
+    "OKX": {
+      "status": "success",
+      "count": 20,
+      "updated_at": "11:01:38"
+    },
+    "Pionex": {
+      "status": "success",
+      "count": 7,
+      "updated_at": "11:01:38"
     }
   }
 }
