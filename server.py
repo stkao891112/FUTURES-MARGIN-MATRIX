@@ -248,7 +248,24 @@ def delete_coin():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+import socket
+
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return '127.0.0.1'
+
 if __name__ == '__main__':
     port = 5000
-    print(f"🌐 FUTURES MARGIN MATRIX 伺服器啟動於: http://localhost:{port}")
+    local_ip = get_local_ip()
+    print("=" * 60)
+    print("🌐 FUTURES MARGIN MATRIX 伺服器已成功啟動！")
+    print(f"   💻 電腦本機網址: http://localhost:{port}")
+    print(f"   📱 手機/局域網網址: http://{local_ip}:{port} (手機需與電腦連至同一 Wi-Fi)")
+    print("=" * 60)
     app.run(host='0.0.0.0', port=port, debug=False)

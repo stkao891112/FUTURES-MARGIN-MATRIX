@@ -1328,6 +1328,10 @@
           <i class="fa-solid fa-sync" id="checkUpdateIcon"></i>
           <span>檢查更新 (清除快取)</span>
         </button>
+        <button id="btnServerConfig" class="refresh-btn" onclick="openServerConfigModal()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:var(--text-muted);" title="手機端設定電腦 Server IP 或 Ngrok 網址">
+          <i class="fa-solid fa-network-wired" style="color:#00F2FE;"></i>
+          <span>設定 Server IP</span>
+        </button>
         <div class="last-updated-badge">
           <i class="fa-regular fa-clock"></i>
           <span>上次更新：<strong id="lastUpdatedText">載入中...</strong></span>
@@ -1394,6 +1398,38 @@
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:var(--text-muted);">
           <span id="refreshProgressStatusText"><i class="fa-solid fa-spinner fa-spin" style="color:#00F5A0;"></i> 正在連線啟動並行爬蟲...</span>
           <span id="refreshProgressTimerText" style="font-family:monospace; color:#818CF8; font-weight:bold;">0 秒</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 伺服器網址設定 Modal (Server Host Config Modal) -->
+    <div id="serverConfigModal" class="pwa-modal-overlay" onclick="if(event.target===this) closeServerConfigModal()">
+      <div class="pwa-modal-card" style="max-width: 500px; text-align: left;">
+        <button class="pwa-modal-close" onclick="closeServerConfigModal()"><i class="fa-solid fa-xmark"></i></button>
+        <div style="font-size: 2.2rem; margin-bottom: 8px; color: #00F2FE;">🌐</div>
+        <h3 style="font-family:'Orbitron', sans-serif; font-size:1.2rem; color:#FFFFFF; margin-bottom:6px;">手機端連線 API 伺服器設定</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px; line-height:1.6;">
+           Playwright 爬蟲在電腦端運作。若在手機端點擊「更新資料來源」，手機需要知道您電腦的 API 伺服器網址。
+        </p>
+
+        <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(0,242,254,0.3); border-radius:12px; padding:12px; margin-bottom:16px; font-size:0.82rem; line-height:1.6; color:var(--text-main);">
+          <strong style="color:#00F5A0;">💡 兩種手機連線方式：</strong><br>
+          1. <strong>同 Wi-Fi 區域網路</strong>：在電腦執行 <code>py server.py</code>，會顯示電腦 IP（例如 <code>http://192.168.1.100:5000</code>），手機用瀏覽器開啟該網址即可！<br>
+          2. <strong>GitHub Pages / 外網存取</strong>：在電腦執行 <code>ngrok http 5000</code>，將產生的 <code>https://xxxx.ngrok-free.app</code> 填入下方點擊儲存！
+        </div>
+
+        <div class="form-group" style="text-align: left; margin-bottom: 20px;">
+          <label style="margin-bottom:6px; display:block; font-size:0.85rem;">電腦 API 伺服器網址 (IP / Ngrok 網址)</label>
+          <div class="input-wrapper">
+            <input type="text" id="serverHostInput" placeholder="例如 http://192.168.1.100:5000 或 https://xxx.ngrok-free.app">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button onclick="clearServerHostConfig()" class="coin-action-btn" style="padding:10px 14px; font-size:0.85rem; border-radius:10px;">清除並恢復預設</button>
+          <button onclick="saveServerHostConfig()" class="pwa-install-btn" style="padding:10px 18px; font-size:0.85rem; border-radius:10px;">
+            <i class="fa-solid fa-floppy-disk"></i> 儲存設定
+          </button>
         </div>
       </div>
     </div>
@@ -2286,7 +2322,7 @@
 
     // 預設備援檔位數據
     let EXCHANGE_TIERS = {
-  "_last_updated": "2026-08-19 10:25:27",
+  "_last_updated": "2026-08-19 10:33:41",
   "BTCUSDT": {
     "Binance": [
       {
@@ -7665,7 +7701,7 @@
   }
 };
 
-    let LAST_UPDATED = "2026-08-19 10:25:27";
+    let LAST_UPDATED = "2026-08-19 10:33:41";
 
     async function loadLastUpdatedTime() {
       try {
@@ -8218,21 +8254,81 @@
       calculate();
     }
 
+    function getStoredServerHost() {
+      try {
+        return localStorage.getItem('customServerHost') || '';
+      } catch (e) { return ''; }
+    }
+
+    function setStoredServerHost(host) {
+      try {
+        if (host) localStorage.setItem('customServerHost', host.trim());
+        else localStorage.removeItem('customServerHost');
+      } catch (e) {}
+    }
+
+    function openServerConfigModal() {
+      const input = document.getElementById('serverHostInput');
+      if (input) input.value = getStoredServerHost();
+      const modal = document.getElementById('serverConfigModal');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeServerConfigModal() {
+      const modal = document.getElementById('serverConfigModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function saveServerHostConfig() {
+      const input = document.getElementById('serverHostInput');
+      const val = input ? input.value.trim() : '';
+      setStoredServerHost(val);
+      alert(val ? `✅ 已儲存 API 伺服器網址: ${val}` : '✅ 已恢復自動連線預設');
+      closeServerConfigModal();
+    }
+
+    function clearServerHostConfig() {
+      setStoredServerHost('');
+      const input = document.getElementById('serverHostInput');
+      if (input) input.value = '';
+      alert('✅ 已清除自訂網址，恢復預設！');
+      closeServerConfigModal();
+    }
+
     async function apiFetch(endpoint, options = {}) {
-      let urls = [endpoint];
-      if (location.protocol === 'file:' || location.port !== '5000') {
-        urls = ['http://localhost:5000' + endpoint, endpoint];
+      let urls = [];
+
+      // 1. 自訂 API Host (手動指定如 ngrok 或局域網 192.168.x.x:5000)
+      const savedHost = getStoredServerHost();
+      if (savedHost) {
+        let clean = savedHost.replace(/\/+$/, '');
+        if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+          clean = 'http://' + clean;
+        }
+        urls.push(clean + endpoint);
       }
+
+      // 2. 當前網頁相對路徑 (如果網頁直接由 py server.py 提供)
+      urls.push(endpoint);
+
+      // 3. 當前網域的 5000 通訊埠 (如手機打開 http://192.168.x.x:5000)
+      if (location.hostname && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        urls.push(`http://${location.hostname}:5000${endpoint}`);
+      }
+
+      // 4. 本機 localhost 5000
+      urls.push('http://localhost:5000' + endpoint);
+
       let lastErr = null;
       for (let url of urls) {
         try {
           const res = await fetch(url, options);
-          return res;
+          if (res.ok || res.status < 500) return res;
         } catch (err) {
           lastErr = err;
         }
       }
-      throw lastErr || new Error('無法連線至本地 API 伺服器 (請確認已執行 py server.py)');
+      throw lastErr || new Error('無法連線至爬蟲伺服器。若在手機使用，請點擊「設定 Server IP」填入電腦局域網 IP (如 http://192.168.x.x:5000) 或 Ngrok 網址！');
     }
 
     const DEFAULT_COINS_LIST = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "HYPEUSDT", "DOGEUSDT", "XRPUSDT", "ADAUSDT", "SOXLUSDT", "MSTRUSDT"];
@@ -8826,6 +8922,10 @@
     window.onDecimalChange = onDecimalChange;
     window.refreshDataSource = refreshDataSource;
     window.checkUpdateAndClearCache = checkUpdateAndClearCache;
+    window.openServerConfigModal = openServerConfigModal;
+    window.closeServerConfigModal = closeServerConfigModal;
+    window.saveServerHostConfig = saveServerHostConfig;
+    window.clearServerHostConfig = clearServerHostConfig;
 
     // ==========================================
     // PWA & Service Worker 註冊與安裝事件處理
