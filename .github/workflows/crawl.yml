@@ -6,9 +6,14 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch: # 支援在 GitHub Actions 頁面手動點擊「Run workflow」觸發
 
+permissions:
+  contents: write # 顯式授權 GITHUB_TOKEN 具備寫入與 Push 權限 (防止 403 錯誤)
+
 jobs:
   crawl:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: 📥 Checkout Repository
@@ -37,13 +42,22 @@ jobs:
         run: |
           python export_json.py
 
-      - name: 🔍 Check if Data Has Changed (檢查數據是否有實質變動)
+      - name: 🔍 Check if Data Has Changed (檢查數據與顯示變動細節)
         id: check_diff
         run: |
-          # 檢查數據檔案 (data/tiers.json 或 Excel 總表) 是否有變動
-          if git diff --name-only | grep -E 'data/tiers.json|data/all_exchanges_futures_margin.xlsx'; then
+          echo "=========================================="
+          echo "📊 檢查工作區變動檔案清單 (git status):"
+          git status --short
+          echo "=========================================="
+
+          if git diff --name-only | grep -E 'data/tiers.json|data/all_exchanges_futures_margin.xlsx|index.html'; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "✨ 檢測到交易所檔位數據有變動！"
+            echo "✨ 檢測到交易所檔位數據有變動！變動檔案與統計數量如下："
+            git diff --stat data/tiers.json index.html
+            echo "------------------------------------------"
+            echo "🔍 檔位 JSON 數據變動細節預覽 (Diff Preview):"
+            git diff -U1 data/tiers.json | head -n 40
+            echo "------------------------------------------"
           else
             echo "has_changes=false" >> $GITHUB_OUTPUT
             echo "ℹ️ 交易所數據無任何實質變動，跳過 Commit 與 Push。"
