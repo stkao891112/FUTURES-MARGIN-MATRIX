@@ -141,7 +141,11 @@ def crawl_binance_leverage_margin(coins=None, save_excel=True):
         try:
             print(f"🔗 正在連線至: {url}")
             page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            page.wait_for_timeout(3000)
+            try:
+                page.wait_for_selector("div.leverageMargin-pane table tbody tr", timeout=15000)
+            except Exception:
+                pass
+            page.wait_for_timeout(4500)
 
             results = {}
             for index, coin in enumerate(coins):
@@ -151,6 +155,11 @@ def crawl_binance_leverage_margin(coins=None, save_excel=True):
                 # 第一個幣種若是 BTCUSDT，直接抓取預設頁面
                 if index == 0 and coin == "BTCUSDT":
                     print("⚡ [BTCUSDT] 為預設載入幣種，直接擷取表格！")
+                    try:
+                        page.wait_for_selector("div.leverageMargin-pane table tbody tr", timeout=10000)
+                    except Exception:
+                        pass
+                    page.wait_for_timeout(1000)
                 else:
                     print("👉 點擊開啟幣安幣種下拉選單...")
                     
