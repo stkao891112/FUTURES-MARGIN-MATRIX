@@ -50,51 +50,196 @@ def get_last_updated():
     
     return jsonify({"last_updated": "尚未更新"})
 
+def generate_temp_tiers_and_compare():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    excel_path = os.path.join(BASE_DIR, "data", "all_exchanges_futures_margin.xlsx")
+    tiers_path = os.path.join(BASE_DIR, "data", "tiers.json")
+
+    old_data = {}
+    if os.path.exists(tiers_path):
+        try:
+            with open(tiers_path, "r", encoding="utf-8") as f:
+                old_data = json.load(f)
+        except Exception:
+            old_data = {}
+
+    if not os.path.exists(excel_path):
+        return False, [], {}
+
+    from export_json import parse_tier_num, parse_number, parse_mmr
+    excel_file = pd.ExcelFile(excel_path)
+    new_data = {}
+    timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    new_data["_last_updated"] = timestamp_str
+
+    for sheet in excel_file.sheet_names:
+        coin = sheet.upper()
+        df = pd.read_excel(excel_file, sheet_name=sheet)
+        new_data[coin] = {
+            "Binance": [], "Bitget": [], "Bybit": [], "OKX": [], "MEXC": [], "BingX": [], "Pionex": [], "Hyperliquid": []
+        }
+        if coin == "BTCUSDT":
+            new_data[coin]["Hyperliquid"] = [{"tier": "固定", "limit": 999999999, "mmr": 0.0125, "deduction": 0, "maxLev": 50}]
+        elif coin == "ETHUSDT":
+            new_data[coin]["Hyperliquid"] = [{"tier": "固定", "limit": 999999999, "mmr": 0.02, "deduction": 0, "maxLev": 50}]
+        elif coin == "SOLUSDT":
+            new_data[coin]["Hyperliquid"] = [{"tier": "固定", "limit": 999999999, "mmr": 0.025, "deduction": 0, "maxLev": 25}]
+        else:
+            new_data[coin]["Hyperliquid"] = [{"tier": "固定", "limit": 999999999, "mmr": 0.05, "deduction": 0, "maxLev": 20}]
+
+        for _, row in df.iterrows():
+            ex = str(row.get("交易所", "")).strip()
+            if "Binance" in ex: ex_key = "Binance"
+            elif "Bitget" in ex: ex_key = "Bitget"
+            elif "Bybit" in ex: ex_key = "Bybit"
+            elif "OKX" in ex: ex_key = "OKX"
+            elif "MEXC" in ex: ex_key = "MEXC"
+            elif "BingX" in ex: ex_key = "BingX"
+            elif "Pionex" in ex: ex_key = "Pionex"
+            else: continue
+
+            item = {
+                "tier": parse_tier_num(row.get("檔位", 1)),
+                "mmr": parse_mmr(row.get("維持保證金率", 0)),
+                "deduction": parse_number(row.get("維持金額(USDT)", 0)),
+                "maxLev": parse_number(row.get("最大槓桿", 100))
+            }
+            limit_val = parse_number(row.get("倉位分級", 0))
+            if ex_key in ["OKX", "MEXC"]: item["limitQty"] = limit_val
+            else: item["limit"] = limit_val
+            new_data[coin][ex_key].append(item)
+
+    temp_path = os.path.join(BASE_DIR, "data", "tiers_temp.json")
+    with open(temp_path, "w", encoding="utf-8") as f:
+        json.dump(new_data, f, ensure_ascii=False, indent=2)
+
+    changes = []
+    all_coins = set(list(old_data.keys()) + list(new_data.keys()))
+    all_coins.discard("_last_updated")
+
+    for coin in sorted(all_coins):
+        old_coin = old_data.get(coin, {})
+        new_coin = new_data.get(coin, {})
+        all_exchanges = set(list(old_coin.keys()) + list(new_coin.keys()))
+        for ex in sorted(all_exchanges):
+            old_list = old_coin.get(ex, [])
+            new_list = new_coin.get(ex, [])
+
+            if old_list != new_list:
+                item_diff = {
+                    "coin": coin,
+                    "exchange": ex,
+                    "oldCount": len(old_list),
+                    "newCount": len(new_list),
+                    "details": []
+                }
+                if not old_list and new_list:
+                    item_diff["summary"] = f"新增 [{coin}] {ex} 數據 (共 {len(new_list)} 檔)"
+                elif old_list and not new_list:
+                    item_diff["summary"] = f"未擷取到數據 (原 {len(old_list)} 檔 ➔ 0 檔)"
+                elif len(old_list) != len(new_list):
+                    item_diff["summary"] = f"檔位總數變更 ({len(old_list)} 檔 ➔ {len(new_list)} 檔)"
+                else:
+                    diff_details = []
+                    for i in range(min(len(old_list), len(new_list))):
+                        o = old_list[i]
+                        n = new_list[i]
+                        if o != n:
+                            diffs = []
+                            if o.get("mmr") != n.get("mmr"):
+                                diffs.append(f"MMR: {(o.get('mmr',0)*100):.2f}% ➔ {(n.get('mmr',0)*100):.2f}%")
+                            if o.get("maxLev") != n.get("maxLev"):
+                                diffs.append(f"槓桿: {o.get('maxLev')}x ➔ {n.get('maxLev')}x")
+                            if o.get("deduction") != n.get("deduction"):
+                                diffs.append(f"扣減額: {o.get('deduction')} ➔ {n.get('deduction')}")
+                            diff_details.append(f"第 {i+1} 檔 (" + ", ".join(diffs) + ")")
+                    item_diff["details"] = diff_details
+                    item_diff["summary"] = f"檔位細節變更 (" + ", ".join(diff_details[:2]) + ")"
+                changes.append(item_diff)
+
+    has_changes = len(changes) > 0
+    return has_changes, changes, new_data
+
 @app.route('/api/refresh', methods=['POST'])
 def refresh_data():
     try:
-        print("🚀 收到前端請求，準備重跑各大交易所合約保證金爬蟲 (main.py)...")
-        python_exe = sys.executable
-        
-        # 執行 main.py
-        result = subprocess.run(
-            [python_exe, os.path.join(BASE_DIR, "main.py")],
-            cwd=BASE_DIR,
-            capture_output=True,
-            text=True,
-            encoding='utf-8'
-        )
+        req = request.get_json() or {}
+        action = req.get('action', 'audit')
 
-        if result.returncode != 0:
-            print(f"❌ 執行 main.py 失敗: {result.stderr}")
+        if action == 'apply':
+            # 套用審核通過的暫存檔數據
+            temp_path = os.path.join(BASE_DIR, "data", "tiers_temp.json")
+            tiers_path = os.path.join(BASE_DIR, "data", "tiers.json")
+            if os.path.exists(temp_path):
+                with open(temp_path, "r", encoding="utf-8") as f:
+                    new_data = json.load(f)
+                with open(tiers_path, "w", encoding="utf-8") as f:
+                    json.dump(new_data, f, ensure_ascii=False, indent=2)
+
+                timestamp_str = new_data.get("_last_updated", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                last_updated_path = os.path.join(BASE_DIR, "data", "last_updated.json")
+                with open(last_updated_path, "w", encoding="utf-8") as f:
+                    json.dump({"last_updated": timestamp_str}, f, ensure_ascii=False, indent=2)
+
+                # 同步寫入 index.html
+                html_path = os.path.join(BASE_DIR, "index.html")
+                if os.path.exists(html_path):
+                    with open(html_path, "r", encoding="utf-8") as f:
+                        html_content = f.read()
+                    tiers_json_str = json.dumps(new_data, ensure_ascii=False, indent=2)
+                    updated_html = re.sub(
+                        r'let EXCHANGE_TIERS = \{.*?\};',
+                        f"let EXCHANGE_TIERS = {tiers_json_str};",
+                        html_content,
+                        flags=re.DOTALL
+                    )
+                    if 'let LAST_UPDATED =' in updated_html:
+                        updated_html = re.sub(
+                            r'let LAST_UPDATED = ".*?";',
+                            f'let LAST_UPDATED = "{timestamp_str}";',
+                            updated_html
+                        )
+                    with open(html_path, "w", encoding="utf-8") as f:
+                        f.write(updated_html)
+
+                print(f"✅ 已成功套用審核通過的新數據！時間戳: {timestamp_str}")
+                return jsonify({"success": True, "message": "數據套用成功！", "last_updated": timestamp_str})
+            else:
+                return jsonify({"success": False, "error": "暫存資料不存在，請重新進行數據巡檢"}), 400
+
+        elif action == 'cancel':
+            temp_path = os.path.join(BASE_DIR, "data", "tiers_temp.json")
+            if os.path.exists(temp_path):
+                try: os.remove(temp_path)
+                except Exception: pass
+            print("ℹ️ 用戶取消套用新數據。")
+            return jsonify({"success": True, "message": "已取消更新，維持現有數據不變。"})
+
+        else:
+            # 預設動作: 巡檢比對 (audit)
+            print("🚀 收到前端請求，準備執行 7 大交易所數據對比巡檢...")
+            python_exe = sys.executable
+            result = subprocess.run(
+                [python_exe, os.path.join(BASE_DIR, "main.py")],
+                cwd=BASE_DIR,
+                capture_output=True,
+                text=True,
+                encoding='utf-8'
+            )
+            if result.returncode != 0:
+                print(f"❌ 執行 main.py 失敗: {result.stderr}")
+                return jsonify({"success": False, "error": result.stderr or "執行 main.py 時發生錯誤"}), 500
+
+            has_changes, changes, new_data = generate_temp_tiers_and_compare()
+            timestamp_str = new_data.get("_last_updated", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+            print(f"🔍 [巡檢完成] 檢測到數據是否有變動: {has_changes} (共 {len(changes)} 項異動)")
             return jsonify({
-                "success": False,
-                "error": result.stderr or "執行 main.py 時發生錯誤"
-            }), 500
-
-        # 執行 export_json.py 導出最新 JSON 並同步 index.html
-        export_result = subprocess.run(
-            [python_exe, os.path.join(BASE_DIR, "export_json.py")],
-            cwd=BASE_DIR,
-            capture_output=True,
-            text=True,
-            encoding='utf-8'
-        )
-
-        # 讀取最新時間戳
-        timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        json_path = os.path.join(BASE_DIR, "data", "last_updated.json")
-        if os.path.exists(json_path):
-            with open(json_path, "r", encoding="utf-8") as f:
-                ts_data = json.load(f)
-                timestamp_str = ts_data.get("last_updated", timestamp_str)
-
-        print(f"✅ 爬蟲與轉出完成！最新時間戳: {timestamp_str}")
-        return jsonify({
-            "success": True,
-            "last_updated": timestamp_str,
-            "message": "五大交易所資料更新成功！"
-        })
+                "success": True,
+                "has_changes": has_changes,
+                "changes": changes,
+                "last_updated": timestamp_str
+            })
 
     except Exception as e:
         print(f"❌ 處理更新請求時出錯: {e}")

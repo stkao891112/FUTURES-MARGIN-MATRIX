@@ -1400,6 +1400,30 @@
           <span id="refreshProgressTimerText" style="font-family:monospace; color:#818CF8; font-weight:bold;">0 秒</span>
         </div>
       </div>
+    <!-- 數據審查與對比 Modal (Data Audit & Diff Modal) -->
+    <div id="auditDiffModal" class="pwa-modal-overlay">
+      <div class="pwa-modal-card" style="max-width: 600px; text-align: left; padding: 24px;">
+        <button class="pwa-modal-close" onclick="cancelAuditUpdate()"><i class="fa-solid fa-xmark"></i></button>
+        <div style="font-size: 2rem; margin-bottom: 6px; color: #F59E0B;">🔍</div>
+        <h3 style="font-family:'Orbitron', sans-serif; font-size:1.2rem; color:#FFFFFF; margin-bottom:6px;">7 大交易所數據變動審查報告</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:14px; line-height:1.5;">
+           系統已完成對比巡檢。檢測到以下幣種與交易所的合約保證金規格發生變更，請審查細節並確認是否套用：
+        </p>
+
+        <!-- 異動清單 Container -->
+        <div id="auditDiffListContainer" style="max-height: 320px; overflow-y: auto; background: rgba(15,23,42,0.85); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 12px; margin-bottom: 18px;">
+          <!-- JS 動態插入 Card -->
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center;">
+          <button onclick="cancelAuditUpdate()" class="coin-action-btn" style="padding: 10px 16px; font-size: 0.85rem; border-radius: 10px; background: rgba(255,255,255,0.08); color: #CBD5E1;">
+             ❌ 放棄 (保持現狀)
+          </button>
+          <button onclick="applyAuditUpdate()" class="pwa-install-btn" style="padding: 10px 20px; font-size: 0.85rem; border-radius: 10px; background: linear-gradient(135deg, #10B981, #059669);">
+            <i class="fa-solid fa-check"></i> ✅ 確認更新 (套用新數據)
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- 伺服器網址設定 Modal (Server Host Config Modal) -->
@@ -7840,7 +7864,8 @@
       try {
         const res = await apiFetch('/api/refresh', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'audit' })
         });
 
         if (refreshProgressInterval) clearInterval(refreshProgressInterval);
@@ -7850,20 +7875,18 @@
           if (data.success) {
             if (barFill) barFill.style.width = '100%';
             if (pctText) pctText.innerText = '100%';
-            if (statusText) statusText.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#00F5A0;"></i> 🎉 7 大交易所檔位數據已成功全數更新！`;
-
-            if (data.last_updated) {
-              LAST_UPDATED = data.last_updated;
-              const el = document.getElementById('lastUpdatedText');
-              if (el) el.innerText = LAST_UPDATED;
-            }
-            await loadScrapedTiersJSON();
+            if (statusText) statusText.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#00F5A0;"></i> 🔍 7 大交易所數據對比巡檢完成！`;
 
             setTimeout(() => {
               if (modal) modal.classList.remove('active');
-            }, 1800);
+              if (!data.has_changes) {
+                alert('✅ 巡檢完成！7 大交易所之階梯檔位與 MMR 數據均與目前完全一致，無須更新！');
+              } else {
+                openAuditDiffModal(data.changes || []);
+              }
+            }, 600);
           } else {
-            alert('❌ 更新失敗: ' + (data.error || '未知錯誤'));
+            alert('❌ 巡檢失敗: ' + (data.error || '未知錯誤'));
             if (modal) modal.classList.remove('active');
           }
         } else {
@@ -7880,6 +7903,73 @@
         if (icon) icon.className = 'fa-solid fa-arrows-rotate';
         if (text) text.innerText = '更新資料來源';
       }
+    }
+
+    function openAuditDiffModal(changes) {
+      const container = document.getElementById('auditDiffListContainer');
+      if (!container) return;
+
+      if (!changes || changes.length === 0) {
+        container.innerHTML = `<div style="color:var(--text-muted); text-align:center; padding:20px;">無檢測到明顯變動</div>`;
+      } else {
+        container.innerHTML = changes.map((c, idx) => `
+          <div style="background: rgba(30,41,59,0.7); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-weight:bold; color:#00F5A0; font-size:0.9rem;">📌 [${c.coin}] ➔ [${c.exchange}]</span>
+              <span style="font-size:0.75rem; background:rgba(245,158,11,0.2); color:#FCD34D; padding:2px 8px; border-radius:12px;">異動 #${idx+1}</span>
+            </div>
+            <div style="font-size:0.85rem; color:#F1F5F9; font-weight:600; margin-bottom:4px;">${c.summary}</div>
+            ${c.details && c.details.length > 0 ? `
+              <div style="font-size:0.78rem; color:#94A3B8; background:rgba(15,23,42,0.6); padding:6px 10px; border-radius:6px; font-family:monospace; margin-top:4px;">
+                ${c.details.map(d => `<div>• ${d}</div>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `).join('');
+      }
+
+      const modal = document.getElementById('auditDiffModal');
+      if (modal) modal.classList.add('active');
+    }
+
+    async function applyAuditUpdate() {
+      const modal = document.getElementById('auditDiffModal');
+      try {
+        const res = await apiFetch('/api/refresh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'apply' })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            if (data.last_updated) {
+              LAST_UPDATED = data.last_updated;
+              const el = document.getElementById('lastUpdatedText');
+              if (el) el.innerText = LAST_UPDATED;
+            }
+            await loadScrapedTiersJSON();
+            if (modal) modal.classList.remove('active');
+            alert('🎉 數據審核通過！已成功套用 7 大交易所最新數據！');
+          } else {
+            alert('❌ 套用失敗: ' + (data.error || '未知錯誤'));
+          }
+        }
+      } catch (err) {
+        alert('❌ 套用失敗: 無法連線至伺服器');
+      }
+    }
+
+    async function cancelAuditUpdate() {
+      const modal = document.getElementById('auditDiffModal');
+      if (modal) modal.classList.remove('active');
+      try {
+        await apiFetch('/api/refresh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'cancel' })
+        });
+      } catch (e) {}
     }
 
     async function checkUpdateAndClearCache() {
