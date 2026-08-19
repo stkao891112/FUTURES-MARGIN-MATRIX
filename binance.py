@@ -110,12 +110,31 @@ def crawl_binance_leverage_margin(coins=None, save_excel=True):
     print("\n🚀 正在啟用 Playwright 進行幣安數據抓取（針對『幣種 永續』標籤進行完美比對）...")
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = None
+        for ch in ["chrome", "msedge"]:
+            try:
+                browser = p.chromium.launch(
+                    channel=ch,
+                    headless=True,
+                    args=["--disable-blink-features=AutomationControlled", "--no-sandbox"]
+                )
+                break
+            except Exception:
+                pass
+
+        if not browser:
+            browser = p.chromium.launch(
+                headless=True,
+                args=["--disable-blink-features=AutomationControlled", "--no-sandbox"]
+            )
+
         context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            viewport={'width': 1280, 'height': 800}
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            viewport={'width': 1600, 'height': 950},
+            locale="zh-TW"
         )
         page = context.new_page()
+        page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
 
         writer = pd.ExcelWriter(excel_filename, engine='openpyxl') if save_excel else None
 
