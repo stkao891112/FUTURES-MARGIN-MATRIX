@@ -257,18 +257,36 @@ def main():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     coins_path = os.path.join(BASE_DIR, "data", "coins.json")
 
-    # 支援命令列參數傳入、coins.json 設定檔讀取或互動式輸入
+    # 支援增量爬取 (命令列傳入 --coin DOGEUSDT 或位置參數 DOGEUSDT)
+    coins_arg = []
     if len(sys.argv) > 1:
-        coins = [c.upper() for c in sys.argv[1:] if c.strip()]
-    elif os.path.exists(coins_path):
-        try:
-            with open(coins_path, "r", encoding="utf-8") as f:
-                coins = json.load(f)
-        except Exception as e:
-            print("❌ 載入 coins.json 失敗:", e)
+        args_list = sys.argv[1:]
+        for i, arg in enumerate(args_list):
+            if arg in ['--coin', '--coins', '-c'] and i + 1 < len(args_list):
+                raw = args_list[i + 1]
+                coins_arg.extend([c.strip().upper() for c in raw.split(',') if c.strip()])
+            elif not arg.startswith('-'):
+                coins_arg.extend([c.strip().upper() for c in arg.split(',') if c.strip()])
+
+        clean_coins = []
+        for c in coins_arg:
+            if not c.endswith('USDT') and not c.endswith('USD'):
+                c += 'USDT'
+            if c not in clean_coins:
+                clean_coins.append(c)
+        if clean_coins:
+            coins = clean_coins
+
+    if not 'coins' in locals() or not coins:
+        if os.path.exists(coins_path):
+            try:
+                with open(coins_path, "r", encoding="utf-8") as f:
+                    coins = json.load(f)
+            except Exception as e:
+                print("❌ 載入 coins.json 失敗:", e)
+                coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+        else:
             coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
-    else:
-        coins = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
 
     print(f"\n📌 本次任務將為以下 {len(coins)} 個幣種抓取各大交易所數據: {coins}")
     
