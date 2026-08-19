@@ -167,16 +167,49 @@ def refresh_data():
         action = req.get('action', 'audit')
 
         if action == 'apply':
-            # 套用審核通過的暫存檔數據
+            # 套用審核通過的暫存檔數據 (支援選擇性部分套用)
             temp_path = os.path.join(BASE_DIR, "data", "tiers_temp.json")
             tiers_path = os.path.join(BASE_DIR, "data", "tiers.json")
+            selected_items = req.get('selected', None) # 格式: [{"coin": "BTCUSDT", "exchange": "BingX"}]
+
             if os.path.exists(temp_path):
                 with open(temp_path, "r", encoding="utf-8") as f:
-                    new_data = json.load(f)
-                with open(tiers_path, "w", encoding="utf-8") as f:
-                    json.dump(new_data, f, ensure_ascii=False, indent=2)
+                    temp_data = json.load(f)
 
-                timestamp_str = new_data.get("_last_updated", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                # 讀取現有 tiers.json 作為基準
+                current_data = {}
+                if os.path.exists(tiers_path):
+                    try:
+                        with open(tiers_path, "r", encoding="utf-8") as f:
+                            current_data = json.load(f)
+                    except Exception:
+                        current_data = {}
+
+                # 若用戶勾選了部分項目，僅合併用戶勾選的幣種+交易所數據
+                if selected_items is not None and isinstance(selected_items, list):
+                    updated_count = 0
+                    for sel in selected_items:
+                        coin = str(sel.get('coin', '')).strip().upper()
+                        ex = str(sel.get('exchange', '')).strip()
+                        if coin in temp_data and ex in temp_data[coin]:
+                            if coin not in current_data:
+                                current_data[coin] = {
+                                    "Binance": [], "Bitget": [], "Bybit": [], "OKX": [], "MEXC": [], "BingX": [], "Pionex": [], "Hyperliquid": []
+                                }
+                            current_data[coin][ex] = temp_data[coin][ex]
+                            updated_count += 1
+                    target_data = current_data
+                    print(f"🎯 精確套用: 共合併用戶勾選的 {updated_count} 項交易所數據！")
+                else:
+                    target_data = temp_data
+                    print("🎯 全數套用: 合併所有變動數據！")
+
+                timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                target_data["_last_updated"] = timestamp_str
+
+                with open(tiers_path, "w", encoding="utf-8") as f:
+                    json.dump(target_data, f, ensure_ascii=False, indent=2)
+
                 last_updated_path = os.path.join(BASE_DIR, "data", "last_updated.json")
                 with open(last_updated_path, "w", encoding="utf-8") as f:
                     json.dump({"last_updated": timestamp_str}, f, ensure_ascii=False, indent=2)
@@ -186,7 +219,7 @@ def refresh_data():
                 if os.path.exists(html_path):
                     with open(html_path, "r", encoding="utf-8") as f:
                         html_content = f.read()
-                    tiers_json_str = json.dumps(new_data, ensure_ascii=False, indent=2)
+                    tiers_json_str = json.dumps(target_data, ensure_ascii=False, indent=2)
                     updated_html = re.sub(
                         r'let EXCHANGE_TIERS = \{.*?\};',
                         f"let EXCHANGE_TIERS = {tiers_json_str};",
@@ -203,7 +236,7 @@ def refresh_data():
                         f.write(updated_html)
 
                 print(f"✅ 已成功套用審核通過的新數據！時間戳: {timestamp_str}")
-                return jsonify({"success": True, "message": "數據套用成功！", "last_updated": timestamp_str})
+                return jsonify({"success": True, "message": "選擇的數據已成功套用！", "last_updated": timestamp_str})
             else:
                 return jsonify({"success": False, "error": "暫存資料不存在，請重新進行數據巡檢"}), 400
 
