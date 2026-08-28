@@ -205,7 +205,7 @@ def apply_excel_styles_and_colors(ws):
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def write_crawl_status(ex_name, coin_list, status_type, rows_count=0):
+def write_crawl_status(ex_name, coin_list, status_type, rows_info=0):
     status_file = os.path.join(BASE_DIR, "data", "crawl_status.json")
     status_data = {}
     if os.path.exists(status_file):
@@ -218,9 +218,12 @@ def write_crawl_status(ex_name, coin_list, status_type, rows_count=0):
     for coin in coin_list:
         if coin not in status_data:
             status_data[coin] = {}
+        
+        # 支援針對各幣種精準寫入個別檔位數
+        count = rows_info.get(coin, 0) if isinstance(rows_info, dict) else rows_info
         status_data[coin][ex_name] = {
             "status": status_type,
-            "count": rows_count,
+            "count": count,
             "updated_at": time.strftime("%H:%M:%S")
         }
 
@@ -241,21 +244,188 @@ def run_single_exchange(args):
     try:
         res = crawl_func(coins, save_excel=False)
         elapsed = time.time() - start_time
-        total_rows = sum(len(df) for df in (res or {}).values() if hasattr(df, '__len__'))
-        write_crawl_status(name, coins, "success", total_rows)
+        counts_by_coin = {c: len(res[c]) for c in coins if c in (res or {}) and hasattr(res[c], '__len__')}
+        write_crawl_status(name, coins, "success", counts_by_coin)
         return name, res or {}, f"✅ 成功 (耗時 {elapsed:.1f} 秒)"
     except Exception as e:
         elapsed = time.time() - start_time
         write_crawl_status(name, coins, "failed", 0)
         return name, {}, f"❌ 失敗: {e} (耗時 {elapsed:.1f} 秒)"
 
+def audit_and_verify_all_data(all_results, coins, task_func_map=None, max_retries=1):
+    """
+    全交易所全幣種數據完整性檢核機制：
+    1. 逐一檢查 [幣種 x 交易所] 矩陣，檢驗是否有任一交易所任一幣種缺失或 0 檔位
+    2. 自動啟動針對缺失幣種之「專項重試機制」
+    3. 生成並列印專業的數據完整性檢核矩陣表格
+    4. 輸出檢核報告至 data/audit_report.json
+    """
+    exchanges = ["Binance (幣安)", "Bybit", "Bitget", "OKX", "MEXC", "BingX", "Pionex"]
+    short_names = {
+        "Binance (幣安)": "Binance",
+        "Bybit": "Bybit",
+        "Bitget": "Bitget",
+        "OKX": "OKX",
+        "MEXC": "MEXC",
+        "BingX": "BingX",
+        "Pionex": "Pionex"
+    }
+
+    # 1. 第一輪檢查缺失清單
+    missing_by_ex = {}
+    for ex in exchanges:
+        res_dict = all_results.get(ex, {})
+        for coin in coins:
+            df = res_dict.get(coin)
+            if df is None or (hasattr(df, 'empty') and df.empty) or len(df) == 0:
+                missing_by_ex.setdefault(ex, []).append(coin)
+
+    # 2. 自動針對缺失項目進行專項重試 (Auto-Retry)
+    if missing_by_ex and task_func_map and max_retries > 0:
+        print("\n" + "=" * 65)
+        print(" 🔁 觸發數據完整性自動補救重試機制 (Auto-Retry for Missing Coins)")
+        print("=" * 65)
+        for ex, miss_coins in missing_by_ex.items():
+            crawl_func = task_func_map.get(ex)
+            if crawl_func:
+                print(f"🔄 正在為 [{ex}] 補抓缺失幣種: {miss_coins}...")
+                try:
+                    retry_res = crawl_func(miss_coins, save_excel=False)
+                    if retry_res:
+                        if ex not in all_results:
+                            all_results[ex] = {}
+                        for mc in miss_coins:
+                            if mc in retry_res and not retry_res[mc].empty:
+                                all_results[ex][mc] = retry_res[mc]
+                                print(f"  ✅ [{ex}] -> [{mc}]: 補抓成功 (共 {len(retry_res[mc])} 檔)！")
+                            else:
+                                print(f"  ❌ [{ex}] -> [{mc}]: 補抓依然無數據")
+                except Exception as e:
+                    print(f"  ❌ 重試 [{ex}] 時發生異常: {e}")
+
+    # 3. 建立最終檢核矩陣與統計
+    matrix = {}
+    total_checkpoints = len(coins) * len(exchanges)
+    passed_checkpoints = 0
+    missing_details = []
+
+    for coin in coins:
+        matrix[coin] = {}
+        c_passed = 0
+        for ex in exchanges:
+            res_dict = all_results.get(ex, {})
+            df = res_dict.get(coin)
+            count = len(df) if (df is not None and hasattr(df, '__len__')) else 0
+            if count > 0:
+                matrix[coin][ex] = {"status": "ok", "count": count}
+                passed_checkpoints += 1
+                c_passed += 1
+            else:
+                matrix[coin][ex] = {"status": "missing", "count": 0}
+                missing_details.append(f"{ex} - {coin}")
+        matrix[coin]["_completeness"] = f"{c_passed}/{len(exchanges)}"
+
+    coverage_rate = (passed_checkpoints / total_checkpoints) * 100 if total_checkpoints > 0 else 0
+
+    # 4. 輸出視覺化檢核矩陣
+    col_w = 11
+    headers = [f"{short_names[ex]:<{col_w}}" for ex in exchanges]
+    header_str = "幣種          " + " ".join(headers) + " 完整率"
+    div_line = "-" * len(header_str)
+
+    print("\n" + "=" * len(header_str))
+    print(" 📋 全交易所幣種數據完整性檢核矩陣 (Integrity Audit Matrix)")
+    print("=" * len(header_str))
+    print(header_str)
+    print(div_line)
+
+    for coin in coins:
+        row_cells = []
+        for ex in exchanges:
+            info = matrix[coin][ex]
+            if info["status"] == "ok":
+                cell = f"✅ {info['count']}檔"
+            else:
+                cell = "❌ 缺失"
+            row_cells.append(f"{cell:<{col_w}}")
+        print(f"{coin:<14}" + " ".join(row_cells) + f" {matrix[coin]['_completeness']}")
+
+    print(div_line)
+    print(f"📌 檢核點總數: {total_checkpoints} 個 ({len(coins)} 幣種 x {len(exchanges)} 交易所)")
+    print(f"✅ 通過數量:   {passed_checkpoints} / {total_checkpoints} ({coverage_rate:.1f}%)")
+    if missing_details:
+        print(f"❌ 缺失項目 ({len(missing_details)} 項):")
+        for m in missing_details:
+            print(f"   • {m}")
+        print("🚨【數據完整性警告】部分交易所與幣種數據缺失，請確認標的是否在該交易所上架或檢查網路。")
+    else:
+        print("🎉【100% 數據完整性驗證通過】所有交易所之所有幣種均已成功獲取真實階梯檔位！")
+    print("=" * len(header_str))
+
+    # 5. 輸出報告 JSON
+    audit_report = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "total_checkpoints": total_checkpoints,
+        "passed_checkpoints": passed_checkpoints,
+        "coverage_rate": round(coverage_rate, 2),
+        "is_all_passed": (passed_checkpoints == total_checkpoints),
+        "missing_count": len(missing_details),
+        "missing_details": missing_details,
+        "matrix": matrix
+    }
+
+    try:
+        report_file = os.path.join(BASE_DIR, "data", "audit_report.json")
+        with open(report_file, "w", encoding="utf-8") as f:
+            json.dump(audit_report, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+    return audit_report
+
+def verify_existing_tiers_data():
+    """
+    直接從現有 data/tiers.json 進行快速完整性審查
+    """
+    tiers_path = os.path.join(BASE_DIR, "data", "tiers.json")
+    if not os.path.exists(tiers_path):
+        print(f"❌ 未找到 [{tiers_path}]，請先執行爬蟲！")
+        return
+    with open(tiers_path, "r", encoding="utf-8") as f:
+        tiers_data = json.load(f)
+    
+    coins = [k for k in tiers_data.keys() if not k.startswith("_")]
+    all_results = {}
+    ex_name_map = {
+        "Binance": "Binance (幣安)",
+        "Bybit": "Bybit",
+        "Bitget": "Bitget",
+        "OKX": "OKX",
+        "MEXC": "MEXC",
+        "BingX": "BingX",
+        "Pionex": "Pionex"
+    }
+    for ex_key, full_name in ex_name_map.items():
+        all_results[full_name] = {}
+        for c in coins:
+            c_data = tiers_data[c].get(ex_key, [])
+            all_results[full_name][c] = pd.DataFrame(c_data)
+    
+    audit_and_verify_all_data(all_results, coins)
+
 def main():
     print("=" * 60)
-    print(" 🚀 跨交易所合約保證金數據自動化爬蟲（Binance/Bybit/Bitget/OKX/MEXC/BingX 6家並行版） ")
+    print(" 🚀 跨交易所合約保證金數據自動化爬蟲（7家並行版 + 數據完整性檢核機制） ")
     print("=" * 60)
     
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     coins_path = os.path.join(BASE_DIR, "data", "coins.json")
+
+    # 支援純檢核模式 (python main.py --verify 或 -v)
+    if any(arg in ['--verify', '--check', '-v'] for arg in sys.argv[1:]):
+        print("🔍 啟動獨立快速數據審查模式...")
+        verify_existing_tiers_data()
+        return
 
     # 支援增量爬取 (命令列傳入 --coin DOGEUSDT 或位置參數 DOGEUSDT)
     coins_arg = []
@@ -307,7 +477,7 @@ def main():
     print(f" ⚡ 正在同時 (並行) 啟動 {len(tasks)} 家交易所 Playwright 瀏覽器...")
     print("=" * 60)
 
-    # 使用 ThreadPoolExecutor 同時啟動 4 家爬蟲
+    # 使用 ThreadPoolExecutor 同時啟動 7 家爬蟲
     start_total_time = time.time()
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(tasks)) as executor:
         futures = [executor.submit(run_single_exchange, task) for task in tasks]
@@ -317,6 +487,10 @@ def main():
             summary_results[ex_name] = status
 
     total_elapsed = time.time() - start_total_time
+
+    # 執行最終數據完整性檢核機制 (含自動補救重試)
+    task_func_map = {name: func for name, func, _ in tasks}
+    audit_and_verify_all_data(all_results, coins, task_func_map=task_func_map, max_retries=1)
 
     # 進行同一幣種跨交易所數據整合
     data_dir = os.path.join(BASE_DIR, "data")
