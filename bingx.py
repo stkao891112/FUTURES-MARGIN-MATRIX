@@ -3,42 +3,81 @@ import re
 import sys
 import time
 import json
+import urllib.request
 from playwright.sync_api import sync_playwright
 import pandas as pd
 
 if sys.platform == 'win32':
     try:
-        sys.stdout.reconfigure(encoding='utf-8')
-        sys.stderr.reconfigure(encoding='utf-8')
+        sys.stdout.reconfigure(encoding='utf-8', line_buffering=True)
+        sys.stderr.reconfigure(encoding='utf-8', line_buffering=True)
     except Exception:
         pass
 
+KNOWN_STOCKS = {
+    "SOXL", "MSTR", "NVDA", "TSLA", "AAPL", "AMD", "MSFT", 
+    "AMZN", "GOOGL", "META", "COIN", "PLTR", "ARM", "SMCI",
+    "NFLX", "DIS", "BA", "INTC", "QCOM", "SPY", "QQQ"
+}
+
+_BINGX_CONTRACTS_CACHE = None
+
+def get_bingx_contracts_data():
+    """
+    快取並取得 BingX 全量 Swap 官方合約清單 (免金鑰 Public API)
+    包含 1000+ 幣種之精確 symbol (如 NCSKSOXL2USD-USDT, 1000PEPE-USDT, BTC-USDT 等)
+    """
+    global _BINGX_CONTRACTS_CACHE
+    if _BINGX_CONTRACTS_CACHE is not None:
+        return _BINGX_CONTRACTS_CACHE
+    
+    url = "https://open-api.bingx.com/openApi/swap/v2/quote/contracts"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            res_json = json.loads(resp.read().decode("utf-8"))
+            if res_json.get("code") == 0 and "data" in res_json:
+                _BINGX_CONTRACTS_CACHE = res_json["data"]
+                return _BINGX_CONTRACTS_CACHE
+    except Exception as e:
+        print(f"⚠️ [BingX] 獲取官方合約列表 API 提示: {e}，將自動改用內建啟發式規格比對。")
+    
+    _BINGX_CONTRACTS_CACHE = []
+    return _BINGX_CONTRACTS_CACHE
+
 def get_bingx_symbol_candidates(symbol_input: str, asset_type: str = None):
     """
-    將輸入的幣種字串（如 BTC, BTCUSDT, BTC-USDT, SOXLUSDT）轉換為 BingX 可能的網址 Symbol 候選清單：
-    - 標準加密貨幣格式: BTC-USDT
-    - 美股/指數合約格式: NCSKSOXL2USD-USDT
+    智能解析 BingX 候選網址 Symbol：
+    1. 優先透過 BingX Swap 官方合約清單精準比對 (支援美股 NCSK、1000x 迷因幣、USDC 永續等)
+    2. 備援採用啟發式與雙向 Fallback 規則 (保證斷網或新增未收錄幣種時依然可用)
     """
-    sym = symbol_input.upper().strip()
+    raw = symbol_input.upper().strip()
+    sym_clean = raw.replace("/", "").replace("_", "").replace("-", "")
     
-    if sym.startswith("NCSK") and sym.endswith("-USDT"):
-        match = re.search(r'NCSK(.*?)2USD-USDT', sym)
-        base_unit = match.group(1) if match else sym.split("-")[0]
-        standard_coin_key = f"{base_unit}USDT"
-        return [sym], base_unit, standard_coin_key
+    # 判斷基礎幣種與計價幣種
+    if sym_clean.endswith("USDC"):
+        base_unit = sym_clean[:-4]
+        quote_unit = "USDC"
+    elif sym_clean.endswith("USDT"):
+        base_unit = sym_clean[:-4]
+        quote_unit = "USDT"
+    elif sym_clean.endswith("USD"):
+        base_unit = sym_clean[:-3]
+        quote_unit = "USDT"
+    else:
+        base_unit = sym_clean
+        quote_unit = "USDT"
 
-    if sym.endswith("_USDT"):
-        sym = sym.replace("_USDT", "-USDT")
-    elif sym.endswith("USDT") and "-" not in sym:
-        base = sym[:-4]
-        sym = f"{base}-USDT"
-    elif "-" not in sym:
-        sym = f"{sym}-USDT"
-
-    base_unit = sym.split("-")[0]
     standard_coin_key = f"{base_unit}USDT"
+    
+    # 若輸入本身已是 NCSK 格式 (例如 NCSKSOXL2USD-USDT)
+    if raw.startswith("NCSK") and raw.endswith("-USDT"):
+        match = re.search(r'NCSK(.*?)2USD-USDT', raw)
+        base_unit = match.group(1) if match else raw.split("-")[0]
+        standard_coin_key = f"{base_unit}USDT"
+        return [raw], base_unit, standard_coin_key
 
-    # 若未直接指定 asset_type，嘗試從 data/coin_types.json 讀取標的種類設定
+    # 嘗試從 data/coin_types.json 讀取標的種類設定 (若存在)
     if not asset_type:
         try:
             BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -50,16 +89,63 @@ def get_bingx_symbol_candidates(symbol_input: str, asset_type: str = None):
         except Exception:
             pass
 
-    if asset_type == 'stock':
-        candidates = [
-            f"NCSK{base_unit}2USD-USDT",
-            f"{base_unit}-USDT"
-        ]
+    candidates = []
+    contracts = get_bingx_contracts_data()
+
+    # 1. 精準比對官方合約
+    if contracts:
+        # A. 完全符合 symbol (移除連字符後)
+        for c in contracts:
+            c_sym = c.get("symbol", "").upper().replace("-", "").replace("_", "")
+            if sym_clean == c_sym:
+                candidates.append(c["symbol"])
+                break
+        
+        # B. 比對 displayName (例如 SOXL-USDT -> NCSKSOXL2USD-USDT)
+        if not candidates:
+            for c in contracts:
+                c_disp = c.get("displayName", "").upper().replace("-", "").replace("_", "")
+                if sym_clean == c_disp or f"{sym_clean}USDT" == c_disp:
+                    candidates.append(c["symbol"])
+                    break
+
+        # C. 比對 1000/1000000 迷因幣格式 (例如 PEPE -> 1000PEPE-USDT)
+        if not candidates:
+            for c in contracts:
+                c_sym = c.get("symbol", "").upper()
+                if c_sym in [f"1000{base_unit}-{quote_unit}", f"1000000{base_unit}-{quote_unit}", f"10000{base_unit}-{quote_unit}"]:
+                    candidates.append(c["symbol"])
+                    break
+
+        # D. 比對美股 NCSK 標的
+        if not candidates:
+            for c in contracts:
+                if c.get("symbol", "").upper() == f"NCSK{base_unit}2USD-{quote_unit}":
+                    candidates.append(c["symbol"])
+                    break
+
+    # 2. 啟發式規則備用擴展 (依標的類型排定優先順序)
+    is_stock = (asset_type == 'stock') or (base_unit in KNOWN_STOCKS)
+    if is_stock:
+        stock_cand = f"NCSK{base_unit}2USD-{quote_unit}"
+        if stock_cand not in candidates:
+            candidates.append(stock_cand)
+        std_cand = f"{base_unit}-{quote_unit}"
+        if std_cand not in candidates:
+            candidates.append(std_cand)
     else:
-        candidates = [
-            f"{base_unit}-USDT",
-            f"NCSK{base_unit}2USD-USDT"
-        ]
+        std_cand = f"{base_unit}-{quote_unit}"
+        if std_cand not in candidates:
+            candidates.append(std_cand)
+        # 迷因幣格式備援 (1000, 1000000)
+        m1000 = f"1000{base_unit}-{quote_unit}"
+        if m1000 not in candidates:
+            candidates.append(m1000)
+        # 美股 NCSK 備選
+        stock_cand = f"NCSK{base_unit}2USD-{quote_unit}"
+        if stock_cand not in candidates:
+            candidates.append(stock_cand)
+
     return candidates, base_unit, standard_coin_key
 
 def clean_range_upper_bound(val_str: str) -> str:
@@ -122,12 +208,26 @@ def parse_bingx_api_data(api_data: dict, base_unit: str):
 
     rows_data = []
     for idx, m in enumerate(m_tiers):
-        max_lev = 100
+        max_lev = None
         for r in r_tiers:
             if m["min"] >= r["min"] and m["min"] < r["max"]:
                 max_lev = int(r["lev"]) if r["lev"].is_integer() else r["lev"]
                 break
         
+        # 若超出現有檔位最高區間，依照最高檔位槓桿或 MMR 嚴格計算上限
+        if max_lev is None:
+            if r_tiers:
+                base_lev = r_tiers[-1]["lev"]
+                if m["mmr"] > 0:
+                    mmr_cap = int(1.0 / m["mmr"])
+                    max_lev = min(int(base_lev), mmr_cap)
+                else:
+                    max_lev = int(base_lev)
+            elif m["mmr"] > 0:
+                max_lev = int(1.0 / m["mmr"])
+            else:
+                max_lev = 100
+
         limit_str = f"{int(m['max']):,}" if m['max'].is_integer() else f"{m['max']:,}"
         mmr_str = f"{m['mmr'] * 100:.2f}%".rstrip('0').rstrip('.') if m['mmr'] * 100 % 1 != 0 else f"{int(m['mmr'] * 100)}%"
         if m['mmr'] * 100 < 1:
@@ -149,26 +249,29 @@ def parse_bingx_api_data(api_data: dict, base_unit: str):
 
 def parse_bingx_dom_table(page):
     """
-    備援：透過 DOM 表格解析 BingX 數據
+    備援：透過 DOM 表格解析 BingX 數據 (支援多表格與固定表頭拆分結構)
     """
     rows_data = []
-    table_element = page.locator("table").first
-    if table_element.count() > 0:
+    tables = page.locator("table").all()
+    for table_element in tables:
         tr_elements = table_element.locator("tbody tr, tr").all()
         for tr in tr_elements:
             tds = tr.locator("td").all()
             if len(tds) >= 4:
                 texts = [td.inner_text().strip() for td in tds]
-                if "檔位" in texts[0] or "Tier" in texts[0]:
+                # 若無數字則為表頭，自動跳過
+                if not re.search(r'\d+', texts[0]):
                     continue
-                tier = texts[0]
+                tier_raw = texts[0]
+                m = re.search(r'\d+', tier_raw)
+                tier_str = f"檔位 {m.group()}" if m else tier_raw
                 qty = clean_range_upper_bound(texts[1])
                 mmr = texts[2]
                 ded = texts[3]
                 
                 rows_data.append({
                     "交易所": "BingX",
-                    "檔位": tier,
+                    "檔位": tier_str,
                     "單位": "USDT",
                     "倉位分級": qty,
                     "最大槓桿": "-",
@@ -208,8 +311,45 @@ def crawl_bingx_position_tiers(coins=None, save_excel=True):
         excel_writer = pd.ExcelWriter(excel_filename, engine='openpyxl')
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        browser = None
+        for ch in ["chrome", "msedge"]:
+            try:
+                browser = p.chromium.launch(
+                    channel=ch,
+                    headless=True,
+                    args=["--disable-blink-features=AutomationControlled", "--no-sandbox"]
+                )
+                print(f"🌐 [BingX] 成功調用系統瀏覽器通道: {ch}")
+                break
+            except Exception:
+                pass
+
+        if not browser:
+            browser = p.chromium.launch(
+                headless=True,
+                args=["--disable-blink-features=AutomationControlled", "--no-sandbox"]
+            )
+
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            viewport={"width": 1600, "height": 950},
+            locale="zh-TW"
+        )
+        
+        page = context.new_page()
+        page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+
+        current_api_data = {}
+        def handle_response(response):
+            if "marginTiered" in response.url or "contract/marginTiered/get" in response.url:
+                try:
+                    res_json = response.json()
+                    if res_json.get("code") == 0 and "data" in res_json:
+                        current_api_data.update(res_json["data"])
+                except Exception:
+                    pass
+
+        page.on("response", handle_response)
         
         for coin in coins:
             candidates, base_unit, standard_coin_key = get_bingx_symbol_candidates(coin)
@@ -218,53 +358,51 @@ def crawl_bingx_position_tiers(coins=None, save_excel=True):
             for symbol_candidate in candidates:
                 url = f"https://bingx.com/zh-tc/tradeInfo/perpetual/maintenance-margin-ratio/{symbol_candidate}/"
                 print(f"\n--------------------------------------------------")
-                print(f"🔄 正在連線至 BingX 幣種 [{symbol_candidate}]: {url}")
+                print(f"🔄 [BingX] 連線幣種 [{standard_coin_key}] 候選網址: {url}")
 
-                page = context.new_page()
-                api_data = {}
+                current_api_data.clear()
 
-                def handle_response(response):
-                    nonlocal api_data
-                    if "contract/marginTiered/get" in response.url or "marginTiered" in response.url:
-                        try:
-                            res_json = response.json()
-                            if res_json.get("code") == 0 and "data" in res_json:
-                                api_data = res_json["data"]
-                        except Exception:
-                            pass
-
-                page.on("response", handle_response)
-                
                 try:
-                    page.goto(url, wait_until="networkidle", timeout=25000)
-                    page.wait_for_timeout(1500)
+                    # 使用 domcontentloaded 快速加載，大幅縮短載入等待時間
+                    page.goto(url, wait_until="domcontentloaded", timeout=12000)
 
-                    if api_data:
-                        df = parse_bingx_api_data(api_data, base_unit)
+                    # 輪詢等待 API 數據或 DOM 渲染完成 (最多 2.5 秒)
+                    for _ in range(15):
+                        if current_api_data:
+                            break
+                        page.wait_for_timeout(150)
+
+                    if current_api_data:
+                        df = parse_bingx_api_data(current_api_data, base_unit)
                         
                     if df.empty:
                         df = parse_bingx_dom_table(page)
 
                     if not df.empty:
-                        print(f"✅ 成功擷取 [{standard_coin_key}] (使用網址 {symbol_candidate}) 共 {len(df)} 檔 BingX 數據！")
-                        page.close()
+                        print(f"✅ [BingX] 成功擷取 [{standard_coin_key}] (使用網址 {symbol_candidate}) 共 {len(df)} 檔數據！")
                         break
                     else:
-                        print(f"⚠️ [{symbol_candidate}] 未取得數據，嘗試下一個候選網址格式...")
+                        print(f"⚠️ [BingX] [{symbol_candidate}] 未取得有效數據，嘗試下一個候選格式...")
 
                 except Exception as e:
-                    print(f"❌ 擷取 [{symbol_candidate}] 發生異常: {e}")
-                finally:
-                    if not page.is_closed():
-                        page.close()
+                    # 即使超時，若已截獲 API 數據則補救解析
+                    if current_api_data:
+                        df = parse_bingx_api_data(current_api_data, base_unit)
+                        if not df.empty:
+                            print(f"✅ [BingX] (超時補救成功) 擷取 [{standard_coin_key}] 共 {len(df)} 檔數據！")
+                            break
+                    print(f"❌ [BingX] 擷取 [{symbol_candidate}] 發生異常: {e}")
 
+            # 雙重相容儲存 key，保證 main.py 能以任何格式正確獲取
             results[standard_coin_key] = df
+            results[coin] = df
+            results[coin.upper()] = df
 
             if not df.empty and excel_writer:
                 sheet_name = standard_coin_key[:31]
                 df.to_excel(excel_writer, sheet_name=sheet_name, index=False)
             elif df.empty:
-                print(f"⚠️ [{standard_coin_key}] 所有人候選網址格式皆無有效 BingX 數據。")
+                print(f"⚠️ [BingX] [{standard_coin_key}] 所有候選網址格式皆無有效數據。")
 
         browser.close()
 

@@ -158,9 +158,27 @@ def crawl_mexc_position_tiers(coins=None, save_excel=True):
     print("\n🚀 正在啟用 Playwright 進行 MEXC 批次抓取...")
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = None
+        for ch in ["chrome", "msedge"]:
+            try:
+                browser = p.chromium.launch(
+                    channel=ch,
+                    headless=True,
+                    args=["--disable-blink-features=AutomationControlled", "--no-sandbox"]
+                )
+                print(f"🌐 [MEXC] 成功調用系統瀏覽器通道: {ch}")
+                break
+            except Exception:
+                pass
+
+        if not browser:
+            browser = p.chromium.launch(
+                headless=True,
+                args=["--disable-blink-features=AutomationControlled", "--no-sandbox"]
+            )
+
         context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
             viewport={'width': 1280, 'height': 800}
         )
 

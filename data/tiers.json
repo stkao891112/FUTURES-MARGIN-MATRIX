@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-08-19 13:04:49",
+  "_last_updated": "2026-08-28 09:10:57",
   "BTCUSDT": {
     "Binance": [
       {
@@ -176,143 +176,143 @@
     "Bybit": [
       {
         "tier": 1,
-        "mmr": 0.005,
+        "mmr": 0.0033,
         "deduction": 0.0,
+        "maxLev": 150.0,
+        "limit": 300000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005,
+        "deduction": 510.0,
         "maxLev": 100.0,
         "limit": 2000000.0
       },
       {
-        "tier": 2,
+        "tier": 3,
         "mmr": 0.005600000000000001,
-        "deduction": 1200.0,
+        "deduction": 1710.0,
         "maxLev": 90.0,
         "limit": 2600000.0
       },
       {
-        "tier": 3,
+        "tier": 4,
         "mmr": 0.0063,
-        "deduction": 3020.0,
+        "deduction": 3530.0,
         "maxLev": 80.0,
         "limit": 3200000.0
       },
       {
-        "tier": 4,
+        "tier": 5,
         "mmr": 0.0067,
-        "deduction": 4300.0,
+        "deduction": 4810.0,
         "maxLev": 75.0,
         "limit": 3800000.0
       },
       {
-        "tier": 5,
+        "tier": 6,
         "mmr": 0.0070999999999999995,
-        "deduction": 5820.0,
+        "deduction": 6330.0,
         "maxLev": 70.0,
         "limit": 4400000.0
       },
       {
-        "tier": 6,
+        "tier": 7,
         "mmr": 0.0077,
-        "deduction": 8460.0,
+        "deduction": 8970.0,
         "maxLev": 65.0,
         "limit": 5000000.0
       },
       {
-        "tier": 7,
+        "tier": 8,
         "mmr": 0.0091,
-        "deduction": 15460.0,
+        "deduction": 15970.0,
         "maxLev": 55.0,
         "limit": 5600000.0
       },
       {
-        "tier": 8,
+        "tier": 9,
         "mmr": 0.01,
-        "deduction": 20500.0,
+        "deduction": 21010.0,
         "maxLev": 50.0,
         "limit": 8500000.0
       },
       {
-        "tier": 9,
+        "tier": 10,
         "mmr": 0.013000000000000001,
-        "deduction": 46000.0,
+        "deduction": 46510.0,
         "maxLev": 45.0,
         "limit": 10000000.0
       },
       {
-        "tier": 10,
+        "tier": 11,
         "mmr": 0.015,
-        "deduction": 66000.0,
+        "deduction": 66510.0,
         "maxLev": 40.0,
         "limit": 14000000.0
       },
       {
-        "tier": 11,
+        "tier": 12,
         "mmr": 0.016,
-        "deduction": 80000.0,
+        "deduction": 80510.0,
         "maxLev": 35.0,
         "limit": 20000000.0
       },
       {
-        "tier": 12,
+        "tier": 13,
         "mmr": 0.02,
-        "deduction": 160000.0,
+        "deduction": 160510.0,
         "maxLev": 30.0,
         "limit": 28000000.0
       },
       {
-        "tier": 13,
+        "tier": 14,
         "mmr": 0.025,
-        "deduction": 300000.0,
+        "deduction": 300510.0,
         "maxLev": 25.0,
         "limit": 38000000.0
       },
       {
-        "tier": 14,
+        "tier": 15,
         "mmr": 0.028999999999999998,
-        "deduction": 452000.0,
+        "deduction": 452510.0,
         "maxLev": 20.0,
         "limit": 50000000.0
       },
       {
-        "tier": 15,
+        "tier": 16,
         "mmr": 0.03,
-        "deduction": 502000.0,
+        "deduction": 502510.0,
         "maxLev": 19.0,
         "limit": 55000000.0
       },
       {
-        "tier": 16,
+        "tier": 17,
         "mmr": 0.035,
-        "deduction": 777000.0,
+        "deduction": 777510.0,
         "maxLev": 18.0,
         "limit": 60000000.0
       },
       {
-        "tier": 17,
+        "tier": 18,
         "mmr": 0.036000000000000004,
-        "deduction": 837000.0,
+        "deduction": 837510.0,
         "maxLev": 17.0,
         "limit": 65000000.0
       },
       {
-        "tier": 18,
+        "tier": 19,
         "mmr": 0.038,
-        "deduction": 967000.0,
+        "deduction": 967510.0,
         "maxLev": 16.0,
         "limit": 70000000.0
       },
       {
-        "tier": 19,
+        "tier": 20,
         "mmr": 0.04,
-        "deduction": 1107000.0,
+        "deduction": 1107510.0,
         "maxLev": 15.0,
         "limit": 75000000.0
-      },
-      {
-        "tier": 20,
-        "mmr": 0.045,
-        "deduction": 1482000.0,
-        "maxLev": 14.0,
-        "limit": 80000000.0
       }
     ],
     "OKX": [
@@ -901,143 +901,143 @@
     "Bybit": [
       {
         "tier": 1,
-        "mmr": 0.005,
+        "mmr": 0.0033,
         "deduction": 0.0,
+        "maxLev": 150.0,
+        "limit": 300000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.005,
+        "deduction": 510.0,
         "maxLev": 100.0,
         "limit": 900000.0
       },
       {
-        "tier": 2,
+        "tier": 3,
         "mmr": 0.005600000000000001,
-        "deduction": 540.0,
+        "deduction": 1050.0,
         "maxLev": 90.0,
         "limit": 1200000.0
       },
       {
-        "tier": 3,
+        "tier": 4,
         "mmr": 0.0063,
-        "deduction": 1380.0,
+        "deduction": 1890.0,
         "maxLev": 80.0,
         "limit": 1500000.0
       },
       {
-        "tier": 4,
+        "tier": 5,
         "mmr": 0.0067,
-        "deduction": 1980.0,
+        "deduction": 2490.0,
         "maxLev": 75.0,
         "limit": 1800000.0
       },
       {
-        "tier": 5,
+        "tier": 6,
         "mmr": 0.0070999999999999995,
-        "deduction": 2700.0,
+        "deduction": 3210.0,
         "maxLev": 70.0,
         "limit": 2400000.0
       },
       {
-        "tier": 6,
+        "tier": 7,
         "mmr": 0.0077,
-        "deduction": 4140.0,
+        "deduction": 4650.0,
         "maxLev": 65.0,
         "limit": 3200000.0
       },
       {
-        "tier": 7,
+        "tier": 8,
         "mmr": 0.0091,
-        "deduction": 8620.0,
+        "deduction": 9130.0,
         "maxLev": 55.0,
         "limit": 4000000.0
       },
       {
-        "tier": 8,
+        "tier": 9,
         "mmr": 0.01,
-        "deduction": 12220.0,
+        "deduction": 12730.0,
         "maxLev": 50.0,
         "limit": 5000000.0
       },
       {
-        "tier": 9,
+        "tier": 10,
         "mmr": 0.012,
-        "deduction": 22220.0,
+        "deduction": 22730.0,
         "maxLev": 45.0,
         "limit": 8000000.0
       },
       {
-        "tier": 10,
+        "tier": 11,
         "mmr": 0.013000000000000001,
-        "deduction": 30220.0,
+        "deduction": 30730.0,
         "maxLev": 40.0,
         "limit": 12000000.0
       },
       {
-        "tier": 11,
+        "tier": 12,
         "mmr": 0.013999999999999999,
-        "deduction": 42220.0,
+        "deduction": 42730.0,
         "maxLev": 35.0,
         "limit": 16000000.0
       },
       {
-        "tier": 12,
+        "tier": 13,
         "mmr": 0.015,
-        "deduction": 58220.0,
+        "deduction": 58730.0,
         "maxLev": 30.0,
         "limit": 22000000.0
       },
       {
-        "tier": 13,
+        "tier": 14,
         "mmr": 0.02,
-        "deduction": 168220.0,
+        "deduction": 168730.0,
         "maxLev": 25.0,
         "limit": 28000000.0
       },
       {
-        "tier": 14,
+        "tier": 15,
         "mmr": 0.025,
-        "deduction": 308220.0,
+        "deduction": 308730.0,
         "maxLev": 20.0,
         "limit": 32000000.0
       },
       {
-        "tier": 15,
+        "tier": 16,
         "mmr": 0.03,
-        "deduction": 468220.0,
+        "deduction": 468730.0,
         "maxLev": 19.0,
         "limit": 34000000.0
       },
       {
-        "tier": 16,
+        "tier": 17,
         "mmr": 0.033,
-        "deduction": 570220.0,
+        "deduction": 570730.0,
         "maxLev": 18.0,
         "limit": 36000000.0
       },
       {
-        "tier": 17,
+        "tier": 18,
         "mmr": 0.035,
-        "deduction": 642220.0,
+        "deduction": 642730.0,
         "maxLev": 17.0,
         "limit": 38000000.0
       },
       {
-        "tier": 18,
+        "tier": 19,
         "mmr": 0.038,
-        "deduction": 756220.0,
+        "deduction": 756730.0,
         "maxLev": 16.0,
         "limit": 40000000.0
       },
       {
-        "tier": 19,
+        "tier": 20,
         "mmr": 0.039,
-        "deduction": 796220.0,
+        "deduction": 796730.0,
         "maxLev": 15.0,
         "limit": 42000000.0
-      },
-      {
-        "tier": 20,
-        "mmr": 0.042,
-        "deduction": 922220.0,
-        "maxLev": 14.0,
-        "limit": 44000000.0
       }
     ],
     "OKX": [
@@ -1252,35 +1252,35 @@
         "tier": 4,
         "mmr": 0.0077,
         "deduction": 12466.0,
-        "maxLev": 62.0,
+        "maxLev": 50.0,
         "limit": 3200000.0
       },
       {
         "tier": 5,
         "mmr": 0.0091,
         "deduction": 16946.0,
-        "maxLev": 62.0,
+        "maxLev": 50.0,
         "limit": 4000000.0
       },
       {
         "tier": 6,
         "mmr": 0.01,
         "deduction": 20546.0,
-        "maxLev": 41.0,
+        "maxLev": 50.0,
         "limit": 5000000.0
       },
       {
         "tier": 7,
         "mmr": 0.012,
         "deduction": 30546.0,
-        "maxLev": 25.0,
+        "maxLev": 50.0,
         "limit": 8000000.0
       },
       {
         "tier": 8,
         "mmr": 0.013000000000000001,
         "deduction": 38546.0,
-        "maxLev": 25.0,
+        "maxLev": 50.0,
         "limit": 12000000.0
       },
       {
@@ -1343,35 +1343,35 @@
         "tier": 17,
         "mmr": 0.039,
         "deduction": 804546.0,
-        "maxLev": 25.0,
+        "maxLev": 20.0,
         "limit": 42000000.0
       },
       {
         "tier": 18,
         "mmr": 0.042,
         "deduction": 930546.0,
-        "maxLev": 25.0,
+        "maxLev": 20.0,
         "limit": 44000000.0
       },
       {
         "tier": 19,
         "mmr": 0.045,
         "deduction": 1062546.0,
-        "maxLev": 25.0,
+        "maxLev": 20.0,
         "limit": 46000000.0
       },
       {
         "tier": 20,
         "mmr": 0.05,
         "deduction": 1292546.0,
-        "maxLev": 25.0,
+        "maxLev": 20.0,
         "limit": 150000000.0
       },
       {
         "tier": 21,
         "mmr": 0.125,
         "deduction": 12542546.0,
-        "maxLev": 5.0,
+        "maxLev": 7.0,
         "limit": 400000000.0
       },
       {
@@ -1892,7 +1892,7 @@
         "mmr": 0.004,
         "deduction": 0.0,
         "maxLev": 200.0,
-        "limitQty": 160000.0
+        "limitQty": 118500.0
       }
     ],
     "BingX": [
@@ -1908,61 +1908,54 @@
         "mmr": 0.0025,
         "deduction": 176.0,
         "maxLev": 300.0,
-        "limit": 13000000.0
+        "limit": 17000000.0
       },
       {
         "tier": 3,
-        "mmr": 0.02,
-        "deduction": 227676.0,
-        "maxLev": 15.0,
-        "limit": 15000000.0
-      },
-      {
-        "tier": 4,
         "mmr": 0.04,
-        "deduction": 527676.0,
+        "deduction": 637676.0,
         "maxLev": 15.0,
         "limit": 30000000.0
       },
       {
-        "tier": 5,
+        "tier": 4,
         "mmr": 0.08,
-        "deduction": 1727676.0,
+        "deduction": 1837676.0,
         "maxLev": 10.0,
         "limit": 60000000.0
       },
       {
-        "tier": 6,
+        "tier": 5,
         "mmr": 0.1,
-        "deduction": 2927676.0,
+        "deduction": 3037676.0,
         "maxLev": 5.0,
         "limit": 80000000.0
       },
       {
-        "tier": 7,
+        "tier": 6,
         "mmr": 0.1333,
-        "deduction": 5591676.0,
+        "deduction": 5701676.0,
         "maxLev": 4.0,
         "limit": 100000000.0
       },
       {
-        "tier": 8,
+        "tier": 7,
         "mmr": 0.2,
-        "deduction": 12261676.0,
+        "deduction": 12371676.0,
         "maxLev": 2.0,
         "limit": 150000000.0
       },
       {
-        "tier": 9,
+        "tier": 8,
         "mmr": 0.4,
-        "deduction": 42261676.0,
+        "deduction": 42371676.0,
         "maxLev": 2.0,
         "limit": 300000000.0
       },
       {
-        "tier": 10,
+        "tier": 9,
         "mmr": 0.5,
-        "deduction": 72261676.0,
+        "deduction": 72371676.0,
         "maxLev": 1.0,
         "limit": 400000000.0
       }
@@ -3062,7 +3055,7 @@
         "mmr": 0.004,
         "deduction": 0.0,
         "maxLev": 200.0,
-        "limitQty": 13500000.0
+        "limitQty": 10500000.0
       }
     ],
     "BingX": [
@@ -3078,48 +3071,41 @@
         "mmr": 0.0025,
         "deduction": 67.2,
         "maxLev": 300.0,
-        "limit": 2900000.0
+        "limit": 3500000.0
       },
       {
         "tier": 3,
-        "mmr": 0.025,
-        "deduction": 65317.2,
-        "maxLev": 10.0,
-        "limit": 3000000.0
-      },
-      {
-        "tier": 4,
         "mmr": 0.05,
-        "deduction": 140317.2,
+        "deduction": 166317.2,
         "maxLev": 10.0,
         "limit": 15000000.0
       },
       {
-        "tier": 5,
+        "tier": 4,
         "mmr": 0.133,
-        "deduction": 1385317.2,
+        "deduction": 1411317.2,
         "maxLev": 5.0,
         "limit": 20000000.0
       },
       {
-        "tier": 6,
+        "tier": 5,
         "mmr": 0.2,
-        "deduction": 2725317.2,
-        "maxLev": 5.0,
+        "deduction": 2751317.2,
+        "maxLev": 4.0,
         "limit": 30000000.0
       },
       {
-        "tier": 7,
+        "tier": 6,
         "mmr": 0.4,
-        "deduction": 8725317.2,
-        "maxLev": 3.0,
+        "deduction": 8751317.2,
+        "maxLev": 2.0,
         "limit": 50000000.0
       },
       {
-        "tier": 8,
+        "tier": 7,
         "mmr": 0.5,
-        "deduction": 13725317.2,
-        "maxLev": 100.0,
+        "deduction": 13751317.2,
+        "maxLev": 1.0,
         "limit": 100000000.0
       }
     ],
@@ -3633,7 +3619,7 @@
         "mmr": 0.005,
         "deduction": 0.0,
         "maxLev": 100.0,
-        "limitQty": 41000.0
+        "limitQty": 26970.0
       }
     ],
     "BingX": [
@@ -3648,56 +3634,56 @@
         "tier": 2,
         "mmr": 0.05,
         "deduction": 117000.0,
-        "maxLev": 10.0,
+        "maxLev": 14.0,
         "limit": 5000000.0
       },
       {
         "tier": 3,
         "mmr": 0.07139999999999999,
         "deduction": 224000.0,
-        "maxLev": 5.0,
+        "maxLev": 10.0,
         "limit": 27730000.0
       },
       {
         "tier": 4,
         "mmr": 0.0833,
         "deduction": 553987.0,
-        "maxLev": 100.0,
+        "maxLev": 2.0,
         "limit": 55300000.0
       },
       {
         "tier": 5,
         "mmr": 0.1,
         "deduction": 1477497.0,
-        "maxLev": 100.0,
+        "maxLev": 2.0,
         "limit": 58040000.0
       },
       {
         "tier": 6,
         "mmr": 0.125,
         "deduction": 2928497.0,
-        "maxLev": 100.0,
+        "maxLev": 2.0,
         "limit": 59540000.0
       },
       {
         "tier": 7,
         "mmr": 0.16670000000000001,
         "deduction": 5411315.0,
-        "maxLev": 100.0,
+        "maxLev": 2.0,
         "limit": 112260000.0
       },
       {
         "tier": 8,
         "mmr": 0.25,
         "deduction": 14762573.0,
-        "maxLev": 100.0,
+        "maxLev": 2.0,
         "limit": 116760000.0
       },
       {
         "tier": 9,
         "mmr": 0.5,
         "deduction": 43952573.0,
-        "maxLev": 100.0,
+        "maxLev": 2.0,
         "limit": 117440000.0
       }
     ],
@@ -4246,7 +4232,7 @@
         "mmr": 0.02,
         "deduction": 0.0,
         "maxLev": 25.0,
-        "limitQty": 10800000.0
+        "limitQty": 8535000.0
       }
     ],
     "BingX": [
@@ -4261,55 +4247,55 @@
         "tier": 2,
         "mmr": 0.0025,
         "deduction": 144.0,
-        "maxLev": 200.0,
-        "limit": 2700000.0
+        "maxLev": 300.0,
+        "limit": 3400000.0
       },
       {
         "tier": 3,
         "mmr": 0.02,
-        "deduction": 47394.0,
+        "deduction": 59644.0,
         "maxLev": 25.0,
-        "limit": 11000000.0
+        "limit": 15000000.0
       },
       {
         "tier": 4,
         "mmr": 0.07139999999999999,
-        "deduction": 612794.0,
-        "maxLev": 25.0,
+        "deduction": 830644.0,
+        "maxLev": 15.0,
         "limit": 45000000.0
       },
       {
         "tier": 5,
         "mmr": 0.1,
-        "deduction": 1899794.0,
+        "deduction": 2117644.0,
         "maxLev": 6.0,
         "limit": 60000000.0
       },
       {
         "tier": 6,
         "mmr": 0.125,
-        "deduction": 3399794.0,
+        "deduction": 3617644.0,
         "maxLev": 4.0,
         "limit": 80000000.0
       },
       {
         "tier": 7,
         "mmr": 0.16670000000000001,
-        "deduction": 6735794.0,
+        "deduction": 6953644.0,
         "maxLev": 3.0,
         "limit": 100000000.0
       },
       {
         "tier": 8,
         "mmr": 0.25,
-        "deduction": 15065794.0,
+        "deduction": 15283644.0,
         "maxLev": 2.0,
         "limit": 250000000.0
       },
       {
         "tier": 9,
         "mmr": 0.5,
-        "deduction": 77565794.0,
+        "deduction": 77783644.0,
         "maxLev": 1.0,
         "limit": 300000000.0
       }
@@ -4407,57 +4393,71 @@
     "Binance": [
       {
         "tier": 1,
-        "mmr": 0.025,
+        "mmr": 0.01,
         "deduction": 0.0,
-        "maxLev": 20.0,
-        "limit": 100000.0
+        "maxLev": 50.0,
+        "limit": 50000.0
       },
       {
         "tier": 2,
-        "mmr": 0.0333,
-        "deduction": 830.0,
-        "maxLev": 15.0,
-        "limit": 500000.0
+        "mmr": 0.02,
+        "deduction": 500.0,
+        "maxLev": 25.0,
+        "limit": 150000.0
       },
       {
         "tier": 3,
-        "mmr": 0.05,
-        "deduction": 9180.0,
-        "maxLev": 10.0,
-        "limit": 2000000.0
+        "mmr": 0.025,
+        "deduction": 1250.0,
+        "maxLev": 20.0,
+        "limit": 300000.0
       },
       {
         "tier": 4,
-        "mmr": 0.1,
-        "deduction": 109180.0,
-        "maxLev": 5.0,
-        "limit": 5000000.0
+        "mmr": 0.0333,
+        "deduction": 3740.0,
+        "maxLev": 15.0,
+        "limit": 750000.0
       },
       {
         "tier": 5,
-        "mmr": 0.125,
-        "deduction": 234180.0,
-        "maxLev": 4.0,
-        "limit": 10000000.0
+        "mmr": 0.05,
+        "deduction": 16265.0,
+        "maxLev": 10.0,
+        "limit": 3000000.0
       },
       {
         "tier": 6,
+        "mmr": 0.1,
+        "deduction": 166265.0,
+        "maxLev": 5.0,
+        "limit": 10000000.0
+      },
+      {
+        "tier": 7,
+        "mmr": 0.125,
+        "deduction": 416265.0,
+        "maxLev": 4.0,
+        "limit": 15000000.0
+      },
+      {
+        "tier": 8,
         "mmr": 0.16670000000000001,
-        "deduction": 651180.0,
+        "deduction": 1041765.0,
         "maxLev": 3.0,
         "limit": 25000000.0
       },
       {
-        "tier": 7,
+        "tier": 9,
         "mmr": 0.25,
-        "deduction": 2733680.0,
+        "deduction": 3124265.0,
         "maxLev": 2.0,
         "limit": 50000000.0
       },
       {
-        "tier": 8,
+        "tier": 10,
         "mmr": 0.5,
-        "deduction": 15233680.0,
+        "deduction": 15624265.0,
         "maxLev": 1.0,
         "limit": 100000000.0
       }
@@ -4489,45 +4489,38 @@
         "mmr": 0.05,
         "deduction": 0.0,
         "maxLev": 10.0,
-        "limit": 1000000.0
+        "limit": 3000000.0
       },
       {
         "tier": 5,
-        "mmr": 0.07,
-        "deduction": 0.0,
-        "maxLev": 8.0,
-        "limit": 2000000.0
-      },
-      {
-        "tier": 6,
         "mmr": 0.12,
         "deduction": 0.0,
         "maxLev": 5.0,
-        "limit": 5000000.0
-      },
-      {
-        "tier": 7,
-        "mmr": 0.15,
-        "deduction": 0.0,
-        "maxLev": 4.0,
         "limit": 10000000.0
       },
       {
-        "tier": 8,
+        "tier": 6,
+        "mmr": 0.15,
+        "deduction": 0.0,
+        "maxLev": 4.0,
+        "limit": 15000000.0
+      },
+      {
+        "tier": 7,
         "mmr": 0.2,
         "deduction": 0.0,
         "maxLev": 3.0,
         "limit": 25000000.0
       },
       {
-        "tier": 9,
+        "tier": 8,
         "mmr": 0.3,
         "deduction": 0.0,
         "maxLev": 2.0,
         "limit": 50000000.0
       },
       {
-        "tier": 10,
+        "tier": 9,
         "mmr": 0.6,
         "deduction": 0.0,
         "maxLev": 1.0,
@@ -4875,55 +4868,55 @@
         "mmr": 0.01,
         "deduction": 255.0,
         "maxLev": 100.0,
-        "limit": 65000.0
+        "limit": 92000.0
       },
       {
         "tier": 3,
         "mmr": 0.0333,
-        "deduction": 1769.5,
-        "maxLev": 50.0,
+        "deduction": 2398.6,
+        "maxLev": 25.0,
         "limit": 500000.0
       },
       {
         "tier": 4,
         "mmr": 0.05,
-        "deduction": 10119.5,
+        "deduction": 10748.6,
         "maxLev": 15.0,
         "limit": 2000000.0
       },
       {
         "tier": 5,
         "mmr": 0.1,
-        "deduction": 110119.5,
+        "deduction": 110748.6,
         "maxLev": 10.0,
         "limit": 5000000.0
       },
       {
         "tier": 6,
         "mmr": 0.125,
-        "deduction": 235119.5,
-        "maxLev": 4.0,
+        "deduction": 235748.6,
+        "maxLev": 5.0,
         "limit": 10000000.0
       },
       {
         "tier": 7,
         "mmr": 0.16670000000000001,
-        "deduction": 652119.5,
-        "maxLev": 3.0,
+        "deduction": 652748.6,
+        "maxLev": 4.0,
         "limit": 25000000.0
       },
       {
         "tier": 8,
         "mmr": 0.25,
-        "deduction": 2734619.5,
-        "maxLev": 1.0,
+        "deduction": 2735248.6,
+        "maxLev": 2.0,
         "limit": 50000000.0
       },
       {
         "tier": 9,
         "mmr": 0.5,
-        "deduction": 15234619.5,
-        "maxLev": 100.0,
+        "deduction": 15235248.6,
+        "maxLev": 1.0,
         "limit": 100000000.0
       }
     ],
@@ -4934,6 +4927,13 @@
         "deduction": 0.0,
         "maxLev": 50.0,
         "limit": 2000000.0
+      },
+      {
+        "tier": 2,
+        "mmr": 0.1,
+        "deduction": 180000.0,
+        "maxLev": 5.0,
+        "limit": 10000000.0
       }
     ],
     "Hyperliquid": [
@@ -5424,21 +5424,21 @@
         "tier": 5,
         "mmr": 0.16670000000000001,
         "deduction": 786520.0,
-        "maxLev": 100.0,
+        "maxLev": 5.0,
         "limit": 25000000.0
       },
       {
         "tier": 6,
         "mmr": 0.25,
         "deduction": 2869020.0,
-        "maxLev": 100.0,
+        "maxLev": 4.0,
         "limit": 50000000.0
       },
       {
         "tier": 7,
         "mmr": 0.5,
         "deduction": 15369020.0,
-        "maxLev": 100.0,
+        "maxLev": 2.0,
         "limit": 200000000.0
       }
     ],

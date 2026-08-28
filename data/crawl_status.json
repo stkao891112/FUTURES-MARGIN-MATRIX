@@ -2,334 +2,334 @@
   "BTCUSDT": {
     "BingX": {
       "status": "success",
-      "count": 106,
-      "updated_at": "13:04:19"
+      "count": 104,
+      "updated_at": "09:09:57"
     },
     "OKX": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:23"
+      "updated_at": "09:10:31"
     },
     "Bitget": {
       "status": "success",
-      "count": 96,
-      "updated_at": "13:04:27"
+      "count": 95,
+      "updated_at": "09:10:35"
     },
     "Bybit": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:31"
+      "updated_at": "09:10:38"
     },
     "MEXC": {
       "status": "success",
       "count": 32,
-      "updated_at": "13:04:42"
+      "updated_at": "09:10:50"
     },
     "Binance (幣安)": {
       "status": "success",
-      "count": 93,
-      "updated_at": "13:04:45"
+      "count": 95,
+      "updated_at": "09:10:52"
     },
     "Pionex": {
       "status": "success",
-      "count": 69,
-      "updated_at": "13:04:49"
+      "count": 70,
+      "updated_at": "09:10:57"
     }
   },
   "ETHUSDT": {
     "BingX": {
       "status": "success",
-      "count": 106,
-      "updated_at": "13:04:19"
+      "count": 104,
+      "updated_at": "09:09:57"
     },
     "OKX": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:23"
+      "updated_at": "09:10:31"
     },
     "Bitget": {
       "status": "success",
-      "count": 96,
-      "updated_at": "13:04:27"
+      "count": 95,
+      "updated_at": "09:10:35"
     },
     "Bybit": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:31"
+      "updated_at": "09:10:38"
     },
     "MEXC": {
       "status": "success",
       "count": 32,
-      "updated_at": "13:04:42"
+      "updated_at": "09:10:50"
     },
     "Binance (幣安)": {
       "status": "success",
-      "count": 93,
-      "updated_at": "13:04:45"
+      "count": 95,
+      "updated_at": "09:10:52"
     },
     "Pionex": {
       "status": "success",
-      "count": 69,
-      "updated_at": "13:04:49"
+      "count": 70,
+      "updated_at": "09:10:57"
     }
   },
   "SOLUSDT": {
     "BingX": {
       "status": "success",
-      "count": 106,
-      "updated_at": "13:04:19"
+      "count": 104,
+      "updated_at": "09:09:57"
     },
     "OKX": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:23"
+      "updated_at": "09:10:31"
     },
     "Bitget": {
       "status": "success",
-      "count": 96,
-      "updated_at": "13:04:27"
+      "count": 95,
+      "updated_at": "09:10:35"
     },
     "Bybit": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:31"
+      "updated_at": "09:10:38"
     },
     "MEXC": {
       "status": "success",
       "count": 32,
-      "updated_at": "13:04:42"
+      "updated_at": "09:10:50"
     },
     "Binance (幣安)": {
       "status": "success",
-      "count": 93,
-      "updated_at": "13:04:45"
+      "count": 95,
+      "updated_at": "09:10:52"
     },
     "Pionex": {
       "status": "success",
-      "count": 69,
-      "updated_at": "13:04:49"
+      "count": 70,
+      "updated_at": "09:10:57"
     }
   },
   "HYPEUSDT": {
     "BingX": {
       "status": "success",
-      "count": 106,
-      "updated_at": "13:04:19"
+      "count": 104,
+      "updated_at": "09:09:57"
     },
     "OKX": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:23"
+      "updated_at": "09:10:31"
     },
     "Bitget": {
       "status": "success",
-      "count": 96,
-      "updated_at": "13:04:27"
+      "count": 95,
+      "updated_at": "09:10:35"
     },
     "Bybit": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:31"
+      "updated_at": "09:10:38"
     },
     "MEXC": {
       "status": "success",
       "count": 32,
-      "updated_at": "13:04:42"
+      "updated_at": "09:10:50"
     },
     "Binance (幣安)": {
       "status": "success",
-      "count": 93,
-      "updated_at": "13:04:45"
+      "count": 95,
+      "updated_at": "09:10:52"
     },
     "Pionex": {
       "status": "success",
-      "count": 69,
-      "updated_at": "13:04:49"
+      "count": 70,
+      "updated_at": "09:10:57"
     }
   },
   "DOGEUSDT": {
     "BingX": {
       "status": "success",
-      "count": 106,
-      "updated_at": "13:04:19"
+      "count": 104,
+      "updated_at": "09:09:57"
     },
     "OKX": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:23"
+      "updated_at": "09:10:31"
     },
     "Bitget": {
       "status": "success",
-      "count": 96,
-      "updated_at": "13:04:27"
+      "count": 95,
+      "updated_at": "09:10:35"
     },
     "Bybit": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:31"
+      "updated_at": "09:10:38"
     },
     "MEXC": {
       "status": "success",
       "count": 32,
-      "updated_at": "13:04:42"
+      "updated_at": "09:10:50"
     },
     "Binance (幣安)": {
       "status": "success",
-      "count": 93,
-      "updated_at": "13:04:45"
+      "count": 95,
+      "updated_at": "09:10:52"
     },
     "Pionex": {
       "status": "success",
-      "count": 69,
-      "updated_at": "13:04:49"
+      "count": 70,
+      "updated_at": "09:10:57"
     }
   },
   "XRPUSDT": {
     "BingX": {
       "status": "success",
-      "count": 106,
-      "updated_at": "13:04:19"
+      "count": 104,
+      "updated_at": "09:09:57"
     },
     "OKX": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:23"
+      "updated_at": "09:10:31"
     },
     "Bitget": {
       "status": "success",
-      "count": 96,
-      "updated_at": "13:04:27"
+      "count": 95,
+      "updated_at": "09:10:35"
     },
     "Bybit": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:31"
+      "updated_at": "09:10:38"
     },
     "MEXC": {
       "status": "success",
       "count": 32,
-      "updated_at": "13:04:42"
+      "updated_at": "09:10:50"
     },
     "Binance (幣安)": {
       "status": "success",
-      "count": 93,
-      "updated_at": "13:04:45"
+      "count": 95,
+      "updated_at": "09:10:52"
     },
     "Pionex": {
       "status": "success",
-      "count": 69,
-      "updated_at": "13:04:49"
+      "count": 70,
+      "updated_at": "09:10:57"
     }
   },
   "ADAUSDT": {
     "BingX": {
       "status": "success",
-      "count": 106,
-      "updated_at": "13:04:19"
+      "count": 104,
+      "updated_at": "09:09:57"
     },
     "OKX": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:23"
+      "updated_at": "09:10:31"
     },
     "Bitget": {
       "status": "success",
-      "count": 96,
-      "updated_at": "13:04:27"
+      "count": 95,
+      "updated_at": "09:10:35"
     },
     "Bybit": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:31"
+      "updated_at": "09:10:38"
     },
     "MEXC": {
       "status": "success",
       "count": 32,
-      "updated_at": "13:04:42"
+      "updated_at": "09:10:50"
     },
     "Binance (幣安)": {
       "status": "success",
-      "count": 93,
-      "updated_at": "13:04:45"
+      "count": 95,
+      "updated_at": "09:10:52"
     },
     "Pionex": {
       "status": "success",
-      "count": 69,
-      "updated_at": "13:04:49"
+      "count": 70,
+      "updated_at": "09:10:57"
     }
   },
   "SOXLUSDT": {
     "BingX": {
       "status": "success",
-      "count": 106,
-      "updated_at": "13:04:19"
+      "count": 104,
+      "updated_at": "09:09:57"
     },
     "OKX": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:23"
+      "updated_at": "09:10:31"
     },
     "Bitget": {
       "status": "success",
-      "count": 96,
-      "updated_at": "13:04:27"
+      "count": 95,
+      "updated_at": "09:10:35"
     },
     "Bybit": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:31"
+      "updated_at": "09:10:38"
     },
     "MEXC": {
       "status": "success",
       "count": 32,
-      "updated_at": "13:04:42"
+      "updated_at": "09:10:50"
     },
     "Binance (幣安)": {
       "status": "success",
-      "count": 93,
-      "updated_at": "13:04:45"
+      "count": 95,
+      "updated_at": "09:10:52"
     },
     "Pionex": {
       "status": "success",
-      "count": 69,
-      "updated_at": "13:04:49"
+      "count": 70,
+      "updated_at": "09:10:57"
     }
   },
   "MSTRUSDT": {
     "BingX": {
       "status": "success",
-      "count": 106,
-      "updated_at": "13:04:19"
+      "count": 104,
+      "updated_at": "09:09:57"
     },
     "OKX": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:23"
+      "updated_at": "09:10:31"
     },
     "Bitget": {
       "status": "success",
-      "count": 96,
-      "updated_at": "13:04:27"
+      "count": 95,
+      "updated_at": "09:10:35"
     },
     "Bybit": {
       "status": "success",
       "count": 180,
-      "updated_at": "13:04:31"
+      "updated_at": "09:10:38"
     },
     "MEXC": {
       "status": "success",
       "count": 32,
-      "updated_at": "13:04:42"
+      "updated_at": "09:10:50"
     },
     "Binance (幣安)": {
       "status": "success",
-      "count": 93,
-      "updated_at": "13:04:45"
+      "count": 95,
+      "updated_at": "09:10:52"
     },
     "Pionex": {
       "status": "success",
-      "count": 69,
-      "updated_at": "13:04:49"
+      "count": 70,
+      "updated_at": "09:10:57"
     }
   }
 }
